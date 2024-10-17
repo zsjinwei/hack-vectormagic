@@ -7127,7 +7127,7 @@
         //   'href',
         //   P.shareUrl(e.id, e.secret)
         // );
-        a.App.Sidebar.ReviewResult.Download.$().attr('href', '#');
+        r.App.Sidebar.ReviewResult.Download.$().attr('href', '#');
       document
         .getElementById('App-Sidebar-ReviewResult-Download')
         .addEventListener('click', function (event) {
