@@ -6,10 +6,10 @@
   var e,
     i,
     n,
-    o,
     s,
-    r,
+    o,
     a,
+    r,
     h,
     l,
     c,
@@ -24,16 +24,16 @@
     v,
     S,
     y,
-    C,
     x,
+    C,
     P,
     A,
     T,
-    E,
     k,
+    E,
     I,
-    M,
     R,
+    M,
     F,
     D,
     _,
@@ -42,12 +42,13 @@
     U,
     N,
     z,
-    W,
     O,
+    W,
     H,
     V,
     X,
     Y,
+    j,
     G;
   !(function (t) {
     (t.isCommandOrCtrl = function (t) {
@@ -58,104 +59,123 @@
       });
   })(e || (e = {})),
     (function (t) {
-      t.ajax = function (t) {
-        if ('undefined' != typeof csrfToken) {
-          'GET' != (t.method || t.type || 'GET').toUpperCase() &&
-            (t.url =
-              ((e = t.url || ''),
-              'undefined' == typeof csrfToken
-                ? e
-                : e +
-                  (e.indexOf('?') < 0 ? '?' : '&') +
-                  csrfToken.name +
-                  '=' +
-                  csrfToken.value));
-        }
-        var e;
-        return $.ajax(t);
-      };
+      function e(t) {
+        return 'undefined' == typeof csrfToken
+          ? t
+          : t +
+              (t.indexOf('?') < 0 ? '?' : '&') +
+              csrfToken.name +
+              '=' +
+              csrfToken.value;
+      }
+      (t.csrf = e),
+        (t.ajax = function (t) {
+          if ('undefined' != typeof csrfToken) {
+            'GET' != (t.method || t.type || 'GET').toUpperCase() &&
+              (t.url = e(t.url || ''));
+          }
+          return $.ajax(t);
+        });
     })(i || (i = {})),
     (function (t) {
-      const e = /(''|[^']|^){(\d+)}/g,
+      const e = /(''|[^']|^){(\d+)(,number,[^}]*)?}/g,
         n =
           /(''|[^']|^){(\d+),plural,\s*(one\s*{([^}]*)})?\s*(few\s*{([^}]*)})?\s*other\s*{([^}]*)}\s*}/g;
+      function s(t, e, i = void 0) {
+        return `{${t},plural,one{${e}}other{${i || e + 's'}}}`;
+      }
       let o;
-      (t.s = function (t, ...o) {
-        if (0 == t.length) return '';
-        const s = t;
-        for (var r = t.length, a = 0; a < r && s.charCodeAt(a) <= 32; ) a++;
-        for (; a < r && s.charCodeAt(r - 1) <= 32; ) r--;
-        const h = 0 == a ? '' : s.substring(0, a);
-        t = 0 == a && r == s.length ? s : s.substring(a, r);
-        const l = r == s.length ? '' : s.substring(r, s.length);
-        var c = window.I18nPhrases[t];
-        return (
-          void 0 === c &&
-            (!(function (t, e) {
-              if (
-                ((window.I18nPhrases[t] = t),
-                !window.I18nPhrases.__translations_disabled__)
-              ) {
-                const o = { en: t, args: e };
-                i.ajax({
-                  url: '/logMissingI18nPhrase',
-                  method: 'POST',
-                  dataType: 'json',
-                  contentType: 'application/json; charset=UTF-8',
-                  data: JSON.stringify(o)
-                });
-                const s = window.I18nPhrases || {};
-                for (var n in s) s.hasOwnProperty(n);
-              }
-            })(t, o),
-            (c = t)),
-          o.length > 0 &&
-            (c = (c = c.replace(e, function (t, e, i) {
-              return "''" == e && (e = "'"), e + o[parseInt(i, 10)];
-            })).replace(n, function (t, e, i, n, s, r, a, h) {
-              "''" == e && (e = "'");
-              const l = o[parseInt(i, 10)];
-              return (
-                e +
-                ((function (t, e, i) {
-                  switch (GlobalsShared.locale.split('-')[0]) {
-                    case 'zh':
-                    case 'ja':
-                    case 'ko':
-                    case 'tr':
-                    case 'th':
-                    case 'id':
-                      return;
-                    case 'ru':
-                      return t % 10 == 1 && t % 100 != 11
-                        ? e
-                        : t % 10 >= 2 &&
-                          t % 10 <= 4 &&
-                          (t % 100 < 10 || t % 100 >= 20)
-                        ? i
-                        : void 0;
-                    case 'po':
-                      return 1 == t
-                        ? e
-                        : t % 10 >= 2 &&
-                          t % 10 <= 4 &&
-                          (t % 100 < 10 || t % 100 >= 20)
-                        ? i
-                        : void 0;
-                    case 'fr':
-                    case 'pt':
-                      return t > 1 ? e : void 0;
-                    default:
-                      return 1 == t ? e : void 0;
-                  }
-                })(parseInt(l), s, a) || h)
-              );
-            })),
-          h && (c = h + c),
-          l && (c += l),
-          c
-        );
-      }),
+      (t.pluralWithoutNumber = s),
+        (t.plural = function (t, e, i = void 0) {
+          return (
+            (function (t) {
+              return `{${t},number,integer}`;
+            })(t) +
+            ' ' +
+            s(t, e, i)
+          );
+        }),
+        (t.s = function (t, ...s) {
+          if (0 == t.length) return '';
+          const o = t;
+          for (var a = t.length, r = 0; r < a && o.charCodeAt(r) <= 32; ) r++;
+          for (; r < a && o.charCodeAt(a - 1) <= 32; ) a--;
+          const h = 0 == r ? '' : o.substring(0, r);
+          t = 0 == r && a == o.length ? o : o.substring(r, a);
+          const l = a == o.length ? '' : o.substring(a, o.length);
+          var c = window.I18nPhrases[t];
+          return (
+            void 0 === c &&
+              (!(function (t, e) {
+                if (
+                  ((window.I18nPhrases[t] = t),
+                  !window.I18nPhrases.__translations_disabled__)
+                ) {
+                  const s = {
+                    en: t,
+                    args: e
+                  };
+                  i.ajax({
+                    url: '/logMissingI18nPhrase',
+                    method: 'POST',
+                    dataType: 'json',
+                    contentType: 'application/json; charset=UTF-8',
+                    data: JSON.stringify(s)
+                  });
+                  const o = window.I18nPhrases || {};
+                  for (var n in o) o.hasOwnProperty(n);
+                }
+              })(t, s),
+              (c = t)),
+            s.length > 0 &&
+              (c = (c = c.replace(e, function (t, e, i, n) {
+                "''" == e && (e = "'");
+                let o = s[parseInt(i, 10)];
+                return ',number,integer' == n && (o = p(o)), e + o;
+              })).replace(n, function (t, e, i, n, o, a, r, h) {
+                "''" == e && (e = "'");
+                const l = s[parseInt(i, 10)];
+                return (
+                  e +
+                  ((function (t, e, i) {
+                    switch (GlobalsShared.locale.split('-')[0]) {
+                      case 'zh':
+                      case 'ja':
+                      case 'ko':
+                      case 'tr':
+                      case 'th':
+                      case 'id':
+                        return;
+                      case 'ru':
+                        return t % 10 == 1 && t % 100 != 11
+                          ? e
+                          : t % 10 >= 2 &&
+                            t % 10 <= 4 &&
+                            (t % 100 < 10 || t % 100 >= 20)
+                          ? i
+                          : void 0;
+                      case 'po':
+                        return 1 == t
+                          ? e
+                          : t % 10 >= 2 &&
+                            t % 10 <= 4 &&
+                            (t % 100 < 10 || t % 100 >= 20)
+                          ? i
+                          : void 0;
+                      case 'fr':
+                      case 'pt':
+                        return t > 1 ? e : void 0;
+                      default:
+                        return 1 == t ? e : void 0;
+                    }
+                  })(parseInt(l), o, r) || h)
+                );
+              })),
+            h && (c = h + c),
+            l && (c += l),
+            c
+          );
+        }),
         (t.commaList = function (t) {
           return t.join(', ');
         }),
@@ -164,7 +184,7 @@
             return '$' + t.toFixed(2);
           };
         })(o || (o = {}));
-      class s {
+      class a {
         constructor(t) {
           this.currency = t;
         }
@@ -173,9 +193,9 @@
         }
       }
       const r = {};
-      function a(t, e, i = GlobalsShared.locale) {
+      function h(t, e, i = GlobalsShared.locale) {
         const n = i + '-' + t,
-          a =
+          s =
             r[n] ||
             (r[n] = (function (t, e) {
               try {
@@ -184,37 +204,66 @@
                   currency: t
                 });
               } catch (e) {
-                return 'USD' == t ? o : new s(t);
+                return 'USD' == t ? o : new a(t);
               }
             })(t, i));
-        return a.format(e / 100);
+        return s.format(e / 100);
       }
-      let h;
+      let l;
       (t.dollars = function (t, e = GlobalsShared.locale) {
-        return a('USD', t, e);
+        return h('USD', t, e);
       }),
-        (t.currencyAmount = a),
+        (t.currencyAmount = h),
         (function (t) {
           t.format = function (t) {
             return (100 * t).toFixed(0) + '%';
           };
-        })(h || (h = {}));
-      const l = {};
+        })(l || (l = {}));
+      const c = {};
       t.percent = function (t, e = GlobalsShared.locale) {
         return (
-          l[e] ||
-          (l[e] = (function (t) {
+          c[e] ||
+          (c[e] = (function (t) {
             try {
               return new Intl.NumberFormat(t, {
                 style: 'percent',
                 minimumFractionDigits: 0
               });
             } catch (t) {
-              return h;
+              return l;
             }
           })(e))
         ).format(t / 100);
       };
+      class u {
+        constructor(t) {
+          this.precision = t;
+        }
+        format(t) {
+          return t.toFixed(this.precision);
+        }
+      }
+      const d = {};
+      function p(t, e = GlobalsShared.locale) {
+        return t.toLocaleString(e);
+      }
+      (t.double = function (t, e = 2, i = GlobalsShared.locale) {
+        const n = i + '-' + e;
+        return (
+          d[n] ||
+          (d[n] = (function (t, e) {
+            try {
+              return new Intl.NumberFormat(e, {
+                minimumFractionDigits: t,
+                maximumFractionDigits: t
+              });
+            } catch (e) {
+              return new u(t);
+            }
+          })(e, i))
+        ).format(t);
+      }),
+        (t.int = p);
     })(n || (n = {})),
     (function (t) {
       function e(t, e) {
@@ -222,8 +271,8 @@
       }
       (t.get = e),
         (t.getOrElse = function (t, i, n) {
-          var o = e(t, i);
-          return void 0 === o ? n : o;
+          var s = e(t, i);
+          return void 0 === s ? n : s;
         }),
         (t.set = function (t, e, i) {
           return (t[e] = i);
@@ -231,18 +280,18 @@
         (t.cast = function (t) {
           return t;
         });
-    })(o || (o = {})),
+    })(s || (s = {})),
     (function (t) {
       const e =
           'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/',
         i = [],
         n = new Uint8Array(256);
-      for (var s = 0; s < e.length; s++)
-        (i[s] = e.charAt(s)), (n[e.charCodeAt(s)] = s);
-      function r(t, e) {
+      for (var o = 0; o < 64; o++)
+        (i[o] = e.charAt(o)), (n[e.charCodeAt(o)] = o);
+      function a(t, e) {
         return n[0 | t.charCodeAt(e)];
       }
-      function a(t) {
+      function r(t) {
         return i[63 & t];
       }
       (n['-'.charCodeAt(0)] = 62),
@@ -253,35 +302,35 @@
           var e,
             i,
             n = t.length,
-            o = '=' === t.charAt(n - 2) ? 2 : '=' === t.charAt(n - 1) ? 1 : 0,
-            s = new Uint8Array((3 * t.length) / 4 - o),
-            a = o > 0 ? t.length - 4 : t.length,
+            s = '=' === t.charAt(n - 2) ? 2 : '=' === t.charAt(n - 1) ? 1 : 0,
+            o = new Uint8Array((3 * t.length) / 4 - s),
+            r = s > 0 ? t.length - 4 : t.length,
             h = 0;
           function l(t) {
-            s[h++] = 255 & t;
+            o[h++] = 255 & t;
           }
-          for (e = 0; e < a; e += 4)
+          for (e = 0; e < r; e += 4)
             l(
               (i =
-                (r(t, e) << 18) |
-                (r(t, e + 1) << 12) |
-                (r(t, e + 2) << 6) |
-                r(t, e + 3)) >> 16
+                (a(t, e) << 18) |
+                (a(t, e + 1) << 12) |
+                (a(t, e + 2) << 6) |
+                a(t, e + 3)) >> 16
             ),
               l(i >> 8),
               l(i);
           return (
-            2 === o
-              ? l((i = (r(t, e) << 2) | (r(t, e + 1) >> 4)))
-              : 1 === o &&
+            2 === s
+              ? l((i = (a(t, e) << 2) | (a(t, e + 1) >> 4)))
+              : 1 === s &&
                 (l(
                   (i =
-                    (r(t, e) << 10) |
-                    (r(t, e + 1) << 4) |
-                    (r(t, e + 2) >> 2)) >> 8
+                    (a(t, e) << 10) |
+                    (a(t, e + 1) << 4) |
+                    (a(t, e + 2) >> 2)) >> 8
                 ),
                 l(i)),
-            s
+            o
           );
         }),
         (t.decodeString = function (t, e) {
@@ -292,35 +341,36 @@
         }),
         (t.encode = function (t, e) {
           if (t instanceof Uint8Array) {
-            const o = (e = e || t.length) % 3;
+            const s = (e = e || t.length) % 3;
             var i,
               n = '';
-            const r = e - o;
-            for (var s = 0; s < r; s += 3)
-              (n += a((i = (t[s] << 16) + (t[s + 1] << 8) + t[s + 2]) >> 18)),
-                (n += a(i >> 12)),
-                (n += a(i >> 6)),
-                (n += a(i));
+            const a = e - s;
+            for (var o = 0; o < a; o += 3)
+              (n += r((i = (t[o] << 16) + (t[o + 1] << 8) + t[o + 2]) >> 18)),
+                (n += r(i >> 12)),
+                (n += r(i >> 6)),
+                (n += r(i));
             return (
-              1 == o
-                ? ((n += a((i = t[r]) >> 2)), (n += a(i << 4)), (n += '=='))
-                : 2 == o &&
-                  ((n += a((i = (t[r] << 8) + t[r + 1]) >> 10)),
-                  (n += a(i >> 4)),
-                  (n += a(i << 2)),
+              1 == s
+                ? ((n += r((i = t[a]) >> 2)), (n += r(i << 4)), (n += '=='))
+                : 2 == s &&
+                  ((n += r((i = (t[a] << 8) + t[a + 1]) >> 10)),
+                  (n += r(i >> 4)),
+                  (n += r(i << 2)),
                   (n += '=')),
               n.replace(/\!/, '!')
             );
           }
-          return btoa(o.cast(t));
+          return btoa(s.cast(t));
         });
-    })(s || (s = {})),
+    })(o || (o = {})),
     (function (t) {
       (t.MaxMaxNumMegapixels = 1),
         (t.MaxMaxNumPixels = 1048576),
         (t.MaxOutputWidth = 1e4),
         (t.BrowserChromeUrl = 'https://www.google.com/chrome/'),
         (t.BrowserFirefoxUrl = 'https://www.mozilla.org/en-US/firefox/new/'),
+        (t.BrowserSafariUrl = 'https://www.apple.com/safari/'),
         (t.BrowserMicrosoftEdgeUrl = 'https://www.microsoft.com/en-us/edge'),
         (t.MinNumLicensesInPurchase = 1),
         (t.MaxNumLicensesInPurchase = 20);
@@ -362,8 +412,16 @@
     addClass(t) {
       return this.$().addClass(t.name()), this;
     }
+    addClasses(...t) {
+      const e = t.map(t => t.name()).join(' ');
+      return this.$().addClass(e), this;
+    }
     removeClass(t) {
       return this.$().removeClass(t.name()), this;
+    }
+    removeClasses(...t) {
+      const e = t.map(t => t.name()).join(' ');
+      return this.$().removeClass(e), this;
     }
     setClasses(...t) {
       const e = t.map(t => t.name()).join(' ');
@@ -371,6 +429,10 @@
     }
     toggleClass(t, e) {
       return this.$().toggleClass(t.name(), e), this;
+    }
+    toggleClasses(t, ...e) {
+      const i = e.map(t => t.name()).join(' ');
+      return this.$().toggleClass(i, t), this;
     }
     hasClass(t) {
       return this.$().hasClass(t.name());
@@ -385,7 +447,7 @@
       return this.$().removeAttr(t), this;
     }
   }
-  class j extends q {
+  class Z extends q {
     tag() {
       return this.css();
     }
@@ -393,7 +455,7 @@
       super(t);
     }
   }
-  class Z extends q {
+  class Q extends q {
     name() {
       return this._name;
     }
@@ -404,7 +466,7 @@
       return document.querySelectorAll(this.css());
     }
   }
-  class Q extends q {
+  class J extends q {
     name() {
       return this._name;
     }
@@ -415,7 +477,7 @@
       return document.getElementById(this._name);
     }
   }
-  class J {
+  class K {
     constructor(t) {
       (this.key = t), (this.caseSensitive = !0);
     }
@@ -458,7 +520,7 @@
   }
   !(function (t) {
     function e(t) {
-      return new J(t);
+      return new K(t);
     }
     (t.empty = new q('')),
       (t.html = new q('html')),
@@ -470,17 +532,20 @@
       }),
       (t.attr = e),
       (t.id = function (t) {
-        return new Q(t);
+        return new J(t);
       }),
       (t.c = function (t) {
+        return new Q(t);
+      }),
+      (t.tag = function (t) {
         return new Z(t);
       });
-  })(a || (a = {})),
+  })(r || (r = {})),
     (function (t) {
-      t.active = new Z('active');
-    })(r || (r = {})),
+      t.active = new Q('active');
+    })(a || (a = {})),
     (function (t) {
-      let e, i, n, o, s, r, a, h, l;
+      let e, i, n, s, o, a, r, h, l;
       (t.cannot_run_app = t.c('cannot_run_app')),
         (t.canvas_container = t.c('canvas_container')),
         (t.dark_checker = t.c('dark_checker')),
@@ -493,7 +558,7 @@
         (t.modern_menu = t.c('modern_menu')),
         (t.noselect = t.c('noselect')),
         (function (e) {
-          let i, n, o, s, r;
+          let i, n, s, o, a;
           (e.App = t.id('App-App')),
             (e.ModernizrAlert = t.id('App-ModernizrAlert')),
             (e.ProgressLightbox = t.id('App-ProgressLightbox')),
@@ -532,7 +597,7 @@
                 (e.vertical_mode = t.c('App-ImageView-vertical_mode'));
             })((n = e.ImageView || (e.ImageView = {}))),
             (function (e) {
-              let i, n, o, s, r, a, h, l, c, u, d, p, m, g, f;
+              let i, n, s, o, a, r, h, l, c, u, d, p, m, g, f;
               (e.BackButton = t.id('App-Sidebar-BackButton')),
                 (e.NextButton = t.id('App-Sidebar-NextButton')),
                 (e.OuterPane = t.id('App-Sidebar-OuterPane')),
@@ -569,22 +634,22 @@
                     (e.Retry = t.id(
                       'App-Sidebar-FetchingSegmentationFailed-Retry'
                     ));
-                })(o || (o = {})),
-                (e.FetchingSegmentationFailed = o),
+                })(s || (s = {})),
+                (e.FetchingSegmentationFailed = s),
                 (function (e) {
                   (e.high = t.c('App-Sidebar-ImageComplexity-high')),
                     (e.low = t.c('App-Sidebar-ImageComplexity-low')),
                     (e.medium = t.c('App-Sidebar-ImageComplexity-medium'));
-                })((s = e.ImageComplexity || (e.ImageComplexity = {}))),
+                })((o = e.ImageComplexity || (e.ImageComplexity = {}))),
                 (function (e) {
                   (e.Loupe = t.id('App-Sidebar-ImageComplexityLogo-Loupe')),
                     (e.Pane = t.id('App-Sidebar-ImageComplexityLogo-Pane'));
-                })((r = e.ImageComplexityLogo || (e.ImageComplexityLogo = {}))),
+                })((a = e.ImageComplexityLogo || (e.ImageComplexityLogo = {}))),
                 (function (e) {
                   (e.Loupe = t.id('App-Sidebar-ImageComplexityLogoAa-Loupe')),
                     (e.Pane = t.id('App-Sidebar-ImageComplexityLogoAa-Pane'));
                 })(
-                  (a =
+                  (r =
                     e.ImageComplexityLogoAa || (e.ImageComplexityLogoAa = {}))
                 ),
                 (function (e) {
@@ -695,7 +760,7 @@
                     ));
                 })((u = e.PaletteYesNo || (e.PaletteYesNo = {}))),
                 (function (e) {
-                  let i, n, o;
+                  let i, n, s;
                   (e.FullyAutomaticContainer = t.id(
                     'App-Sidebar-Progress-FullyAutomaticContainer'
                   )),
@@ -715,8 +780,8 @@
                     (function (e) {
                       (e.Bar = t.id('App-Sidebar-Progress-Vectorize-Bar')),
                         (e.Pane = t.id('App-Sidebar-Progress-Vectorize-Pane'));
-                    })(o || (o = {})),
-                    (e.Vectorize = o);
+                    })(s || (s = {})),
+                    (e.Vectorize = s);
                 })((d = e.Progress || (e.Progress = {}))),
                 (function (e) {
                   (e.ChangeCustomPaletteContainer = t.id(
@@ -797,7 +862,7 @@
                     (e.Retry = t.id('App-Sidebar-VectorizationFailed-Retry'));
                 })(f || (f = {})),
                 (e.VectorizationFailed = f);
-            })((o = e.Sidebar || (e.Sidebar = {}))),
+            })((s = e.Sidebar || (e.Sidebar = {}))),
             (function (e) {
               (e.Lightbox = t.id('App-StickySettings-Lightbox')),
                 (e.fully_automatic = t.c('App-StickySettings-fully_automatic')),
@@ -805,7 +870,7 @@
                   'App-StickySettings-pre_crop_enabled_checkbox'
                 )),
                 (e.show = t.c('App-StickySettings-show'));
-            })((s = e.StickySettings || (e.StickySettings = {}))),
+            })((o = e.StickySettings || (e.StickySettings = {}))),
             (function (e) {
               (e.ColorPicker = t.id('App-Toolbar-ColorPicker')),
                 (e.ColorSwatch0 = t.id('App-Toolbar-ColorSwatch0')),
@@ -839,7 +904,7 @@
                 (e.revert_swatch = t.c('App-Toolbar-revert_swatch')),
                 (e.tool_button = t.c('App-Toolbar-tool_button')),
                 (e.zap_tool = t.c('App-Toolbar-zap_tool'));
-            })((r = e.Toolbar || (e.Toolbar = {})));
+            })((a = e.Toolbar || (e.Toolbar = {})));
         })((e = t.App || (t.App = {}))),
         (function (e) {
           (e.Dialog = t.id('FatalError-Dialog')),
@@ -866,8 +931,8 @@
             (e.Outlines = t.id('Hurricane-Outlines')),
             (e.Shapes = t.id('Hurricane-Shapes')),
             (e.transformable = t.c('Hurricane-transformable'));
-        })(o || (o = {})),
-        (t.Hurricane = o),
+        })(s || (s = {})),
+        (t.Hurricane = s),
         (function (e) {
           let i;
           (e.App = t.id('PreCrop-App')),
@@ -920,18 +985,18 @@
                 })(i || (i = {})),
                 (e.MaxNumMegapixels = i);
             })((i = e.Sidebar || (e.Sidebar = {})));
-        })((s = t.PreCrop || (t.PreCrop = {}))),
+        })((o = t.PreCrop || (t.PreCrop = {}))),
         (function (e) {
           (e.NumLicenses = t.id('ProjectMerchant-NumLicenses')),
             (e.Total = t.id('ProjectMerchant-Total')),
             (e.VmdeTotal = t.id('ProjectMerchant-VmdeTotal'));
-        })((r = t.ProjectMerchant || (t.ProjectMerchant = {}))),
+        })((a = t.ProjectMerchant || (t.ProjectMerchant = {}))),
         (function (e) {
           (e.Body = t.id('RetryDialog-Body')),
             (e.Countdown = t.id('RetryDialog-Countdown')),
             (e.Dialog = t.id('RetryDialog-Dialog')),
             (e.RetryNowButton = t.id('RetryDialog-RetryNowButton'));
-        })((a = t.RetryDialog || (t.RetryDialog = {}))),
+        })((r = t.RetryDialog || (t.RetryDialog = {}))),
         (function (e) {
           (e.Dialog = t.id('Signon-Dialog')),
             (e.Header = t.id('Signon-Header')),
@@ -946,6 +1011,7 @@
             (e.BraintreeDropinContainer = t.id(
               'merchant-BraintreeDropinContainer'
             )),
+            (e.CantPaypal = t.id('merchant-CantPaypal')),
             (e.Cents = t.id('merchant-Cents')),
             (e.CreditCardProcessorForm = t.id(
               'merchant-CreditCardProcessorForm'
@@ -962,6 +1028,7 @@
               'merchant-PaymentMethodFormSubmit'
             )),
             (e.RadioBraintree = t.id('paymentMethod_braintree')),
+            (e.RadioPaypal = t.id('paymentMethod_paypal')),
             (e.RadioStripe = t.id('paymentMethod_stripe')),
             (e.ShowWhenCreatingPm = t.id('merchant-ShowWhenCreatingPm')),
             (e.ShowWhenMinibrowsing = t.id('merchant-ShowWhenMinibrowsing')),
@@ -982,7 +1049,7 @@
             (e.has_error = t.c('has-error')),
             (e.radio_paymentMethod = t.c('radio_paymentMethod'));
         })((l = t.merchant || (t.merchant = {})));
-    })(a || (a = {})),
+    })(r || (r = {})),
     (function (t) {
       const e = [0];
       function i(t, e) {
@@ -1003,33 +1070,61 @@
         for (var i = '', n = 0; n < e; n++) i += t;
         return i;
       }
-      function r(t, e) {
-        return ((t % e) + e) % e;
-      }
-      function a(t, e) {
-        return ((t % e) - e) % e;
-      }
-      function h(t) {
+      function a(t) {
         if (!t) return null;
         const e = t.match(/data:(.*?)(;base64)?,(.*)/);
         if (!e) return null;
         const i = e[1] || 'text/plain',
           n = !!e[2],
-          o = decodeURIComponent(e[3].trim());
+          s = decodeURIComponent(e[3].trim());
         if (n) {
-          const t = s.decode(o);
-          let e = new Blob([t], { type: i });
+          const t = o.decode(s);
+          let e = new Blob([t], {
+            type: i
+          });
           return (
-            e.size != t.length && (e = new Blob([t.buffer], { type: i })), e
+            e.size != t.length &&
+              (e = new Blob([t.buffer], {
+                type: i
+              })),
+            e
           );
         }
-        return new Blob([o], { type: i });
+        return new Blob([s], {
+          type: i
+        });
       }
-      function l(t, e, i) {
-        const n = t;
-        return (
-          (n.name = e), o.set(n, 'lastModifiedDate', i || Date.now()), o.cast(n)
-        );
+      function r(t, e, i) {
+        return new File([t], e, {
+          type: t.type,
+          lastModified: i || Date.now()
+        });
+      }
+      function h(t) {
+        switch (t) {
+          case 'image/jpeg':
+            return 'jpg';
+          case 'image/png':
+            return 'png';
+          case 'image/gif':
+            return 'gif';
+          case 'image/svg+xml':
+            return 'svg';
+          default:
+            return;
+        }
+      }
+      function l(t) {
+        let e = t.lastIndexOf('.');
+        return e >= 0
+          ? {
+              base: t.substr(0, e),
+              extension: t.substr(e + 1)
+            }
+          : {
+              base: t,
+              extension: ''
+            };
       }
       (t.tic = function () {
         e.push(Date.now());
@@ -1042,15 +1137,23 @@
           return i(t.w, 3) + ':' + i(t.h, 3);
         }),
         (t.hex = function (t, e) {
-          return ('000000000' + t.toString(16)).substr(-e);
+          return ('000000000' + t.toString(16)).slice(-e);
         }),
         (t.fuzzyAspectRatioEx = function (t, e) {
           for (var i = t.w / t.h, n = 0; n < e.length; n++) {
-            var o = e[n],
-              s = o.w / o.h;
-            if (Math.abs((i - s) / s) < 0.01) return o;
+            var s = e[n],
+              o = s.w / s.h;
+            if (Math.abs((i - o) / o) < 0.01) return s;
           }
-          return t.w > t.h ? { w: t.w / t.h, h: 1 } : { w: 1, h: t.h / t.w };
+          return t.w > t.h
+            ? {
+                w: t.w / t.h,
+                h: 1
+              }
+            : {
+                w: 1,
+                h: t.h / t.w
+              };
         }),
         (t.roundTo = function (t, e) {
           return parseFloat(t.toFixed(e));
@@ -1080,13 +1183,6 @@
           );
         }),
         (t.repeat = n),
-        (t.posMod = r),
-        (t.negMod = a),
-        (t.minMod = function (t, e) {
-          var i = r(t, e),
-            n = a(t, e);
-          return Math.abs(i) <= Math.abs(n) ? i : n;
-        }),
         (t.startsWith = function (t, e) {
           return 0 == t.lastIndexOf(e, 0);
         }),
@@ -1097,7 +1193,7 @@
           var n = new FileReader();
           (n.onerror = n.onabort = i),
             (n.onloadend = function (t) {
-              e(o.cast(n.result));
+              e(s.cast(n.result));
             }),
             n.readAsArrayBuffer(t);
         }),
@@ -1105,20 +1201,35 @@
           var n = new FileReader();
           (n.onerror = n.onabort = i),
             (n.onloadend = function (t) {
-              e(o.cast(n.result));
+              e(s.cast(n.result));
             }),
             n.readAsText(t);
         }),
-        (t.dataUrlToBlob = h),
+        (t.dataUrlToBlob = a),
         (t.dataUrlToFile = function (t, e) {
-          return l(h(t), e);
+          return r(a(t), e);
         }),
-        (t.blobToFile = l),
+        (t.blobToFile = r),
+        (t.mimeTypeToExtension = h),
+        (t.changeFileTypeAndExtension = function (t, e) {
+          if (t.type != e) {
+            let i = t.name,
+              n = h(e);
+            if (n) {
+              i = l(i).base + '.' + n;
+            }
+            return new File([t], i, {
+              type: e,
+              lastModified: t.lastModified
+            });
+          }
+          return t;
+        }),
         (t.svgStringToDataUrl = function (t) {
           return 'data:image/svg+xml;base64,' + btoa(t);
         }),
         (t.toDataUrl = function (t, e) {
-          return 'data:' + e + ';base64,' + s.encode(t);
+          return 'data:' + e + ';base64,' + o.encode(t);
         }),
         (t.min = function (t) {
           return Math.min.apply(null, t);
@@ -1130,37 +1241,40 @@
           if (0 != t.length) {
             let i = 0,
               n = t[0],
-              o = e(n);
-            for (let s = 1; s < t.length; s++) {
-              let r = t[s],
-                a = e(r);
-              a < o && ((n = r), (o = a), (i = s));
+              s = e(n);
+            for (let o = 1; o < t.length; o++) {
+              let a = t[o],
+                r = e(a);
+              r < s && ((n = a), (s = r), (i = o));
             }
-            return { min: n, value: o, index: i };
+            return {
+              min: n,
+              value: s,
+              index: i
+            };
           }
         }),
         (t.maxBy = function (t, e) {
           if (0 != t.length) {
             let i = 0,
               n = t[0],
-              o = e(n);
-            for (let s = 1; s < t.length; s++) {
-              let r = t[s],
-                a = e(r);
-              a > o && ((n = r), (o = a), (i = s));
+              s = e(n);
+            for (let o = 1; o < t.length; o++) {
+              let a = t[o],
+                r = e(a);
+              r > s && ((n = a), (s = r), (i = o));
             }
-            return { max: n, value: o, index: i };
+            return {
+              max: n,
+              value: s,
+              index: i
+            };
           }
         }),
         (t.signedNumber = function (t) {
           return 0 == t ? '0' : t > 0 ? '+' + t : '' + t;
         }),
-        (t.splitExtensionFromFilename = function (t) {
-          let e = t.lastIndexOf('.');
-          return e >= 0
-            ? { base: t.substr(0, e), extension: t.substr(e + 1) }
-            : { base: t, extension: '' };
-        }),
+        (t.splitExtensionFromFilename = l),
         (t.dropExtension = function (t) {
           let e = t.lastIndexOf('.');
           return e >= 0 ? t.substr(0, e) : t;
@@ -1190,9 +1304,9 @@
           return (t[0] << 24) | (t[1] << 16) | (t[2] << 8) | t[3];
         }),
         (t.spliterate = function (t, e, i) {
-          for (var n, o = 0; (n = t.indexOf(e, o)) >= 0; )
-            i(t.substring(o, n)), (o = n + e.length);
-          o < t.length - 1 && i(t.substring(o, t.length));
+          for (var n, s = 0; (n = t.indexOf(e, s)) >= 0; )
+            i(t.substring(s, n)), (s = n + e.length);
+          s < t.length - 1 && i(t.substring(s, t.length));
         }),
         (t.stringify = function (t) {
           if (void 0 === t) return 'undefined';
@@ -1243,7 +1357,7 @@
           return null;
         });
     })(f || (f = {}));
-  class K {
+  class tt {
     constructor(t) {
       (this.data = new Uint8Array(t)), (this.offsetCount = 0);
     }
@@ -1419,7 +1533,7 @@
         29: 'GPSDateStamp',
         30: 'GPSDifferential'
       },
-      o = {
+      s = {
         ExposureProgram: {
           0: 'Not defined',
           1: 'Manual',
@@ -1503,9 +1617,17 @@
           2: 'Portrait',
           3: 'Night scene'
         },
-        SceneType: { 1: 'Directly photographed' },
-        CustomRendered: { 0: 'Normal process', 1: 'Custom process' },
-        WhiteBalance: { 0: 'Auto white balance', 1: 'Manual white balance' },
+        SceneType: {
+          1: 'Directly photographed'
+        },
+        CustomRendered: {
+          0: 'Normal process',
+          1: 'Custom process'
+        },
+        WhiteBalance: {
+          0: 'Auto white balance',
+          1: 'Manual white balance'
+        },
         GainControl: {
           0: 'None',
           1: 'Low gain up',
@@ -1513,19 +1635,41 @@
           3: 'Low gain down',
           4: 'High gain down'
         },
-        Contrast: { 0: 'Normal', 1: 'Soft', 2: 'Hard' },
-        Saturation: { 0: 'Normal', 1: 'Low saturation', 2: 'High saturation' },
-        Sharpness: { 0: 'Normal', 1: 'Soft', 2: 'Hard' },
+        Contrast: {
+          0: 'Normal',
+          1: 'Soft',
+          2: 'Hard'
+        },
+        Saturation: {
+          0: 'Normal',
+          1: 'Low saturation',
+          2: 'High saturation'
+        },
+        Sharpness: {
+          0: 'Normal',
+          1: 'Soft',
+          2: 'Hard'
+        },
         SubjectDistanceRange: {
           0: 'Unknown',
           1: 'Macro',
           2: 'Close view',
           3: 'Distant view'
         },
-        FileSource: { 3: 'DSC' },
-        Components: { 0: '', 1: 'Y', 2: 'Cb', 3: 'Cr', 4: 'R', 5: 'G', 6: 'B' }
+        FileSource: {
+          3: 'DSC'
+        },
+        Components: {
+          0: '',
+          1: 'Y',
+          2: 'Cb',
+          3: 'Cr',
+          4: 'R',
+          5: 'G',
+          6: 'B'
+        }
       };
-    const s = {
+    const o = {
       120: 'caption',
       110: 'credit',
       25: 'keywords',
@@ -1537,99 +1681,99 @@
       116: 'copyright',
       15: 'category'
     };
-    function r(t, e, i) {
-      for (var n, o, r, a, h = new DataView(t), c = {}, u = e; u < e + i; )
+    function a(t, e, i) {
+      for (var n, s, a, r, h = new DataView(t), c = {}, u = e; u < e + i; )
         28 === h.getUint8(u) &&
           2 === h.getUint8(u + 1) &&
-          (a = h.getUint8(u + 2)) in s &&
-          ((r = h.getInt16(u + 3)) + 5,
-          (o = s[a]),
-          (n = l(h, u + 5, r)),
-          c.hasOwnProperty(o)
-            ? c[o] instanceof Array
-              ? c[o].push(n)
-              : (c[o] = [c[o], n])
-            : (c[o] = n)),
+          (r = h.getUint8(u + 2)) in o &&
+          ((a = h.getInt16(u + 3)) + 5,
+          (s = o[r]),
+          (n = l(h, u + 5, a)),
+          c.hasOwnProperty(s)
+            ? c[s] instanceof Array
+              ? c[s].push(n)
+              : (c[s] = [c[s], n])
+            : (c[s] = n)),
           u++;
       return c;
     }
-    function a(t, e, i, n, o) {
-      var s,
-        r,
-        a = t.getUint16(i, !o),
+    function r(t, e, i, n, s) {
+      var o,
+        a,
+        r = t.getUint16(i, !s),
         l = {};
-      for (r = 0; r < a; r++)
-        (s = i + 12 * r + 2), (l[n[t.getUint16(s, !o)]] = h(t, s, e, i, o));
+      for (a = 0; a < r; a++)
+        (o = i + 12 * a + 2), (l[n[t.getUint16(o, !s)]] = h(t, o, e, i, s));
       return l;
     }
-    function h(t, e, i, n, o) {
-      var s,
-        r,
+    function h(t, e, i, n, s) {
+      var o,
         a,
+        r,
         h,
         c,
         u,
-        d = t.getUint16(e + 2, !o),
-        p = t.getUint32(e + 4, !o),
-        m = t.getUint32(e + 8, !o) + i;
+        d = t.getUint16(e + 2, !s),
+        p = t.getUint32(e + 4, !s),
+        m = t.getUint32(e + 8, !s) + i;
       switch (d) {
         case 1:
         case 7:
           if (1 == p) return t.getUint8(e + 8);
-          for (s = p > 4 ? m : e + 8, r = [], h = 0; h < p; h++)
-            r[h] = t.getUint8(s + h);
-          return r;
+          for (o = p > 4 ? m : e + 8, a = [], h = 0; h < p; h++)
+            a[h] = t.getUint8(o + h);
+          return a;
         case 2:
-          return l(t, (s = p > 4 ? m : e + 8), p - 1);
+          return l(t, (o = p > 4 ? m : e + 8), p - 1);
         case 3:
-          if (1 == p) return t.getUint16(e + 8, !o);
-          for (s = p > 2 ? m : e + 8, r = [], h = 0; h < p; h++)
-            r[h] = t.getUint16(s + 2 * h, !o);
-          return r;
+          if (1 == p) return t.getUint16(e + 8, !s);
+          for (o = p > 2 ? m : e + 8, a = [], h = 0; h < p; h++)
+            a[h] = t.getUint16(o + 2 * h, !s);
+          return a;
         case 4:
-          if (1 == p) return t.getUint32(e + 8, !o);
-          for (r = [], h = 0; h < p; h++) r[h] = t.getUint32(m + 4 * h, !o);
-          return r;
+          if (1 == p) return t.getUint32(e + 8, !s);
+          for (a = [], h = 0; h < p; h++) a[h] = t.getUint32(m + 4 * h, !s);
+          return a;
         case 5:
           if (1 == p)
             return (
-              (c = t.getUint32(m, !o)),
-              (u = t.getUint32(m + 4, !o)),
-              ((a = new Number(c / u)).numerator = c),
-              (a.denominator = u),
-              a
+              (c = t.getUint32(m, !s)),
+              (u = t.getUint32(m + 4, !s)),
+              ((r = new Number(c / u)).numerator = c),
+              (r.denominator = u),
+              r
             );
-          for (r = [], h = 0; h < p; h++)
-            (c = t.getUint32(m + 8 * h, !o)),
-              (u = t.getUint32(m + 4 + 8 * h, !o)),
-              (r[h] = new Number(c / u)),
-              (r[h].numerator = c),
-              (r[h].denominator = u);
-          return r;
+          for (a = [], h = 0; h < p; h++)
+            (c = t.getUint32(m + 8 * h, !s)),
+              (u = t.getUint32(m + 4 + 8 * h, !s)),
+              (a[h] = new Number(c / u)),
+              (a[h].numerator = c),
+              (a[h].denominator = u);
+          return a;
         case 9:
-          if (1 == p) return t.getInt32(e + 8, !o);
-          for (r = [], h = 0; h < p; h++) r[h] = t.getInt32(m + 4 * h, !o);
-          return r;
+          if (1 == p) return t.getInt32(e + 8, !s);
+          for (a = [], h = 0; h < p; h++) a[h] = t.getInt32(m + 4 * h, !s);
+          return a;
         case 10:
-          if (1 == p) return t.getInt32(m, !o) / t.getInt32(m + 4, !o);
-          for (r = [], h = 0; h < p; h++)
-            r[h] = t.getInt32(m + 8 * h, !o) / t.getInt32(m + 4 + 8 * h, !o);
-          return r;
+          if (1 == p) return t.getInt32(m, !s) / t.getInt32(m + 4, !s);
+          for (a = [], h = 0; h < p; h++)
+            a[h] = t.getInt32(m + 8 * h, !s) / t.getInt32(m + 4 + 8 * h, !s);
+          return a;
       }
     }
     function l(t, e, i) {
-      for (var n = '', o = e; o < e + i; o++)
-        n += String.fromCharCode(t.getUint8(o));
+      for (var n = '', s = e; s < e + i; s++)
+        n += String.fromCharCode(t.getUint8(s));
       return n;
     }
-    function c(t, s, r) {
-      if ('Exif' != l(t, s, 4)) return !1;
+    function c(t, o, a) {
+      if ('Exif' != l(t, o, 4)) return !1;
       var h,
         c,
         u,
         d,
         p,
-        m = s + 6;
+        m = o + 6;
       if (18761 == t.getUint16(m)) h = !1;
       else {
         if (19789 != t.getUint16(m)) return !1;
@@ -1638,8 +1782,8 @@
       if (42 != t.getUint16(m + 2, !h)) return !1;
       var g = t.getUint32(m + 4, !h);
       if (g < 8) return !1;
-      if ((c = a(t, m, m + g, i, h)).ExifIFDPointer)
-        for (u in (d = a(t, m, m + c.ExifIFDPointer, e, h))) {
+      if ((c = r(t, m, m + g, i, h)).ExifIFDPointer)
+        for (u in (d = r(t, m, m + c.ExifIFDPointer, e, h))) {
           switch (u) {
             case 'LightSource':
             case 'Flash':
@@ -1656,7 +1800,7 @@
             case 'Sharpness':
             case 'SubjectDistanceRange':
             case 'FileSource':
-              d[u] = o[u][d[u]];
+              d[u] = s[u][d[u]];
               break;
             case 'ExifVersion':
             case 'FlashpixVersion':
@@ -1664,15 +1808,15 @@
               break;
             case 'ComponentsConfiguration':
               d[u] =
-                o.Components[d[u][0]] +
-                o.Components[d[u][1]] +
-                o.Components[d[u][2]] +
-                o.Components[d[u][3]];
+                s.Components[d[u][0]] +
+                s.Components[d[u][1]] +
+                s.Components[d[u][2]] +
+                s.Components[d[u][3]];
           }
           c[u] = d[u];
         }
       if (c.GPSInfoIFDPointer)
-        for (u in (p = a(t, m, m + c.GPSInfoIFDPointer, n, h))) {
+        for (u in (p = r(t, m, m + c.GPSInfoIFDPointer, n, h))) {
           if ('GPSVersionID' === u)
             p[u] = p[u][0] + '.' + p[u][1] + '.' + p[u][2] + '.' + p[u][3];
           c[u] = p[u];
@@ -1686,7 +1830,7 @@
           for (
             var i = 2,
               n = t.byteLength,
-              o = function (t, e) {
+              s = function (t, e) {
                 return (
                   56 === t.getUint8(e) &&
                   66 === t.getUint8(e + 1) &&
@@ -1699,12 +1843,12 @@
             i < n;
 
           ) {
-            if (o(e, i)) {
-              var s = e.getUint8(i + 7);
+            if (s(e, i)) {
+              var o = e.getUint8(i + 7);
               return (
-                s % 2 != 0 && (s += 1),
-                0 === s && (s = 4),
-                r(t, i + 8 + s, e.getUint16(i + 6 + s))
+                o % 2 != 0 && (o += 1),
+                0 === o && (o = 4),
+                a(t, i + 8 + o, e.getUint16(i + 6 + o))
               );
             }
             i++;
@@ -1720,7 +1864,10 @@
             i += 2 + e.getUint16(i + 2);
           }
         })(t);
-      return { iptc: e, exif: i };
+      return {
+        iptc: e,
+        exif: i
+      };
     };
   })(h || (h = {})),
     (function (t) {
@@ -1749,23 +1896,110 @@
         (t[(t.Centimeter = 3)] = 'Centimeter'),
         (t[(t.Meter = 4)] = 'Meter');
     })(d || (d = {}));
-  class tt {
-    constructor(t, e, i, n, o, s, r, a) {
+  class et {
+    constructor(t, e, i, n, s, o, a, r, h) {
       (this.statusCode = t),
         (this.width = e),
         (this.height = i),
         (this.orientation = n),
-        (this.resolutionUnits = o),
-        (this.resolutionX = s),
-        (this.resolutionY = r),
-        (this.colorSpace = a);
+        (this.resolutionUnits = s),
+        (this.resolutionX = o),
+        (this.resolutionY = a),
+        (this.colorSpace = r),
+        (this.type = h),
+        (this.wasRotated = !1);
+    }
+    applyOrientation() {
+      if (this.orientation == l.R90 || this.orientation == l.R270) {
+        let t = this.width;
+        (this.width = this.height), (this.height = t);
+      }
+      this.wasRotated = !0;
+    }
+    checkFixType(t) {
+      return this.type != t.type
+        ? f.changeFileTypeAndExtension(t, this.type)
+        : t;
+    }
+    getRawDpi() {
+      let t = this.resolutionX.valueOf();
+      if (t <= 0) return 72;
+      switch (this.resolutionUnits) {
+        case d.Inch:
+          return t;
+        case d.Centimeter:
+          return 2.54 * t;
+        case d.Meter:
+          return (2.54 * t) / 100;
+        default:
+          return 72;
+      }
+    }
+    dpi() {
+      let t = this.getRawDpi(),
+        e = Math.round(t),
+        i = Math.abs(t - e);
+      return 0 < i && i < 0.01 ? e : t;
     }
   }
   !(function (t) {
     const e = [137, 80, 78, 71, 13, 10, 26, 10],
       i = new Number(0);
-    function n(t) {
-      return new tt(t, 0, 0, l.Undefined, d.Undefined, 0, 0, c.Undefined);
+    function n(t, e) {
+      return new et(t, 0, 0, l.Undefined, d.Undefined, 0, 0, c.Undefined, e);
+    }
+    function o(t, e) {
+      try {
+        let i = new tt(t),
+          n = Math.min(12, i.length()),
+          s = i.readInt8s(n),
+          o = '';
+        return (
+          (o =
+            n >= 8 &&
+            137 === s[0] &&
+            80 === s[1] &&
+            78 === s[2] &&
+            71 === s[3] &&
+            13 === s[4] &&
+            10 === s[5] &&
+            26 === s[6] &&
+            10 === s[7]
+              ? 'image/png'
+              : n >= 2 && 255 === s[0] && 216 === s[1]
+              ? 'image/jpeg'
+              : n >= 6 &&
+                71 === s[0] &&
+                73 === s[1] &&
+                70 === s[2] &&
+                56 === s[3] &&
+                (55 === s[4] || 57 === s[4]) &&
+                97 === s[5]
+              ? 'image/gif'
+              : n >= 2 && 66 === s[0] && 77 === s[1]
+              ? 'image/bmp'
+              : n >= 12 &&
+                82 === s[0] &&
+                73 === s[1] &&
+                70 === s[2] &&
+                70 === s[3] &&
+                87 === s[8] &&
+                69 === s[9] &&
+                66 === s[10] &&
+                80 === s[11]
+              ? 'image/webp'
+              : n >= 4 &&
+                ((73 === s[0] && 73 === s[1] && 42 === s[2] && 0 === s[3]) ||
+                  (77 === s[0] && 77 === s[1] && 0 === s[2] && 42 === s[3]))
+              ? 'image/tiff'
+              : n >= 4 && 0 === s[0] && 0 === s[1] && 1 === s[2] && 0 === s[3]
+              ? 'image/x-icon'
+              : e || 'application/octet-stream'),
+          o
+        );
+      } catch (t) {
+        return e;
+      }
     }
     (t.inverseOrientation = function (t) {
       switch (t) {
@@ -1782,132 +2016,148 @@
           return l.R90;
       }
     }),
-      (t.get = function (t, s) {
+      (t.sniffType = function (t, e) {
+        f.blobToArrayBuffer(
+          t,
+          function (i) {
+            e(o(i, t.type));
+          },
+          function (i) {
+            e(t.type);
+          }
+        );
+      }),
+      (t.sniffTypeBuf = o),
+      (t.get = function (t, a) {
         f.blobToArrayBuffer(
           t,
           function (r) {
+            let p = o(r, t.type);
             try {
-              let a = new K(r);
-              switch (t.type) {
+              let t,
+                o = new tt(r);
+              switch (p) {
                 case 'image/png':
-                  s(
-                    (function (t) {
-                      for (let i = 0; i < e.length && t.hasMore(); i++)
-                        if (e[i] != t.readInt8()) return n(u.ErrorParse);
-                      let i = 0,
-                        o = 0,
-                        s = 0,
-                        r = 0,
-                        a = d.Undefined,
-                        h = c.Undefined,
-                        p = l.Undefined;
-                      for (; t.hasMore(); ) {
-                        let e = t.readInt32(),
-                          n = f.uint8ArrayToString(t.readInt8s(4));
-                        if ('pHYs' == n) {
-                          (i = t.readInt32()), (o = t.readInt32());
-                          let e = t.readInt8();
-                          a = 0 == e ? d.None : 1 == e ? d.Meter : d.Undefined;
-                        } else if ('IHDR' == n) {
-                          let i = t.offsetCount;
-                          (s = t.readInt32()),
-                            (r = t.readInt32()),
-                            (t.offsetCount = i),
-                            t.readInt8s(e);
-                        } else if ('iCCP' == n) {
-                          let i = t.offsetCount,
-                            n = '',
-                            o = t.readInt8(),
-                            s = 0;
-                          for (; 0 != o && s < 79; )
-                            (n += String.fromCharCode(o)),
-                              (o = t.readInt8()),
-                              s++;
-                          t.readInt8s(e - (t.offsetCount - i));
-                        } else t.readInt8s(e);
-                        t.readInt32();
-                      }
-                      return new tt(u.Success, s, r, p, a, i, o, h);
-                    })(a)
-                  );
+                  t = (function (t, i) {
+                    for (let s = 0; s < e.length && t.hasMore(); s++)
+                      if (e[s] != t.readInt8()) return n(u.ErrorParse, i);
+                    let s = 0,
+                      o = 0,
+                      a = 0,
+                      r = 0,
+                      h = d.Undefined,
+                      p = c.Undefined,
+                      m = l.Undefined;
+                    for (; t.hasMore(); ) {
+                      let e = t.readInt32(),
+                        i = f.uint8ArrayToString(t.readInt8s(4));
+                      if ('pHYs' == i) {
+                        (s = t.readInt32()), (o = t.readInt32());
+                        let e = t.readInt8();
+                        h = 0 == e ? d.None : 1 == e ? d.Meter : d.Undefined;
+                      } else if ('IHDR' == i) {
+                        let i = t.offsetCount;
+                        (a = t.readInt32()),
+                          (r = t.readInt32()),
+                          (t.offsetCount = i),
+                          t.readInt8s(e);
+                      } else if ('iCCP' == i) {
+                        let i = t.offsetCount,
+                          n = '',
+                          s = t.readInt8(),
+                          o = 0;
+                        for (; 0 != s && o < 79; )
+                          (n += String.fromCharCode(s)),
+                            (s = t.readInt8()),
+                            o++;
+                        t.readInt8s(e - (t.offsetCount - i));
+                      } else t.readInt8s(e);
+                      t.readInt32();
+                    }
+                    return new et(u.Success, a, r, m, h, s, o, p, i);
+                  })(o, p);
                   break;
                 case 'image/jpg':
                 case 'image/jpeg':
-                  s(
-                    (function (t) {
-                      let e = i,
-                        n = i,
-                        s = 0,
-                        r = 0,
-                        a = d.Undefined,
-                        p = c.Undefined,
-                        m = l.Undefined,
-                        g = h.readFromBinaryFile(t.data.buffer);
-                      if (g.exif) {
-                        (e = o.getOrElse(g.exif, 'XResolution', i)),
-                          (n = o.getOrElse(g.exif, 'YResolution', i)),
-                          (s = o.getOrElse(g.exif, 'ImageWidth', 0)),
-                          (r = o.getOrElse(g.exif, 'ImageHeight', 0));
-                        let t = o.getOrElse(g.exif, 'ResolutionUnit', 0);
-                        a =
-                          3 == t
-                            ? d.Centimeter
-                            : 2 == t
-                            ? d.Inch
-                            : 1 == t
-                            ? d.None
-                            : d.Undefined;
-                        let h = o.getOrElse(g.exif, 'ColorSpace', 0);
-                        p =
-                          65535 == h
-                            ? c.Uncalibrated
-                            : 1 == h
-                            ? c.sRgb
-                            : c.Undefined;
-                        let u = o.getOrElse(g.exif, 'Orientation', 0);
-                        m =
-                          1 == u
-                            ? l.R0
-                            : 3 == u
-                            ? l.R180
-                            : 6 == u
-                            ? l.R90
-                            : 8 == u
-                            ? l.R270
-                            : l.Undefined;
-                      }
-                      return new tt(u.Success, s, r, m, a, e, n, p);
-                    })(a)
-                  );
+                  t = (function (t, e) {
+                    let n = i,
+                      o = i,
+                      a = 0,
+                      r = 0,
+                      p = d.Undefined,
+                      m = c.Undefined,
+                      g = l.Undefined,
+                      f = h.readFromBinaryFile(t.data.buffer);
+                    if (f.exif) {
+                      (n = s.getOrElse(f.exif, 'XResolution', i)),
+                        (o = s.getOrElse(f.exif, 'YResolution', i)),
+                        (a = s.getOrElse(f.exif, 'ImageWidth', 0)),
+                        (r = s.getOrElse(f.exif, 'ImageHeight', 0));
+                      let t = s.getOrElse(f.exif, 'ResolutionUnit', 0);
+                      p =
+                        3 == t
+                          ? d.Centimeter
+                          : 2 == t
+                          ? d.Inch
+                          : 1 == t
+                          ? d.None
+                          : d.Undefined;
+                      let e = s.getOrElse(f.exif, 'ColorSpace', 0);
+                      m =
+                        65535 == e
+                          ? c.Uncalibrated
+                          : 1 == e
+                          ? c.sRgb
+                          : c.Undefined;
+                      let h = s.getOrElse(f.exif, 'Orientation', 0);
+                      g =
+                        1 == h
+                          ? l.R0
+                          : 3 == h
+                          ? l.R180
+                          : 6 == h
+                          ? l.R90
+                          : 8 == h
+                          ? l.R270
+                          : l.Undefined;
+                    }
+                    return new et(u.Success, a, r, g, p, n, o, m, e);
+                  })(o, p);
+                  break;
+                case 'image/gif':
+                  t = (function (t, e) {
+                    return n(u.ErrorParse, e);
+                  })(0, p);
                   break;
                 default:
-                  s(n(u.ErrorParse));
+                  t = n(u.ErrorParse, p);
               }
+              a(t);
             } catch (t) {
-              s(n(u.ErrorException));
+              a(n(u.ErrorException, p));
             }
           },
-          function (t) {
-            s(n(u.ErrorFileReader));
+          function (e) {
+            a(n(u.ErrorFileReader, t.type));
           }
         );
       });
   })(p || (p = {}));
-  class et {
+  class it {
     constructor(t, e) {
       (this.x = t), (this.y = e);
     }
     static empty() {
-      return new et(0, 0);
+      return new it(0, 0);
     }
     static zero() {
-      return new et(0, 0);
+      return new it(0, 0);
     }
     static nan() {
-      return new et(Number.NaN, Number.NaN);
+      return new it(Number.NaN, Number.NaN);
     }
     static from(t) {
-      return new et(t.x, t.y);
+      return new it(t.x, t.y);
     }
     toString() {
       return '(' + this.x + ', ' + this.y + ')';
@@ -1922,7 +2172,7 @@
       return isNaN(this.x) || isNaN(this.y);
     }
     interpolate(t, e) {
-      return new et(this.x * (1 - e) + t.x * e, this.y * (1 - e) + t.y * e);
+      return new it(this.x * (1 - e) + t.x * e, this.y * (1 - e) + t.y * e);
     }
     setInterpolated(t, e, i) {
       return this.setXy(t.x * (1 - i) + e.x * i, t.y * (1 - i) + e.y * i);
@@ -1936,10 +2186,13 @@
       return Math.sqrt(this.distanceSqrTo(t));
     }
     offset(t, e) {
-      return new et(this.x + t, this.y + e);
+      return new it(this.x + t, this.y + e);
     }
     set(t) {
       return (this.x = t.x), (this.y = t.y), this;
+    }
+    setScaled(t, e) {
+      return (this.x = t.x * e), (this.y = t.y * e), this;
     }
     setXy(t, e) {
       return (this.x = t), (this.y = e), this;
@@ -1948,32 +2201,32 @@
       return this.setXy(Number.NaN, Number.NaN);
     }
     round() {
-      return new et(Math.round(this.x), Math.round(this.y));
+      return new it(Math.round(this.x), Math.round(this.y));
     }
     floor() {
-      return new et(Math.floor(this.x), Math.floor(this.y));
+      return new it(Math.floor(this.x), Math.floor(this.y));
     }
     snap(t = 0.5, e = 0.5) {
-      return new et(Math.floor(this.x) + t, Math.floor(this.y) + e);
+      return new it(Math.floor(this.x) + t, Math.floor(this.y) + e);
     }
     rotateInPlace(t, e) {
       const i = Math.sin(t),
         n = Math.cos(t),
-        o = this.x - e.x,
-        s = this.y - e.y;
-      return this.setXy(e.x + n * o - i * s, e.y + i * o + n * s), this;
+        s = this.x - e.x,
+        o = this.y - e.y;
+      return this.setXy(e.x + n * s - i * o, e.y + i * s + n * o), this;
     }
-    rotateInto(t, e, i, n, o) {
-      const s = this.x - i,
-        r = this.y - n;
-      o.setXy(i + t * s - e * r, n + e * s + t * r);
+    rotateInto(t, e, i, n, s) {
+      const o = this.x - i,
+        a = this.y - n;
+      s.setXy(i + t * o - e * a, n + e * o + t * a);
     }
     rotate(t, e) {
       const i = Math.sin(t),
         n = Math.cos(t),
-        o = this.x - e.x,
-        s = this.y - e.y;
-      return new et(e.x + n * o - i * s, e.y + i * o + n * s);
+        s = this.x - e.x,
+        o = this.y - e.y;
+      return new it(e.x + n * s - i * o, e.y + i * s + n * o);
     }
     plusEquals(t) {
       return (this.x += t.x), (this.y += t.y), this;
@@ -1997,13 +2250,13 @@
       return (this.x -= t), (this.y -= e), this;
     }
     minus(t) {
-      return new et(this.x - t.x, this.y - t.y);
+      return new it(this.x - t.x, this.y - t.y);
     }
     plus(t) {
-      return new et(this.x + t.x, this.y + t.y);
+      return new it(this.x + t.x, this.y + t.y);
     }
     times(t) {
-      return new et(t * this.x, t * this.y);
+      return new it(t * this.x, t * this.y);
     }
     timesEquals(t) {
       return (this.x *= t), (this.y *= t), this;
@@ -2012,7 +2265,7 @@
       return this.x * t.y - this.y * t.x;
     }
     ortho() {
-      return new et(this.y, -this.x);
+      return new it(this.y, -this.x);
     }
     dot(t) {
       return this.x * t.x + this.y * t.y;
@@ -2032,7 +2285,7 @@
       return e > t && this.timesEquals(t / e), this;
     }
     dup() {
-      return et.from(this);
+      return it.from(this);
     }
   }
   !(function (t) {
@@ -2119,28 +2372,58 @@
         (t.interpolationCoefficientsFor = function (e) {
           switch (e) {
             case t.TopLeft:
-              return { tx: 0, ty: 0 };
+              return {
+                tx: 0,
+                ty: 0
+              };
             case t.Top:
-              return { tx: 0.5, ty: 0 };
+              return {
+                tx: 0.5,
+                ty: 0
+              };
             case t.TopRight:
-              return { tx: 1, ty: 0 };
+              return {
+                tx: 1,
+                ty: 0
+              };
             case t.Right:
-              return { tx: 1, ty: 0.5 };
+              return {
+                tx: 1,
+                ty: 0.5
+              };
             case t.BottomRight:
-              return { tx: 1, ty: 1 };
+              return {
+                tx: 1,
+                ty: 1
+              };
             case t.Bottom:
-              return { tx: 0.5, ty: 1 };
+              return {
+                tx: 0.5,
+                ty: 1
+              };
             case t.BottomLeft:
-              return { tx: 0, ty: 1 };
+              return {
+                tx: 0,
+                ty: 1
+              };
             case t.Left:
-              return { tx: 0, ty: 0.5 };
+              return {
+                tx: 0,
+                ty: 0.5
+              };
             case t.Center:
-              return { tx: 0.5, ty: 0.5 };
+              return {
+                tx: 0.5,
+                ty: 0.5
+              };
           }
-          return { tx: 0.5, ty: 0.5 };
+          return {
+            tx: 0.5,
+            ty: 0.5
+          };
         });
     })(m || (m = {}));
-  class it {
+  class nt {
     constructor(t, e, i, n) {
       (this.p0 = t),
         (this.p1 = e),
@@ -2150,7 +2433,7 @@
         this.points.push(t, e, i, n);
     }
     static empty() {
-      return new it(et.empty(), et.empty(), et.empty(), et.empty());
+      return new nt(it.empty(), it.empty(), it.empty(), it.empty());
     }
     set(t) {
       return (
@@ -2162,16 +2445,16 @@
       );
     }
     dup() {
-      return new it(this.p0.dup(), this.p1.dup(), this.p2.dup(), this.p3.dup());
+      return new nt(this.p0.dup(), this.p1.dup(), this.p2.dup(), this.p3.dup());
     }
     contains(t, e) {
       var i = !1;
       const n = this.points.length;
-      for (var o = 0; o < n; o++) {
-        var s = this.points[o],
-          r = this.points[(o + 1) % n];
-        ((r.y < e && s.y >= e) || (s.y < e && r.y >= e)) &&
-          r.x + ((e - r.y) / (s.y - r.y)) * (s.x - r.x) < t &&
+      for (var s = 0; s < n; s++) {
+        var o = this.points[s],
+          a = this.points[(s + 1) % n];
+        ((a.y < e && o.y >= e) || (o.y < e && a.y >= e)) &&
+          a.x + ((e - a.y) / (o.y - a.y)) * (o.x - a.x) < t &&
           (i = !i);
       }
       return i;
@@ -2183,12 +2466,12 @@
       var e = this.p1.minus(this.p0),
         i = this.p2.minus(this.p1),
         n = this.p3.minus(this.p2),
-        o = this.p0.minus(this.p3),
-        s = t(e.cross(i)),
-        r = t(i.cross(n)),
-        a = t(n.cross(o)),
-        h = t(o.cross(e));
-      return s == r && s == a && s == h;
+        s = this.p0.minus(this.p3),
+        o = t(e.cross(i)),
+        a = t(i.cross(n)),
+        r = t(n.cross(s)),
+        h = t(s.cross(e));
+      return o == a && o == r && o == h;
     }
     rotateInPlace(t, e) {
       return (
@@ -2203,26 +2486,37 @@
       return this.dup().rotateInPlace(t, e);
     }
   }
-  class nt {
+  class st {
     constructor(t, e, i, n) {
       (this.left = t), (this.top = e), (this.right = i), (this.bottom = n);
     }
+    static zero() {
+      return new st(0, 0, 0, 0);
+    }
     static empty() {
-      return new nt(0, 0, 0, 0);
+      return new st(
+        Number.MAX_VALUE,
+        Number.MAX_VALUE,
+        -Number.MAX_VALUE,
+        -Number.MAX_VALUE
+      );
     }
     static unit() {
-      return new nt(0, 0, 1, 1);
+      return new st(0, 0, 1, 1);
+    }
+    static ofSize(t, e, i, n) {
+      return new st(t, e, t + i, e + n);
     }
     static fromBoundingRect(t) {
-      return new nt(t[0], t[1], t[2], t[3]);
+      return new st(t[0], t[1], t[2], t[3]);
     }
     static fromCropRect(t) {
-      return new nt(t.left0, t.top0, t.right0, t.bottom0);
+      return new st(t.left0, t.top0, t.right0, t.bottom0);
     }
     static fromPoints(t) {
       if (0 == t.length) return null;
       for (
-        var e = t[0], i = new nt(e.x, e.y, e.x, e.y), n = 1;
+        var e = t[0], i = new st(e.x, e.y, e.x, e.y), n = 1;
         n < t.length;
         n++
       )
@@ -2230,10 +2524,31 @@
       return i;
     }
     static fromQuad(t) {
-      return nt.fromPoints(t.points);
+      return st.fromPoints(t.points);
+    }
+    toString() {
+      return (
+        'Rect(' +
+        this.left +
+        ', ' +
+        this.top +
+        ', ' +
+        this.right +
+        ', ' +
+        this.bottom +
+        ')'
+      );
+    }
+    equals(t) {
+      return (
+        this.left == t.left &&
+        this.top == t.top &&
+        this.right == t.right &&
+        this.bottom == t.bottom
+      );
     }
     dup() {
-      return new nt(this.left, this.top, this.right, this.bottom);
+      return new st(this.left, this.top, this.right, this.bottom);
     }
     setNull() {
       return this.set(null, null, null, null);
@@ -2256,6 +2571,15 @@
         this
       );
     }
+    scale(t) {
+      return (
+        (this.left *= t),
+        (this.top *= t),
+        (this.right *= t),
+        (this.bottom *= t),
+        this
+      );
+    }
     fromCropRect(t) {
       return this.set(t.left0, t.top0, t.right0, t.bottom0);
     }
@@ -2265,6 +2589,14 @@
         t.x <= this.right &&
         this.top <= t.y &&
         t.y <= this.bottom
+      );
+    }
+    intersects(t) {
+      return (
+        this.left < t.right &&
+        t.left < this.right &&
+        this.top < t.bottom &&
+        t.top < this.bottom
       );
     }
     intersectionWith(t) {
@@ -2277,31 +2609,31 @@
       );
     }
     leftCenter() {
-      return new et(this.left, 0.5 * (this.top + this.bottom));
+      return new it(this.left, 0.5 * (this.top + this.bottom));
     }
     topLeft() {
-      return new et(this.left, this.top);
+      return new it(this.left, this.top);
     }
     topCenter() {
-      return new et(0.5 * (this.left + this.right), this.top);
+      return new it(0.5 * (this.left + this.right), this.top);
     }
     topRight() {
-      return new et(this.right, this.top);
+      return new it(this.right, this.top);
     }
     rightCenter() {
-      return new et(this.right, 0.5 * (this.top + this.bottom));
+      return new it(this.right, 0.5 * (this.top + this.bottom));
     }
     bottomLeft() {
-      return new et(this.left, this.bottom);
+      return new it(this.left, this.bottom);
     }
     bottomCenter() {
-      return new et(0.5 * (this.left + this.right), this.bottom);
+      return new it(0.5 * (this.left + this.right), this.bottom);
     }
     bottomRight() {
-      return new et(this.right, this.bottom);
+      return new it(this.right, this.bottom);
     }
     center() {
-      return new et(
+      return new it(
         0.5 * (this.left + this.right),
         0.5 * (this.top + this.bottom)
       );
@@ -2411,107 +2743,107 @@
     }
     moveAnchorToMinSize(t, e, i) {
       var n = Math.max(0, e - this.width()),
-        o = Math.max(0, i - this.height());
+        s = Math.max(0, i - this.height());
       switch (t) {
         case m.TopLeft:
-          (this.left -= n), (this.top -= o);
+          (this.left -= n), (this.top -= s);
           break;
         case m.Top:
-          this.top -= o;
+          this.top -= s;
           break;
         case m.TopRight:
-          (this.top -= o), (this.right += n);
+          (this.top -= s), (this.right += n);
           break;
         case m.Right:
           this.right += n;
           break;
         case m.BottomRight:
-          (this.right += n), (this.bottom += o);
+          (this.right += n), (this.bottom += s);
           break;
         case m.Bottom:
-          this.bottom += o;
+          this.bottom += s;
           break;
         case m.BottomLeft:
-          (this.left -= n), (this.bottom += o);
+          (this.left -= n), (this.bottom += s);
           break;
         case m.Left:
           this.left -= n;
           break;
         case m.Center:
           (n *= 0.5),
-            (o *= 0.5),
+            (s *= 0.5),
             (this.left -= n),
             (this.right += n),
-            (this.top -= o),
-            (this.bottom += o);
+            (this.top -= s),
+            (this.bottom += s);
       }
       return this;
     }
     forceAspectRatio(t, e) {
       const i = t * this.width();
       var n = 0,
-        o = 0;
+        s = 0;
       e == m.TopLeft ||
       e == m.TopRight ||
       e == m.BottomRight ||
       e == m.BottomLeft
         ? i > this.height()
           ? (n = i - this.height())
-          : (o = this.height() / t - this.width())
+          : (s = this.height() / t - this.width())
         : e == m.Top || e == m.Bottom
-        ? (o = this.height() / t - this.width())
+        ? (s = this.height() / t - this.width())
         : (n = i - this.height());
-      const s = 0.5 * o,
-        r = 0.5 * n;
+      const o = 0.5 * s,
+        a = 0.5 * n;
       switch (e) {
         case m.Top:
-          (this.bottom += n), (this.left -= s), (this.right += s);
+          (this.bottom += n), (this.left -= o), (this.right += o);
           break;
         case m.Left:
-          (this.right += o), (this.top -= r), (this.bottom += r);
+          (this.right += s), (this.top -= a), (this.bottom += a);
           break;
         case m.Bottom:
-          (this.top -= n), (this.left -= s), (this.right += s);
+          (this.top -= n), (this.left -= o), (this.right += o);
           break;
         case m.Right:
-          (this.left -= o), (this.top -= r), (this.bottom += r);
+          (this.left -= s), (this.top -= a), (this.bottom += a);
           break;
         case m.TopLeft:
-          (this.bottom += n), (this.right += o);
+          (this.bottom += n), (this.right += s);
           break;
         case m.TopRight:
-          (this.bottom += n), (this.left -= o);
+          (this.bottom += n), (this.left -= s);
           break;
         case m.BottomRight:
-          (this.top -= n), (this.left -= o);
+          (this.top -= n), (this.left -= s);
           break;
         case m.BottomLeft:
-          (this.top -= n), (this.right += o);
+          (this.top -= n), (this.right += s);
           break;
         case m.Center:
-          (this.top -= r),
-            (this.bottom += r),
-            (this.left -= s),
-            (this.right += s);
+          (this.top -= a),
+            (this.bottom += a),
+            (this.left -= o),
+            (this.right += o);
       }
       return this;
     }
     interpolate(t, e) {
-      return new et(
+      return new it(
         this.left * (1 - t) + t * this.right,
         this.top * (1 - e) + e * this.bottom
       );
     }
     transform(t, e) {
-      return new et(
+      return new it(
         e.left + ((t.x - this.left) / this.width()) * e.width(),
         e.top + ((t.y - this.top) / this.height()) * e.height()
       );
     }
     sampleGrid(t, e) {
       for (var i = [], n = 0; n < e; n++)
-        for (var o = n / (e - 1), s = 0; s < t; s++)
-          i.push(this.interpolate(s / (t - 1), o));
+        for (var s = n / (e - 1), o = 0; o < t; o++)
+          i.push(this.interpolate(o / (t - 1), s));
       return i;
     }
     setHorizontal(t) {
@@ -2541,11 +2873,22 @@
         this
       );
     }
+    addCircle(t, e) {
+      return this.addXy(t.x - e, t.y - e), this.addXy(t.x + e, t.y + e), this;
+    }
+    addX(t) {
+      (this.left = Math.min(this.left, t)),
+        (this.right = Math.max(this.right, t));
+    }
+    addY(t) {
+      (this.top = Math.min(this.top, t)),
+        (this.bottom = Math.max(this.bottom, t));
+    }
+    addXy(t, e) {
+      this.addX(t), this.addY(e);
+    }
     addPoint(t) {
-      (this.left = Math.min(this.left, t.x)),
-        (this.top = Math.min(this.top, t.y)),
-        (this.right = Math.max(this.right, t.x)),
-        (this.bottom = Math.max(this.bottom, t.y));
+      this.addXy(t.x, t.y);
     }
     addPointSafe(t) {
       t &&
@@ -2562,6 +2905,12 @@
     height() {
       return this.bottom - this.top;
     }
+    area() {
+      return this.width() * this.height();
+    }
+    aspectRatio() {
+      return this.height() / this.width();
+    }
     pad(t, e, i, n) {
       return (
         null == e && (e = t),
@@ -2574,11 +2923,20 @@
         this
       );
     }
+    padLeft(t) {
+      return (this.left -= t), this;
+    }
+    padTop(t) {
+      return (this.top -= t), this;
+    }
+    padRight(t) {
+      return (this.right += t), this;
+    }
     padBottom(t) {
       return (this.bottom += t), this;
     }
     toQuad() {
-      return new it(
+      return new nt(
         this.topLeft(),
         this.topRight(),
         this.bottomRight(),
@@ -2630,21 +2988,22 @@
       });
   })(g || (g = {})),
     (function (t) {
+      t.RecodeJpegQuality = 0.95;
       const e = new Set(['image/png', 'image/jpeg']);
-      function i(e, i, n, o) {
-        p.get(e, function (s) {
+      function i(e, i, n, s) {
+        p.get(e, function (o) {
           f.loadImageFromBlob(e, n, e => {
             if (
-              s.statusCode != u.Success ||
-              s.orientation == l.R0 ||
-              s.orientation == l.Undefined ||
+              o.statusCode != u.Success ||
+              o.orientation == l.R0 ||
+              o.orientation == l.Undefined ||
               g.BrowserRotates()
             ) {
               const n = t.imageToCanvasEx(e, i);
-              (n.wasRotated = !1), o(n);
+              (n.wasRotated = !1), s(n, o);
             } else {
-              const n = t.rotateImageToCanvasEx(e, s.orientation, i);
-              (n.wasRotated = !0), o(n);
+              const n = t.rotateImageToCanvasEx(e, o.orientation, i);
+              (n.wasRotated = !0), o.applyOrientation(), s(n, o);
             }
           });
         });
@@ -2652,50 +3011,50 @@
       function n(t, e) {
         const i = t.naturalWidth,
           n = t.naturalHeight;
-        let o = new st(i, n);
+        let s = new at(i, n);
         return (
-          (o.wasShrunk = !1),
-          o.context().setGlobalAlpha(1),
+          (s.wasShrunk = !1),
+          s.context().setGlobalAlpha(1),
           e &&
-            (o.context().setFillStyle('rgb(255,255,255)'),
-            o.context().fillRect(0, 0, i, n)),
-          o.context().context.drawImage(t, 0, 0, i, n),
-          o
+            (s.context().setFillStyle('rgb(255,255,255)'),
+            s.context().fillRect(0, 0, i, n)),
+          s.context().context.drawImage(t, 0, 0, i, n),
+          s
         );
       }
-      function o(t) {
+      function s(t) {
         return n(t, !0);
       }
-      function s(t, e, i) {
+      function o(t, e, i) {
         const n = t.naturalWidth,
-          s = t.naturalHeight;
-        let r = n,
-          a = s,
+          o = t.naturalHeight;
+        let a = n,
+          r = o,
           h = 0;
         switch (e) {
           case l.Undefined:
           case l.R0:
-            return o(t);
+            return s(t);
           case l.R90:
-            (r = s), (a = n), (h = 0.5 * Math.PI);
+            (a = o), (r = n), (h = 0.5 * Math.PI);
             break;
           case l.R180:
             h = Math.PI;
             break;
           case l.R270:
-            (r = s), (a = n), (h = 0.5 * -Math.PI);
+            (a = o), (r = n), (h = 0.5 * -Math.PI);
         }
-        let c = new st(r, a);
+        let c = new at(a, r);
         return (
           (c.wasShrunk = !1),
           c.context().setGlobalAlpha(1),
           i &&
             (c.context().setFillStyle('rgb(255,255,255)'),
-            c.context().fillRect(0, 0, r, a)),
+            c.context().fillRect(0, 0, a, r)),
           c.context().save(),
-          c.context().translate(0.5 * r, 0.5 * a),
+          c.context().translate(0.5 * a, 0.5 * r),
           c.context().rotate(h),
-          c.context().context.drawImage(t, 0.5 * -n, 0.5 * -s, n, s),
+          c.context().context.drawImage(t, 0.5 * -n, 0.5 * -o, n, o),
           c.context().restore(),
           c
         );
@@ -2711,21 +3070,25 @@
         (t.needsReencoding = function (t) {
           return !e.has(t);
         }),
-        (t.recodeCanvasFile = function (t, e) {
+        (t.recodeCanvasFile = function (e, i) {
           return (
-            (i = t.type),
-            f.endsWith(i, 'jpeg') ||
-            f.endsWith(i, 'jpg') ||
-            f.endsWith(i, 'webp') ||
-            f.endsWith(i, 'jp2') ||
-            f.endsWith(i, 'cr2') ||
-            f.endsWith(i, 'nef') ||
-            f.endsWith(i, 'dng') ||
-            f.endsWith(i, 'jps') ||
-            f.startsWith(i, 'image/heif') ||
-            f.startsWith(i, 'image/avif')
-              ? e.toFile('image/jpeg', 0.95, f.dropExtension(t.name) + '.jpeg')
-              : e.toFile('image/png', 1, f.dropExtension(t.name) + '.png')
+            (n = e.type),
+            f.endsWith(n, 'jpeg') ||
+            f.endsWith(n, 'jpg') ||
+            f.endsWith(n, 'webp') ||
+            f.endsWith(n, 'jp2') ||
+            f.endsWith(n, 'cr2') ||
+            f.endsWith(n, 'nef') ||
+            f.endsWith(n, 'dng') ||
+            f.endsWith(n, 'jps') ||
+            f.startsWith(n, 'image/heif') ||
+            f.startsWith(n, 'image/avif')
+              ? i.toFile(
+                  'image/jpeg',
+                  t.RecodeJpegQuality,
+                  f.dropExtension(e.name) + '.jpeg'
+                )
+              : i.toFile('image/png', 1, f.dropExtension(e.name) + '.png')
           );
         }),
         (t.loadCheckRotateImage = i),
@@ -2733,10 +3096,10 @@
           i(t, !0, e, n);
         }),
         (t.imageToCanvasEx = n),
-        (t.flattenImage = o),
-        (t.rotateImageToCanvasEx = s),
+        (t.flattenImage = s),
+        (t.rotateImageToCanvasEx = o),
         (t.rotateAndFlattenImage = function (t, e) {
-          return s(t, e, !0);
+          return o(t, e, !0);
         });
     })(F || (F = {}));
   class ot {
@@ -2793,14 +3156,26 @@
     save() {
       this.context.save();
     }
+    fill() {
+      this.context.fill();
+    }
     stroke() {
       this.context.stroke();
     }
     strokeRect(t, e, i, n) {
       this.context.strokeRect(t, e, i, n);
     }
-    createRadialGradient(t, e, i, n, o, s) {
-      return this.context.createRadialGradient(t, e, i, n, o, s);
+    strokeCross(t, e, i, n) {
+      let s = this.context;
+      s.beginPath(),
+        s.moveTo(t, e),
+        s.lineTo(t + i, e + n),
+        s.moveTo(t + i, e),
+        s.lineTo(t, e + n),
+        s.stroke();
+    }
+    createRadialGradient(t, e, i, n, s, o) {
+      return this.context.createRadialGradient(t, e, i, n, s, o);
     }
     createLinearGradient(t, e, i, n) {
       return this.context.createLinearGradient(t, e, i, n);
@@ -2832,8 +3207,8 @@
     quadraticCurveTo(t, e, i, n) {
       this.context.quadraticCurveTo(t, e, i, n);
     }
-    bezierCurveTo(t, e, i, n, o, s) {
-      this.context.bezierCurveTo(t, e, i, n, o, s);
+    bezierCurveTo(t, e, i, n, s, o) {
+      this.context.bezierCurveTo(t, e, i, n, s, o);
     }
     rotate(t) {
       this.context.rotate(t);
@@ -2844,34 +3219,34 @@
     closePath() {
       this.context.closePath();
     }
-    arc(t, e, i, n, o, s) {
-      this.context.arc(t, e, i, n, o, s);
+    arc(t, e, i, n, s, o) {
+      this.context.arc(t, e, i, n, s, o);
     }
     rect(t, e, i, n) {
       this.context.rect(t, e, i, n);
     }
-    rectTo(t, e, i, n, o) {
-      let s = t + i,
-        r = e + n;
+    rectTo(t, e, i, n, s) {
+      let o = t + i,
+        a = e + n;
       this.moveTo(t, e),
-        o
-          ? (this.lineTo(s, e), this.lineTo(s, r), this.lineTo(t, r))
-          : (this.lineTo(t, r), this.lineTo(s, r), this.lineTo(s, e)),
+        s
+          ? (this.lineTo(o, e), this.lineTo(o, a), this.lineTo(t, a))
+          : (this.lineTo(t, a), this.lineTo(o, a), this.lineTo(o, e)),
         this.lineTo(t, e),
         this.closePath();
     }
     clip() {
       this.context.clip();
     }
-    clipBlock(t, e, i, n, o, s) {
+    clipBlock(t, e, i, n, s, o) {
       t
         ? (this.save(),
           this.beginPath(),
-          this.rect(e, i, n - e, o - i),
+          this.rect(e, i, n - e, s - i),
           this.clip(),
-          s(),
+          o(),
           this.restore())
-        : s();
+        : o();
     }
     rotatedFrame(t, e, i) {
       0 != t
@@ -2930,43 +3305,43 @@
     putImageData(t, e, i) {
       this.context.putImageData(t, e, i);
     }
-    putImageData2(t, e, i, n, o, s, r) {
-      this.context.putImageData(t, e, i, n, o, s, r);
+    putImageData2(t, e, i, n, s, o, a) {
+      this.context.putImageData(t, e, i, n, s, o, a);
     }
     fillRect(t, e, i, n) {
       this.context.fillRect(t, e, i, n);
     }
-    roundedRect(t, e, i, n, o) {
-      i < 2 * o && (o = i / 2),
-        n < 2 * o && (o = n / 2),
+    roundedRect(t, e, i, n, s) {
+      i < 2 * s && (s = i / 2),
+        n < 2 * s && (s = n / 2),
         this.beginPath(),
-        this.moveTo(t + o, e),
-        this.context.arcTo(t + i, e, t + i, e + n, o),
-        this.context.arcTo(t + i, e + n, t, e + n, o),
-        this.context.arcTo(t, e + n, t, e, o),
-        this.context.arcTo(t, e, t + i, e, o),
+        this.moveTo(t + s, e),
+        this.context.arcTo(t + i, e, t + i, e + n, s),
+        this.context.arcTo(t + i, e + n, t, e + n, s),
+        this.context.arcTo(t, e + n, t, e, s),
+        this.context.arcTo(t, e, t + i, e, s),
         this.closePath();
     }
-    fillRoundedRect(t, e, i, n, o) {
-      this.roundedRect(t, e, i, n, o), this.context.fill();
+    fillRoundedRect(t, e, i, n, s) {
+      this.roundedRect(t, e, i, n, s), this.context.fill();
     }
     drawImage(t, e, i) {
       this.context.drawImage(t, e, i);
     }
-    drawImage2(t, e, i, n, o) {
-      this.context.drawImage(t, e, i, n, o);
+    drawImage2(t, e, i, n, s) {
+      this.context.drawImage(t, e, i, n, s);
     }
-    drawImage3(t, e, i, n, o, s, r, a, h) {
-      this.context.drawImage(t, e, i, n, o, s, r, a, h);
+    drawImage3(t, e, i, n, s, o, a, r, h) {
+      this.context.drawImage(t, e, i, n, s, o, a, r, h);
     }
     drawCanvasEx(t, e, i) {
       this.context.drawImage(t.element, e, i);
     }
-    drawCanvasEx2(t, e, i, n, o) {
-      this.context.drawImage(t.element, e, i, n, o);
+    drawCanvasEx2(t, e, i, n, s) {
+      this.context.drawImage(t.element, e, i, n, s);
     }
-    drawCanvasEx3(t, e, i, n, o, s, r, a, h) {
-      this.context.drawImage(t.element, e, i, n, o, s, r, a, h);
+    drawCanvasEx3(t, e, i, n, s, o, a, r, h) {
+      this.context.drawImage(t.element, e, i, n, s, o, a, r, h);
     }
     circle(t, e, i) {
       this.context.beginPath(), this.context.arc(t, e, i, 0, 2 * Math.PI, !0);
@@ -2989,9 +3364,9 @@
         this.circle(t, e, i),
         this.context.stroke();
     }
-    strokeLine(t, e, i, n, o, s) {
-      o && (this.context.lineWidth = o),
-        s && (this.context.strokeStyle = s),
+    strokeLine(t, e, i, n, s, o) {
+      s && (this.context.lineWidth = s),
+        o && (this.context.strokeStyle = o),
         this.context.beginPath(),
         this.context.moveTo(t, e),
         this.context.lineTo(i, n),
@@ -3004,15 +3379,15 @@
         this.context.stroke();
       }
     }
-    triangle(t, e, i, n, o, s) {
-      var r = (120 * Math.PI) / 180;
-      (o = o || n),
-        (s = s || o),
+    triangle(t, e, i, n, s, o) {
+      var a = (120 * Math.PI) / 180;
+      (s = s || n),
+        (o = o || s),
         this.context.moveTo(t + n * Math.cos(i), e + n * Math.sin(i)),
-        this.context.lineTo(t + o * Math.cos(i + r), e + o * Math.sin(i + r)),
+        this.context.lineTo(t + s * Math.cos(i + a), e + s * Math.sin(i + a)),
         this.context.lineTo(
-          t + s * Math.cos(i + 2 * r),
-          e + s * Math.sin(i + 2 * r)
+          t + o * Math.cos(i + 2 * a),
+          e + o * Math.sin(i + 2 * a)
         ),
         this.context.closePath();
     }
@@ -3026,41 +3401,46 @@
     fillEx(t) {
       (this.context.fillStyle = t), this.context.fill();
     }
-    drawCenteredText(t, e) {
-      var i = t;
-      const n = t.length;
-      this.setGlobalAlpha(1), this.setFont(this.canvas.largeFont);
-      let o = 18;
-      var s = this.measureText(t).width;
-      const r = this.canvas.logicalWidth();
-      var a = r - 20;
-      s > a &&
+    drawCenteredText(t, e, i = 18, n = !0) {
+      var s = t;
+      const o = t.length;
+      this.setGlobalAlpha(1);
+      let a = i;
+      this.setFont(at.defaultFontOfSize(a));
+      var r = this.measureText(t).width;
+      const h = this.canvas.logicalWidth();
+      var l = h - 20;
+      r > l &&
         (this.setFont(this.canvas.smallFont),
-        (o = 12),
-        (s = this.measureText(t).width) > a &&
-          ((t = f.centerElide(i, 0.75 * n)),
-          (s = this.measureText(t).width) > a &&
-            ((t = f.centerElide(i, 0.5 * n)),
-            (s = this.measureText(t).width) > a &&
-              ((t = f.centerElide(i, 0.25 * n)),
-              (s = this.measureText(t).width)))));
-      let h = (r - s) / 2,
-        l = o + 4,
-        c = 0.25 * o + 1;
-      this.setGlobalAlpha(0.4),
+        (a = 12),
+        (r = this.measureText(t).width) > l &&
+          ((t = f.centerElide(s, 0.75 * o)),
+          (r = this.measureText(t).width) > l &&
+            ((t = f.centerElide(s, 0.5 * o)),
+            (r = this.measureText(t).width) > l &&
+              ((t = f.centerElide(s, 0.25 * o)),
+              (r = this.measureText(t).width)))));
+      let c = (h - r) / 2,
+        u = a + 4,
+        d = 0.25 * a + 1;
+      n &&
+        (this.setGlobalAlpha(0.4),
         this.setFillStyle('#fff'),
-        this.fillRoundedRect(h - 4, e - l + c, s + 8, l, 0.4 * l),
-        this.setGlobalAlpha(1),
+        this.fillRoundedRect(c - 4, e - u + d, r + 8, u, 0.4 * u),
+        this.setGlobalAlpha(1)),
         this.setFillStyle('#000'),
-        this.fillText(t, h, e);
+        this.fillText(t, c, e);
     }
   }
-  class st {
+  class at {
+    static defaultFontOfSize(t) {
+      return t + 'px ' + F.DefaultFontFamily;
+    }
     static fromHTMLImageElement(t, e = 1) {
       let i = t.naturalWidth * e,
         n = t.naturalHeight * e,
-        o = new st(i, n);
-      return o.context().drawImage2(t, 0, 0, i, n), o;
+        s = new at(i, n);
+      return s.context().drawImage2(t, 0, 0, i, n), s;
     }
     constructor(t, e, i = 1) {
       (this.w = t),
@@ -3097,7 +3477,10 @@
       return this.hLogical;
     }
     boundsRect() {
-      return new nt(0, 0, this.width(), this.height());
+      return new st(0, 0, this.width(), this.height());
+    }
+    logicalBoundsRect() {
+      return st.ofSize(0, 0, this.logicalWidth(), this.logicalHeight());
     }
     size() {
       return this.w * this.h;
@@ -3109,37 +3492,81 @@
       return 4 * this.size();
     }
     dup() {
-      let t = new st(this.width(), this.height());
+      let t = new at(this.width(), this.height());
       return t.context().drawCanvasEx(this, 0, 0), t;
     }
     crop(t, e, i, n) {
-      let o = new st(i, n);
-      return o.context().drawCanvasEx(this, -t, -e), o;
+      let s = new at(i, n);
+      return s.context().drawCanvasEx(this, -t, -e), s;
+    }
+    isOpaque() {
+      let t = this.context().getImageDataFull().data,
+        e = t.length / 4;
+      if (e > 0)
+        for (let i = 0; i < e; i++) {
+          if (t[4 * i + 3] < 255) return !1;
+        }
+      return !0;
+    }
+    removeAlpha() {
+      let t = this.context().getImageDataFull(),
+        e = t.data,
+        i = e.length / 4;
+      if (i > 0) for (let t = 0; t < i; t++) e[4 * t + 3] = 255;
+      return this.context().putImageData(t, 0, 0), this;
+    }
+    hasTransparency() {
+      return !this.isOpaque();
     }
     computeMeanRgba(t, e, i, n) {
       if (null != t && null != e && null != i && null != n) {
-        let o = this.context().getImageData(t, e, i, n).data,
-          s = o.length / 4;
-        if (s > 0) {
+        let s = this.context().getImageData(t, e, i, n).data,
+          o = s.length / 4;
+        if (o > 0) {
           let t = new Float64Array(4);
-          for (let e = 0, i = 0; e < s; e++)
-            (t[0] += o[i++]),
-              (t[1] += o[i++]),
-              (t[2] += o[i++]),
-              (t[3] += o[i++]);
+          for (let e = 0, i = 0; e < o; e++)
+            (t[0] += s[i++]),
+              (t[1] += s[i++]),
+              (t[2] += s[i++]),
+              (t[3] += s[i++]);
           let e = new Uint8ClampedArray(4);
           return (
-            (e[0] = t[0] / s),
-            (e[1] = t[1] / s),
-            (e[2] = t[2] / s),
-            (e[3] = t[3] / s),
+            (e[0] = t[0] / o),
+            (e[1] = t[1] / o),
+            (e[2] = t[2] / o),
+            (e[3] = t[3] / o),
+            e
+          );
+        }
+      }
+    }
+    computeAlphaWeightedMeanRgba(t, e, i, n) {
+      if (null != t && null != e && null != i && null != n) {
+        let s = this.context().getImageData(t, e, i, n).data,
+          o = s.length / 4;
+        if (o > 0) {
+          let t = new Float64Array(4);
+          for (let e = 0, i = 0; e < o; e++) {
+            let e = s[i++],
+              n = s[i++],
+              o = s[i++],
+              a = s[i++];
+            (t[0] += e * a), (t[1] += n * a), (t[2] += o * a), (t[3] += a);
+          }
+          let e = new Uint8ClampedArray(4);
+          return (
+            t[3] > 0 &&
+              ((e[0] = t[0] / t[3]),
+              (e[1] = t[1] / t[3]),
+              (e[2] = t[2] / t[3])),
+            (e[3] = t[3] / o),
             e
           );
         }
       }
     }
     scale(t) {
-      let e = new st(
+      let e = new at(
         Math.round(this.width() * t),
         Math.round(this.height() * t)
       );
@@ -3196,33 +3623,33 @@
     fillAliasedCircle(t, e, i, n) {
       if (!(i <= 0)) {
         for (
-          var o = this.context().getImageData(
+          var s = this.context().getImageData(
               0,
               0,
               this.width(),
               this.height()
             ),
-            s = i * i,
-            r = Math.max(0, Math.floor(t - i)),
-            a = Math.min(this.width() - 1, Math.ceil(t + i)),
+            o = i * i,
+            a = Math.max(0, Math.floor(t - i)),
+            r = Math.min(this.width() - 1, Math.ceil(t + i)),
             h = Math.max(0, Math.floor(e - i)),
             l = Math.min(this.height() - 1, Math.ceil(e + i)),
             c = h;
           c <= l;
           c++
         )
-          for (var u = r; u <= a; u++)
+          for (var u = a; u <= r; u++)
             if (
               (u + 0.5 - t) * (u + 0.5 - t) + (c + 0.5 - e) * (c + 0.5 - e) <=
-              s
+              o
             ) {
               var d = 4 * (c * this.width() + u);
-              (o.data[d] = n[0]),
-                (o.data[d + 1] = n[1]),
-                (o.data[d + 2] = n[2]),
-                (o.data[d + 3] = n[3]);
+              (s.data[d] = n[0]),
+                (s.data[d + 1] = n[1]),
+                (s.data[d + 2] = n[2]),
+                (s.data[d + 3] = n[3]);
             }
-        this.context().putImageData(o, 0, 0);
+        this.context().putImageData(s, 0, 0);
       }
     }
   }
@@ -3245,17 +3672,25 @@
       'mobile|ip(hone|od|ad)|android|blackberry|iemobile|kindle|netfront|silk-accelerated|(hpw|web)os|fennec|minimo|opera m(obi|ini)|blazer|dolfin|dolphin|skyfire|zune'
     );
     function i(t, e, i) {
-      navigator.clipboard.write([new ClipboardItem({ [t.type]: t })]).then(
-        () => {
-          e();
-        },
-        () => {
-          i();
-        }
-      );
+      navigator.clipboard && navigator.clipboard.write
+        ? navigator.clipboard
+            .write([
+              new ClipboardItem({
+                [t.type]: t
+              })
+            ])
+            .then(
+              () => {
+                e();
+              },
+              t => {
+                i();
+              }
+            )
+        : setTimeout(i, 0);
     }
     (t.copyImageToClipboard = function (t, e, n) {
-      st.fromHTMLImageElement(t).toBlobAsync(t => i(t, e, n));
+      at.fromHTMLImageElement(t).toBlobAsync(t => i(t, e, n));
     }),
       (t.copyImageBlobToClipboard = i),
       (t.isMobile = function () {
@@ -3267,11 +3702,11 @@
           ) && e.test(navigator.userAgent.toLowerCase())
         );
       });
-    const o =
+    const s =
         /\<svg[^\>]+viewBox\s*=\s*"\s*([\d\.]+)\s+([\d\.]+)\s+([\d\.]+)\s+([\d\.]+)\s*"/,
-      s = /\<svg[^\>]+width\s*=\s*"\s*([\d\.]+)/,
-      r = /\<svg[^\>]+height\s*=\s*"\s*([\d\.]+)/;
-    function a(t, e, i) {
+      o = /\<svg[^\>]+width\s*=\s*"\s*([\d\.]+)/,
+      a = /\<svg[^\>]+height\s*=\s*"\s*([\d\.]+)/;
+    function r(t, e, i) {
       let n = new Image();
       (n.onload = function () {
         URL.revokeObjectURL(n.src), i(n);
@@ -3280,11 +3715,11 @@
         (n.src = t);
     }
     (t.loadImageFromSvgString = function (e, i, n) {
-      a(
+      r(
         t.svgStringToDataUrl(
           (function (t) {
-            let e = s.exec(t),
-              i = r.exec(t);
+            let e = o.exec(t),
+              i = a.exec(t);
             if (
               e &&
               2 == e.length &&
@@ -3295,15 +3730,15 @@
             )
               return t;
             {
-              let e = o.exec(t);
+              let e = s.exec(t);
               if (5 == e.length) {
                 parseInt(e[1]), parseInt(e[2]);
                 let i = parseInt(e[3]),
                   n = parseInt(e[4]);
                 if (isFinite(i) && isFinite(n)) {
                   let e = 150,
-                    o = Math.ceil((n / i) * e);
-                  return t.replace('<svg', `<svg width="${e}" height="${o}"`);
+                    s = Math.ceil((n / i) * e);
+                  return t.replace('<svg', `<svg width="${e}" height="${s}"`);
                 }
               }
             }
@@ -3314,26 +3749,26 @@
         n
       );
     }),
-      (t.loadImageFromDataUrl = a),
+      (t.loadImageFromDataUrl = r),
       (t.loadImageFromUrl = function (t, e, i) {
         let n = new Image();
         (n.onload = () => i(n)), (n.onerror = e), (n.src = t);
       }),
       (t.loadImageFromBlob = function (t, e, i) {
-        a(URL.createObjectURL(t), e, i);
+        r(URL.createObjectURL(t), e, i);
       }),
       (t.loadFileFromUrl = function (e, i, n) {
-        let o = new XMLHttpRequest();
-        o.open('GET', e, !0),
-          (o.responseType = 'blob'),
-          (o.onload = function (o) {
+        let s = new XMLHttpRequest();
+        s.open('GET', e, !0),
+          (s.responseType = 'blob'),
+          (s.onload = function (s) {
             if (200 == this.status) {
-              let o = this.response,
-                s = e.split('/');
-              i || (i = s[s.length - 1]), n(t.blobToFile(o, i));
+              let s = this.response,
+                o = e.split('/');
+              i || (i = o[o.length - 1]), n(t.blobToFile(s, i));
             }
           }),
-          o.send();
+          s.send();
       }),
       (t.gaTrack = function (t, e, i, n) {
         'gtag' in window
@@ -3343,7 +3778,9 @@
               value: n,
               non_interaction: !0
             })
-          : ga('send', 'event', t, e, i, n, { nonInteraction: !0 });
+          : ga('send', 'event', t, e, i, n, {
+              nonInteraction: !0
+            });
       }),
       (t.gaSetPageAndSendPageview = function (t) {
         ga('set', 'page', t || location.pathname), ga('send', 'pageview');
@@ -3351,30 +3788,36 @@
       (t.modal = function (t, e = !1, i = !1) {
         var n = 'string' == typeof t ? $(t) : t.$();
         e
-          ? n.modal({ backdrop: !i, keyboard: !0 })
-          : n.modal({ backdrop: 'static', keyboard: !1 });
-        var o = $('.modal-backdrop'),
-          s = 1040 + 2 * (o.length - 1);
-        o.last().css('z-index', s), n.css('z-index', s + 1);
+          ? n.modal({
+              backdrop: !i,
+              keyboard: !0
+            })
+          : n.modal({
+              backdrop: 'static',
+              keyboard: !1
+            });
+        var s = $('.modal-backdrop'),
+          o = 1040 + 2 * (s.length - 1);
+        s.last().css('z-index', o), n.css('z-index', o + 1);
       }),
       (t.blink = function (t, e = 200, i = 3) {
         var n = 'string' == typeof t ? $(t) : t.$();
-        function o() {
-          n.fadeIn(e, s);
-        }
         function s() {
-          --i > 0 && n.fadeOut(e, o);
+          n.fadeIn(e, o);
         }
-        n.fadeOut(e, o);
+        function o() {
+          --i > 0 && n.fadeOut(e, s);
+        }
+        n.fadeOut(e, s);
       }),
       (t.makeElement = function (t, e) {
         var i = $(document.createElement(t));
         return i.text(e), i;
       }),
       (t.formatXhrError = function (e, i) {
-        const o = e.responseURL || '[Unknown URL]';
+        const s = e.responseURL || '[Unknown URL]';
         if (
-          (t.gaTrack('XhrError', o, e.status + ', ' + (i || '[unknown]')),
+          (t.gaTrack('XhrError', s, e.status + ', ' + (i || '[unknown]')),
           0 === e.status)
         )
           return (
@@ -3384,40 +3827,47 @@
             '\n'
           );
         {
-          const o = t.elide(e.responseText.toString(), 200);
+          const s = t.elide(
+            (o = e.response)
+              ? 'object' == typeof o
+                ? JSON.stringify(o)
+                : o.toString()
+              : 'null',
+            200
+          );
           return e.status < 200 || 299 < e.status
-            ? e.statusText + ' [' + e.status + ']\n' + o
+            ? e.statusText + ' [' + e.status + ']\n' + s
             : 'parsererror' === i
-            ? n.s('Failed to parse JSON response.') + ' [' + i + ']\n' + o
+            ? n.s('Failed to parse JSON response.') + ' [' + i + ']\n' + s
             : 'timeout' === i
             ? n.s('Request time out.') + ' [' + i + ']'
             : 'abort' === i
             ? n.s('Request aborted by the server.') + ' [' + i + ']'
             : 'empty' === i
             ? n.s('Server gave an empty response.')
-            : n.s('Unknown error.') + '\n' + o;
+            : n.s('Unknown error.') + '\n' + s;
         }
       });
   })(f || (f = {})),
     (function (t) {
       function e(e) {
-        a.FatalError.Message.$().text(e),
-          t.modal(a.FatalError.Dialog),
+        r.FatalError.Message.$().text(e),
+          t.modal(r.FatalError.Dialog),
           t.gaTrack('ErrorShown', 'Fatal', e);
       }
       function i(e) {
         e
-          ? t.modal(a.App.SpinnerLightbox)
-          : a.App.SpinnerLightbox.$().modal('hide');
+          ? t.modal(r.App.SpinnerLightbox)
+          : r.App.SpinnerLightbox.$().modal('hide');
       }
       function n(e) {
         e
-          ? t.modal(a.App.ProgressLightbox)
-          : a.App.ProgressLightbox.$().modal('hide');
+          ? t.modal(r.App.ProgressLightbox)
+          : r.App.ProgressLightbox.$().modal('hide');
       }
       (t.countInstances = function (t, e) {
         const i = e.charCodeAt(0);
-        for (var n = 0, o = 0; o < t.length; o++) t.charCodeAt(o) == i && n++;
+        for (var n = 0, s = 0; s < t.length; s++) t.charCodeAt(s) == i && n++;
         return n;
       }),
         (t.whilePressing = function (t, e, i) {
@@ -3426,14 +3876,14 @@
               window.removeEventListener('mouseup', n),
               i();
           }
-          function o() {
+          function s() {
             window.addEventListener('touchend', n),
               window.addEventListener('mouseup', n),
               e();
           }
           t.$().each(function (t, e) {
-            e.addEventListener('touchstart', o),
-              e.addEventListener('mousedown', o);
+            e.addEventListener('touchstart', s),
+              e.addEventListener('mousedown', s);
           });
         }),
         (t.radioButton = function (t, e, i) {
@@ -3441,7 +3891,7 @@
           n.click(t => {
             t.preventDefault(),
               t.stopPropagation(),
-              !n.hasClass(r.active.name()) ? e() : i();
+              !n.hasClass(a.active.name()) ? e() : i();
           });
         }),
         (t.blurActiveElement = function () {
@@ -3450,21 +3900,23 @@
             : window.focus();
         }),
         (t.progressBar = function (t, e) {
-          t.Bar.$().css({ width: e + '%' });
+          t.Bar.$().css({
+            width: e + '%'
+          });
         }),
-        (t.fatalError = function (o) {
-          i(!1), n(!1), e(t.stringify(o));
+        (t.fatalError = function (s) {
+          i(!1), n(!1), e(t.stringify(s));
         }),
         (t.fatalErrorStr = e),
         (t.spinner = i),
         (t.progress = n),
         (t.progressUpdate = function (t) {
-          a.App.ProgressLightboxBar.$().attr('style', 'width:' + t + '%');
+          r.App.ProgressLightboxBar.$().attr('style', 'width:' + t + '%');
         }),
         (t.saveAndExit = function (e) {
           e
-            ? t.modal(a.App.SaveAndExitLightbox)
-            : a.App.SaveAndExitLightbox.$().modal('hide');
+            ? t.modal(r.App.SaveAndExitLightbox)
+            : r.App.SaveAndExitLightbox.$().modal('hide');
         });
     })(f || (f = {})),
     (function (t) {
@@ -3488,21 +3940,21 @@
     (function (t) {
       const e = '.FileDropper';
       var i,
-        s = !0;
-      let r, a;
+        o = !0;
+      let a, r;
       !(function (t) {
         (t[(t.Dropped = 0)] = 'Dropped'),
           (t[(t.Picked = 1)] = 'Picked'),
           (t[(t.Pasted = 2)] = 'Pasted'),
           (t[(t.Url = 3)] = 'Url');
-      })((r = t.InputMethod || (t.InputMethod = {}))),
+      })((a = t.InputMethod || (t.InputMethod = {}))),
         (function (t) {
           (t[(t.NoBrowserSupport = 0)] = 'NoBrowserSupport'),
             (t[(t.NonFileInput = 1)] = 'NonFileInput'),
             (t[(t.NonImageInput = 2)] = 'NonImageInput');
-        })((a = t.ErrorCode || (t.ErrorCode = {}))),
+        })((r = t.ErrorCode || (t.ErrorCode = {}))),
         (t.initialize = function (t) {
-          var o = !1,
+          var s = !1,
             h = $.extend(
               {},
               {
@@ -3516,7 +3968,7 @@
             h.afterPaste(!1), h.error(t, e, i);
           }
           function c() {
-            (s = !1),
+            (o = !1),
               h.monitor_drag &&
                 h.hover_class_on &&
                 h.hover_class &&
@@ -3526,16 +3978,16 @@
               h.focusPasteOnCtrlV && $(window).off(e);
           }
           function u(t, e, i) {
-            s &&
+            o &&
               (t && t.length > 0
                 ? ('Pasted' == e && h.afterPaste(!0),
                   h.beforeDrop && h.beforeDrop(),
-                  i == r.Dropped && h.hideDurationMs
+                  i == a.Dropped && h.hideDurationMs
                     ? setTimeout(() => {
                         h.drop.call(this, t, i), h.dropOnce && c();
                       }, h.hideDurationMs)
                     : (h.drop.call(this, t, i), h.dropOnce && c()))
-                : l(n.s(e + ' a non-file input'), i, a.NonFileInput));
+                : l(n.s(e + ' a non-file input'), i, r.NonFileInput));
           }
           function d(t, e) {
             clearTimeout(i), t.stopImmediatePropagation(), t.preventDefault();
@@ -3554,10 +4006,10 @@
             } catch (t) {
               n = !0;
             }
-            let o = h.hover_class_on.$().hasClass(h.hover_class.name()),
-              s = e && n;
+            let s = h.hover_class_on.$().hasClass(h.hover_class.name()),
+              o = e && n;
             return (
-              o && !s
+              s && !o
                 ? (h.beforeHide && h.beforeHide(),
                   h.hideDurationMs
                     ? setTimeout(
@@ -3569,8 +4021,8 @@
                       )
                     : h.hover_class_on.$().removeClass(h.hover_class.name()),
                   h.afterHide && h.afterHide())
-                : !o &&
-                  s &&
+                : !s &&
+                  o &&
                   (h.beforeShow && h.beforeShow(),
                   h.hover_class_on.$().addClass(h.hover_class.name())),
               n
@@ -3580,17 +4032,19 @@
             h.pastedUrl
               ? l(
                   n.s("Pasted something that wasn't an image or URL?"),
-                  r.Pasted,
-                  a.NonImageInput
+                  a.Pasted,
+                  r.NonImageInput
                 )
               : l(
                   n.s("Pasted something that wasn't an image?"),
-                  r.Pasted,
-                  a.NonImageInput
+                  a.Pasted,
+                  r.NonImageInput
                 );
           }
           function m(t) {
-            let e = new Blob([t], { type: t.type });
+            let e = new Blob([t], {
+              type: t.type
+            });
             return (
               (e.lastModified = t.lastModified),
               (e.name = (function () {
@@ -3624,7 +4078,7 @@
                       u(
                         t.originalEvent.dataTransfer.files,
                         'Dropped',
-                        r.Dropped
+                        a.Dropped
                       ),
                     !1
                   );
@@ -3635,7 +4089,7 @@
                 .on('dragover' + e, function (t) {
                   let e = d(t, !0);
                   (t.originalEvent.dataTransfer.dropEffect =
-                    s && e ? 'copy' : 'none'),
+                    o && e ? 'copy' : 'none'),
                     h.onDragOver && h.onDragOver(t);
                 })
                 .on('dragleave' + e, function (t) {
@@ -3646,16 +4100,16 @@
             h.monitor_file_input &&
               h.monitor_file_input.$().on('change' + e, t => {
                 let e = t.originalEvent.target;
-                return u(e.files, 'Picked', r.Picked), (e.value = null), !1;
+                return u(e.files, 'Picked', a.Picked), (e.value = null), !1;
               }),
             h.monitor_paste &&
               (h.monitor_paste.$().on('paste' + e, function (t) {
-                if (!s) return;
+                if (!o) return;
                 const e = t.originalEvent.clipboardData;
                 if (e && e.files && e.files.length > 0)
                   1 == e.files.length && 'image.png' == e.files[0].name
-                    ? u([m(e.files[0])], 'Pasted', r.Pasted)
-                    : u(e.files, 'Pasted', r.Pasted);
+                    ? u([m(e.files[0])], 'Pasted', a.Pasted)
+                    : u(e.files, 'Pasted', a.Pasted);
                 else if (e && !e.items)
                   l(
                     n.s(
@@ -3665,8 +4119,8 @@
                       n.s(
                         'Paste should work in at least Chrome, Firefox, and Microsoft Edge. '
                       ),
-                    r.Pasted,
-                    a.NoBrowserSupport
+                    a.Pasted,
+                    r.NoBrowserSupport
                   );
                 else if (
                   e &&
@@ -3678,15 +4132,15 @@
                   const t = [];
                   let i = !1,
                     n = 0;
-                  for (let o = 0; o < e.items.length; o++)
-                    if ('Files' == e.types[o]) {
-                      let i = e.items[o].getAsFile();
+                  for (let s = 0; s < e.items.length; s++)
+                    if ('Files' == e.types[s]) {
+                      let i = e.items[s].getAsFile();
                       i && ((t[n] = m(i)), n++);
                     } else
-                      'text/plain' == e.types[o] &&
+                      'text/plain' == e.types[s] &&
                         h.pastedUrl &&
                         ((i = !0),
-                        e.items[o].getAsString(function (t) {
+                        e.items[s].getAsString(function (t) {
                           (t = t.trim()).length > 5e3 ||
                           t.length <= 4 ||
                           t.indexOf('\n') >= 0 ||
@@ -3696,23 +4150,25 @@
                             ? p()
                             : h.pastedUrl(t);
                         }));
-                  n > 0 ? u(t, 'Pasted', r.Pasted) : i || p();
+                  n > 0 ? u(t, 'Pasted', a.Pasted) : i || p();
                 } else p();
-                o && ((o = !1), h.monitor_paste.$().blur()), t.preventDefault();
+                s && ((s = !1), h.monitor_paste.$().blur()), t.preventDefault();
               }),
               h.focusPasteOnCtrlV &&
                 $(window).on('keydown' + e, t => {
                   (t.ctrlKey || t.metaKey) &&
                     86 == t.keyCode &&
                     ($(document.activeElement).is('input') ||
-                      (h.monitor_paste.$().focus(), (o = !0)));
+                      (h.monitor_paste.$().focus(), (s = !0)));
                 })),
-            { disable: c }
+            {
+              disable: c
+            }
           );
         });
       try {
         XMLHttpRequest.prototype.hasOwnProperty('sendAsBinary') ||
-          o.set(XMLHttpRequest.prototype, 'sendAsBinary', function (t) {
+          s.set(XMLHttpRequest.prototype, 'sendAsBinary', function (t) {
             var e = Array.prototype.map.call(t, function (t) {
                 return 255 & t.charCodeAt(0);
               }),
@@ -3816,7 +4272,7 @@
       })`;
     }
   }
-  function at(t, e) {
+  function ht(t, e) {
     if (e)
       try {
         self.postMessage(t, e);
@@ -3831,33 +4287,33 @@
     }, 0);
     var e = [],
       i = 5e3,
-      o = 36e5,
-      s = null,
-      r = 0,
+      s = 36e5,
+      o = null,
+      a = 0,
       h = i,
       l = !1;
     function c() {
-      var t = a.RetryDialog.Body.$();
+      var t = r.RetryDialog.Body.$();
       t.empty();
       var i = $(document.createElement('tr'));
       i.append(f.makeElement('th', n.s('Task'))),
         i.append(f.makeElement('th', n.s('Error'))),
         t.append(i);
-      for (var o = 0; o < e.length; o++) t.append(e[o].makeHtmlRow());
+      for (var s = 0; s < e.length; s++) t.append(e[s].makeHtmlRow());
     }
     function u() {
-      (r = Date.now()),
-        null != s && (clearInterval(s), (s = null)),
-        (h *= 2) > o && (h = o),
-        a.RetryDialog.Countdown.$().text(n.s('Retrying now...'));
+      (a = Date.now()),
+        null != o && (clearInterval(o), (o = null)),
+        (h *= 2) > s && (h = s),
+        r.RetryDialog.Countdown.$().text(n.s('Retrying now...'));
       for (var t = 0; t < e.length; t++) e[t].tryExecute();
     }
     function d() {
       var t = Date.now(),
-        e = Math.round((r + h - t) / 1e3);
+        e = Math.round((a + h - t) / 1e3);
       e <= 0
         ? u()
-        : a.RetryDialog.Countdown.$().text(
+        : r.RetryDialog.Countdown.$().text(
             n.s('Retrying in {0} {0,plural,one{second}other{seconds}}...', e)
           ),
         c();
@@ -3867,19 +4323,19 @@
         (f.gaTrack('ErrorShown', t.opts.label, t.lastErrorMessage, null),
         e.push(t),
         c()),
-        f.modal(a.RetryDialog.Dialog.css()),
+        f.modal(r.RetryDialog.Dialog.css()),
         (l = !0),
-        null == s && ((r = Date.now()), (s = setInterval(d, 1e3)));
+        null == o && ((a = Date.now()), (o = setInterval(d, 1e3)));
     }),
       (t.deregister = function (t) {
         var n = e.indexOf(t);
         n >= 0 && (e.splice(n, 1), c()),
           (h = i),
-          (r = Date.now()),
-          0 == e.length && l && a.RetryDialog.Dialog.$().modal('hide');
+          (a = Date.now()),
+          0 == e.length && l && r.RetryDialog.Dialog.$().modal('hide');
       }),
       $(() => {
-        a.RetryDialog.RetryNowButton.$().click(() => {
+        r.RetryDialog.RetryNowButton.$().click(() => {
           u(), (h = i);
         });
       });
@@ -3898,88 +4354,93 @@
         giveUpAfterSilentRetries: !1,
         timeout: 3e4
       };
-      function i(t, i, n, o) {
-        (n.data = {
-          acl: i.acl || 'private',
-          key: i.key,
-          policy: i.policy,
-          success_action_status: 201,
-          'x-amz-algorithm': 'AWS4-HMAC-SHA256',
-          'x-amz-credential': i.credential,
-          'x-amz-date': i.date,
-          'x-amz-signature': i.signature,
-          'Content-Type': t.type,
-          'Cache-Control': n.maxAge ? 'max-age=' + n.maxAge : 'no-cache'
+      function i(t, i, n) {
+        let s = $.extend({}, e, i),
+          o = new XMLHttpRequest(),
+          a = o.upload,
+          r = new FormData();
+        function h() {
+          o.abort();
+        }
+        $.each(s.headers, function (t, e) {
+          o.setRequestHeader(t, e);
         }),
-          i.token && (n.data['x-amz-security-token'] = i.token),
-          (function (t, i, n) {
-            let o = $.extend({}, e, i),
-              s = new XMLHttpRequest(),
-              r = s.upload,
-              a = new FormData();
-            function h() {
-              s.abort();
-            }
-            $.each(o.headers, function (t, e) {
-              s.setRequestHeader(t, e);
-            }),
-              $.each(o.data, function (t, e) {
-                a.append(t, e);
-              }),
-              a.append(o.paramname, t);
-            let l = setTimeout(h, o.timeout),
-              c = 0;
-            (r.onprogress = function (t) {
-              if (
-                (clearTimeout(l),
-                (l = setTimeout(h, o.timeout)),
-                t.lengthComputable)
-              ) {
-                let e = Math.round((100 * t.loaded) / t.total);
-                c !== e && ((c = e), o.progress(c));
-              }
-            }),
-              (r.onerror = function (t) {
-                n.errorHandler(f.formatXhrError(s, void 0));
-              }),
-              (r.onabort = function (t) {
-                n.errorHandler(f.formatXhrError(s, 'abort'));
-              }),
-              (r.onloadend = function (t) {
-                clearTimeout(l);
-              }),
-              (s.onload = function () {
-                clearTimeout(l),
-                  s.responseText
-                    ? s.status < 200 || s.status > 299
-                      ? n.errorHandler(f.formatXhrError(s, 'onload'))
-                      : (o.progress(100), n.successHandler(s.responseText))
-                    : n.errorHandler(f.formatXhrError(s, 'empty'));
-              }),
-              (s.withCredentials = !!o.withCredentials),
-              s.open('POST', o.url, !0),
-              s.send(a);
-          })(t, n, o);
+          $.each(s.data, function (t, e) {
+            r.append(t, e);
+          }),
+          r.append(s.paramname, t);
+        let l = setTimeout(h, s.timeout),
+          c = 0;
+        (a.onprogress = function (t) {
+          if (
+            (clearTimeout(l),
+            (l = setTimeout(h, s.timeout)),
+            t.lengthComputable)
+          ) {
+            let e = Math.round((100 * t.loaded) / t.total);
+            c !== e && ((c = e), s.progress(c));
+          }
+        }),
+          (a.onerror = function (t) {
+            n.errorHandler(f.formatXhrError(o, void 0));
+          }),
+          (a.onabort = function (t) {
+            n.errorHandler(f.formatXhrError(o, 'abort'));
+          }),
+          (a.onloadend = function (t) {
+            clearTimeout(l);
+          }),
+          (o.onload = function () {
+            clearTimeout(l),
+              o.responseText
+                ? o.status < 200 || o.status > 299
+                  ? n.errorHandler(f.formatXhrError(o, 'onload'))
+                  : (s.progress(100), n.successHandler(o.responseText))
+                : n.errorHandler(f.formatXhrError(o, 'empty'));
+          }),
+          (o.withCredentials = !!s.withCredentials),
+          o.open('POST', s.url, !0),
+          o.send(r);
       }
-      function o(t, o, s) {
-        const r = s.url,
-          a = s.backupUrl;
+      function s(t, s, o) {
+        const a = o.url,
+          r = o.backupUrl;
         let h = '',
-          l = $.extend({}, e, s);
-        const c = t.size > o.maxBytes;
+          l = $.extend({}, e, o);
+        const c = t.size > s.maxBytes;
         return new rt({
           label: l.label,
-          execute: function (e, s) {
+          execute: function (e, o) {
             c
-              ? s(
+              ? o(
                   n.s('The file is too large to upload. ') +
                     n.s(
                       'Please pick a file smaller than {0} {0,plural,one{byte}other{bytes}}. ',
-                      o.maxBytes
+                      s.maxBytes
                     )
                 )
-              : ((l.url = h = h == r && a ? a : r),
-                i(t, o, l, { errorHandler: s, successHandler: e }));
+              : ((l.url = h = h == a && r ? r : a),
+                (function (t, e, n, s) {
+                  (n.data = {
+                    acl: e.acl || 'private',
+                    key: e.key,
+                    policy: e.policy,
+                    success_action_status: 201,
+                    'x-amz-algorithm': 'AWS4-HMAC-SHA256',
+                    'x-amz-credential': e.credential,
+                    'x-amz-date': e.date,
+                    'x-amz-signature': e.signature,
+                    'Content-Type': t.type,
+                    'Cache-Control': n.maxAge
+                      ? 'max-age=' + n.maxAge
+                      : 'no-cache'
+                  }),
+                    e.token && (n.data['x-amz-security-token'] = e.token),
+                    i(t, n, s);
+                })(t, s, l, {
+                  errorHandler: o,
+                  successHandler: e
+                }));
           },
           success: function () {
             l.success();
@@ -3989,10 +4450,13 @@
           giveUpAfterSilentRetries: l.giveUpAfterSilentRetries
         }).start();
       }
-      (t.uploadS3WithRetry = o),
+      (t.uploadRaw = i),
+        (t.uploadS3WithRetry = s),
         (t.uploadS3JsonWithRetry = function (t, e, i) {
-          return o(
-            new Blob([JSON.stringify(t)], { type: 'application/json' }),
+          return s(
+            new Blob([JSON.stringify(t)], {
+              type: 'application/json'
+            }),
             e,
             i
           );
@@ -4005,7 +4469,7 @@
           return t && ((t = t.trim()), t.length > 4 && e(t)), !1;
         });
       };
-    })(C || (C = {})),
+    })(x || (x = {})),
     (function (t) {
       t.list = function () {
         var t = [];
@@ -4050,11 +4514,14 @@
           i(function () {
             return !!new Blob();
           }, 'Blob and/or Blob Constructor'),
+          i(function () {
+            return !!window.PointerEvent;
+          }, 'PointerEvent'),
           t.sort(),
           t
         );
       };
-    })(x || (x = {})),
+    })(C || (C = {})),
     (function (t) {
       (t.shareUrl = function (t, e) {
         return '/images/' + t + '/' + e;
@@ -4067,45 +4534,45 @@
       var e = /%([0-9A-Fa-f]{2})/g,
         i = /[^\x20-\x7e\xa0-\xff]/g,
         n = /\\([\u0000-\u007f])/g,
-        o =
-          /; *([!#$%&'\*\+\-\.0-9A-Z\^_`a-z\|~]+) *= *("(?:[ !\x23-\x5b\x5d-\x7e\x80-\xff]|\\[\x20-\x7e])*"|[!#$%&'\*\+\-\.0-9A-Z\^_`a-z\|~]+) */g,
         s =
+          /; *([!#$%&'\*\+\-\.0-9A-Z\^_`a-z\|~]+) *= *("(?:[ !\x23-\x5b\x5d-\x7e\x80-\xff]|\\[\x20-\x7e])*"|[!#$%&'\*\+\-\.0-9A-Z\^_`a-z\|~]+) */g,
+        o =
           /^([A-Za-z0-9!#$%&+\-^_`{}~]+)'(?:[A-Za-z]{2,3}(?:-[A-Za-z]{3}){0,3}|[A-Za-z]{4,8}|)'((?:%[0-9A-Fa-f]{2}|[A-Za-z0-9!#$&+\-\.^_`|~])+)$/,
-        r = /^([!#$%&'\*\+\-\.0-9A-Z\^_`a-z\|~]+) *(?:$|;)/;
-      function a(t) {
-        var n = s.exec(t);
+        a = /^([!#$%&'\*\+\-\.0-9A-Z\^_`a-z\|~]+) *(?:$|;)/;
+      function r(t) {
+        var n = o.exec(t);
         if (!n) throw new TypeError('invalid extended field value');
-        var o,
-          r = n[1].toLowerCase(),
-          a = n[2].replace(e, h);
-        switch (r) {
+        var s,
+          a = n[1].toLowerCase(),
+          r = n[2].replace(e, h);
+        switch (a) {
           case 'iso-8859-1':
-            o = String(a).replace(i, '?');
+            s = String(r).replace(i, '?');
             break;
           case 'utf-8':
-            o = decodeURIComponent(escape(a));
+            s = decodeURIComponent(escape(r));
             break;
           default:
             throw new TypeError('unsupported charset in extended field');
         }
-        return o;
+        return s;
       }
       function h(t, e) {
         return String.fromCharCode(parseInt(e, 16));
       }
       t.parse = function (t) {
         if (t && 'string' == typeof t) {
-          var e = r.exec(t);
+          var e = a.exec(t);
           if (e) {
             var i,
-              s,
+              o,
               h = e[0].length,
               l = (e[1].toLowerCase(), []),
               c = {};
             try {
               for (
-                h = o.lastIndex = ';' === e[0].substr(-1) ? h - 1 : h;
-                (e = o.exec(t));
+                h = s.lastIndex = ';' === e[0].substr(-1) ? h - 1 : h;
+                (e = s.exec(t));
 
               ) {
                 if (e.index !== h)
@@ -4113,17 +4580,17 @@
                 if (
                   ((h += e[0].length),
                   (i = e[1].toLowerCase()),
-                  (s = e[2]),
+                  (o = e[2]),
                   -1 !== l.indexOf(i))
                 )
                   throw new TypeError('invalid duplicate parameter');
                 l.push(i),
                   i.indexOf('*') + 1 !== i.length
                     ? 'string' != typeof c[i] &&
-                      ('"' === s[0] &&
-                        (s = s.substr(1, s.length - 2).replace(n, '$1')),
-                      (c[i] = s))
-                    : ((i = i.slice(0, -1)), (s = a(s)), (c[i] = s));
+                      ('"' === o[0] &&
+                        (o = o.substr(1, o.length - 2).replace(n, '$1')),
+                      (c[i] = o))
+                    : ((i = i.slice(0, -1)), (o = r(o)), (c[i] = o));
               }
               if (-1 !== h && h !== t.length)
                 throw new TypeError('invalid parameter format');
@@ -4146,29 +4613,29 @@
         return f.blobToFile(t, e || 'FetchedFromUrl_' + Date.now());
       }
       t.download = function (t) {
-        let o = $.extend({}, e, t),
-          s = f.dataUrlToBlob(o.url) || f.dataUrlToBlob(o.displayUrl);
-        if (s)
+        let s = $.extend({}, e, t),
+          o = f.dataUrlToBlob(s.url) || f.dataUrlToBlob(s.displayUrl);
+        if (o)
           setTimeout(function () {
-            o.success(i(s));
+            s.success(i(o));
           }, 0);
         else {
           let t = new XMLHttpRequest(),
             e = 0;
-          o.progress != f.empty &&
+          s.progress != f.empty &&
             (t.onprogress = t => {
               if (t.lengthComputable) {
                 let i = Math.round((100 * t.loaded) / t.total);
-                e !== i && ((e = i), o.progress(e));
+                e !== i && ((e = i), s.progress(e));
               }
             }),
             (t.onerror = e => {
-              o.error(f.formatXhrError(t, void 0));
+              s.error(f.formatXhrError(t, void 0));
             }),
             (t.onabort = e => {
-              o.error(f.formatXhrError(t, 'abort'));
+              s.error(f.formatXhrError(t, 'abort'));
             }),
-            (t.withCredentials = !!o.withCredentials),
+            (t.withCredentials = !!s.withCredentials),
             (t.onload = e => {
               if (t.response)
                 if (t.status < 200 || t.status > 299) {
@@ -4176,26 +4643,31 @@
                     null,
                     new Uint8Array(t.response)
                   );
-                  o.error(
-                    n.s('Failed to fetch "{0}"', o.displayUrl || o.url) +
+                  s.error(
+                    n.s('Failed to fetch "{0}"', s.displayUrl || s.url) +
                       '\n' +
                       e
                   );
                 } else {
-                  let e = o.contentType || t.getResponseHeader('Content-Type'),
+                  let e = s.contentType || t.getResponseHeader('Content-Type'),
                     n = A.parse(t.getResponseHeader('Content-Disposition')),
-                    s = t.response,
-                    r = i(new Blob([s], { type: e }), n);
-                  o.success(r);
+                    o = t.response,
+                    a = i(
+                      new Blob([o], {
+                        type: e
+                      }),
+                      n
+                    );
+                  s.success(a);
                 }
             }),
-            t.open('GET', o.url, !0),
+            t.open('GET', s.url, !0),
             (t.responseType = 'arraybuffer'),
             t.send();
         }
       };
     })(T || (T = {}));
-  class ht {
+  class lt {
     constructor(t, e = null, i = null, n = null) {
       (this.name = t),
         (this.scriptUrls = e),
@@ -4205,13 +4677,13 @@
           this.messageListener ? this.messageListener(t) : void 0);
     }
     static getBasics() {
-      return at.toString();
+      return ht.toString();
     }
     ensureWorker() {
       if (!this.worker) {
         let t = "'use strict';\n";
         if (
-          ((t += ht.getBasics() + ';\n'),
+          ((t += lt.getBasics() + ';\n'),
           this.scriptUrls && this.scriptUrls.length > 0)
         ) {
           let e = this.scriptUrls.map(function (t) {
@@ -4225,7 +4697,9 @@
         }
         this.workerFunction &&
           (t += '(' + this.workerFunction.toString() + ')();\n');
-        let e = new Blob([t], { type: 'text/javascript' }),
+        let e = new Blob([t], {
+            type: 'text/javascript'
+          }),
           i = URL.createObjectURL(e);
         (this.worker = new Worker(i)),
           this.worker.addEventListener('error', t => {
@@ -4273,21 +4747,21 @@
       this.worker && (this.worker.terminate(), (this.worker = null));
     }
   }
-  class lt {
+  class ct {
     constructor(t) {
       if (((this.store = {}), t))
         for (var e in t) {
           let i = e.toString();
-          t.hasOwnProperty(i) && this.put(o.cast(i), t[i]);
+          t.hasOwnProperty(i) && this.put(s.cast(i), t[i]);
         }
     }
     static from(t) {
-      for (var e = new lt(), i = 0; i < t.length; i++) {
+      for (var e = new ct(), i = 0; i < t.length; i++) {
         var n = t[i];
         if (2 == n.length) {
-          var o = n[0],
-            s = n[1];
-          e.put(o, s);
+          var s = n[0],
+            o = n[1];
+          e.put(s, o);
         }
       }
       return e;
@@ -4311,7 +4785,7 @@
       this.store = {};
     }
   }
-  class ct {
+  class ut {
     constructor(t) {
       if (((this.store = {}), (this.size_ = 0), t))
         for (var e = 0; e < t.length; e++) this.add(t[e]);
@@ -4339,60 +4813,90 @@
       return this.store.hasOwnProperty(t.toString());
     }
   }
-  function ut() {
+  function dt() {
     class t {
-      constructor(t, e, i, n, o) {
+      constructor(t, e, i, n, s) {
         (this.dataIn = t),
           (this.wIn = e),
           (this.hIn = i),
           (this.wOut = n),
-          (this.hOut = o),
-          (this.dataOut = new Uint8ClampedArray(n * o * 4)),
+          (this.hOut = s),
+          (this.dataOut = new Uint8ClampedArray(n * s * 4)),
           (this.outToInX = this.wIn / this.wOut),
           (this.outToInY = this.hIn / this.hOut);
+        let o = t.length,
+          a = !1;
+        for (let e = 3; e < o; e += 4) {
+          if (t[e] < 255) {
+            a = !0;
+            break;
+          }
+        }
+        (this.hasTransparency = a),
+          (this.accumulate = this.hasTransparency
+            ? this.accumulateRgba
+            : this.accumulateRgb);
       }
       reset() {
-        (this.rSum = 0), (this.gSum = 0), (this.bSum = 0), (this.wSum = 0);
+        (this.aSum = 0),
+          (this.rSum = 0),
+          (this.gSum = 0),
+          (this.bSum = 0),
+          (this.wSum = 0);
       }
-      accumulate(t, e, i) {
+      accumulateRgb(t, e, i) {
         const n = 4 * (t + this.wIn * e);
         (this.rSum += this.dataIn[n + 0] * i),
           (this.gSum += this.dataIn[n + 1] * i),
           (this.bSum += this.dataIn[n + 2] * i),
           (this.wSum += i);
       }
+      accumulateRgba(t, e, i) {
+        const n = 4 * (t + this.wIn * e);
+        let s = (this.dataIn[n + 3] / 255 + 1e-12) * i;
+        (this.aSum += s),
+          (this.rSum += this.dataIn[n + 0] * s),
+          (this.gSum += this.dataIn[n + 1] * s),
+          (this.bSum += this.dataIn[n + 2] * s),
+          (this.wSum += i);
+      }
       populate(t, e) {
         this.reset();
         const i = t * this.outToInX,
           n = e * this.outToInY,
-          o = Math.min(i + this.outToInX, this.wIn),
-          s = Math.min(n + this.outToInY, this.hIn),
-          r = Math.floor(i),
-          a = Math.floor(n),
-          h = Math.ceil(o) - 1,
-          l = Math.ceil(s) - 1,
+          s = Math.min(i + this.outToInX, this.wIn),
+          o = Math.min(n + this.outToInY, this.hIn),
+          a = Math.floor(i),
+          r = Math.floor(n),
+          h = Math.ceil(s) - 1,
+          l = Math.ceil(o) - 1,
           c = Math.ceil(i),
           u = Math.ceil(n),
           d = h,
           p = l,
           m = c - i,
           g = u - n,
-          f = o - d,
-          w = s - p;
-        this.accumulate(r, a, m * g), this.accumulate(r, l, m * w);
+          f = s - d,
+          w = o - p;
+        this.accumulate(a, r, m * g), this.accumulate(a, l, m * w);
         for (var b = c; b < d; b++)
-          this.accumulate(b, a, g), this.accumulate(b, l, w);
-        this.accumulate(h, a, f * g), this.accumulate(h, l, f * w);
+          this.accumulate(b, r, g), this.accumulate(b, l, w);
+        this.accumulate(h, r, f * g), this.accumulate(h, l, f * w);
         for (var v = u; v < p; v++) {
-          this.accumulate(r, v, m);
+          this.accumulate(a, v, m);
           for (b = c; b < d; b++) this.accumulate(b, v, 1);
           this.accumulate(h, v, f);
         }
         const S = 4 * (t + e * this.wOut);
-        (this.dataOut[S + 0] = this.rSum / this.wSum),
-          (this.dataOut[S + 1] = this.gSum / this.wSum),
-          (this.dataOut[S + 2] = this.bSum / this.wSum),
-          (this.dataOut[S + 3] = 255);
+        this.hasTransparency
+          ? ((this.dataOut[S + 0] = this.rSum / this.aSum),
+            (this.dataOut[S + 1] = this.gSum / this.aSum),
+            (this.dataOut[S + 2] = this.bSum / this.aSum),
+            (this.dataOut[S + 3] = (this.aSum / this.wSum) * 255))
+          : ((this.dataOut[S + 0] = this.rSum / this.wSum),
+            (this.dataOut[S + 1] = this.gSum / this.wSum),
+            (this.dataOut[S + 2] = this.bSum / this.wSum),
+            (this.dataOut[S + 3] = 255));
       }
       shrink() {
         for (var t = 0, e = 0; t < this.hOut; t++)
@@ -4404,20 +4908,20 @@
     function i(i) {
       e.push(Date.now());
       const n =
-        ((o = i.dataIn),
-        (s = i.wIn),
-        (r = i.hIn),
-        (a = i.wOut),
+        ((s = i.dataIn),
+        (o = i.wIn),
+        (a = i.hIn),
+        (r = i.wOut),
         (h = i.hOut),
-        new t(o, s, r, a, h).shrink());
-      var o, s, r, a, h;
+        new t(s, o, a, r, h).shrink());
+      var s, o, a, r, h;
       return Date.now(), e.pop(), n;
     }
     self.addEventListener('message', t => {
       try {
         var e = t.data;
         const n = i(e);
-        at(
+        ht(
           {
             canvasId: e.canvasId,
             success: !0,
@@ -4428,7 +4932,7 @@
           [n.buffer]
         );
       } catch (t) {
-        at({
+        ht({
           canvasId: e.canvasId,
           success: !1,
           wOut: 0,
@@ -4441,9 +4945,9 @@
   !(function (t) {
     let e = !0,
       i = 0;
-    const n = new lt();
+    const n = new ct();
     t.ThumbnailJpegQuality = 0.7;
-    class o {
+    class s {
       constructor(t, e) {
         if (
           ((this.canvasId = t),
@@ -4461,7 +4965,7 @@
             e != this.spec.inputCanvas.width() ||
             i != this.spec.inputCanvas.height()
           ) {
-            const n = new st(e, i);
+            const n = new at(e, i);
             n
               .context()
               .drawCanvasEx3(
@@ -4482,11 +4986,32 @@
         let i = this.croppedCanvas.width(),
           n = this.croppedCanvas.height();
         (this.wOut = i), (this.hOut = n);
-        i * n > this.spec.maxNumPixels &&
-          ((this.hOut = Math.floor(
-            Math.sqrt((this.spec.maxNumPixels * n) / i)
-          )),
-          (this.wOut = Math.floor(this.spec.maxNumPixels / this.hOut)));
+        if (i * n > this.spec.maxNumPixels) {
+          const t = Math.sqrt(this.spec.maxNumPixels / (i * n));
+          if (i < n) {
+            for (
+              this.wOut = Math.max(1, 0 | Math.round(i * t)),
+                this.hOut = 0 | Math.round((n * this.wOut) / i);
+              this.wOut * this.hOut > this.spec.maxNumPixels && this.wOut > 1;
+
+            )
+              this.wOut--, (this.hOut = 0 | Math.round((n * this.wOut) / i));
+            1 == this.wOut &&
+              this.hOut > this.spec.maxNumPixels &&
+              (this.hOut = this.spec.maxNumPixels);
+          } else {
+            for (
+              this.hOut = Math.max(1, 0 | Math.round(n * t)),
+                this.wOut = 0 | Math.round((i * this.hOut) / n);
+              this.wOut * this.hOut > this.spec.maxNumPixels && this.hOut > 1;
+
+            )
+              this.hOut--, (this.wOut = 0 | Math.round((i * this.hOut) / n));
+            1 == this.hOut &&
+              this.wOut > this.spec.maxNumPixels &&
+              (this.wOut = this.spec.maxNumPixels);
+          }
+        }
       }
       shrinkingNeeded() {
         return (
@@ -4495,7 +5020,7 @@
         );
       }
       createOutputCanvas() {
-        return new st(this.wOut, this.hOut);
+        return new at(this.wOut, this.hOut);
       }
       shrinkWithWorker() {
         try {
@@ -4519,7 +5044,7 @@
             () => this.shrinkWithWorkerFailSafe('fail-safe timeout reached'),
             1e4
           )),
-            this.spec.worker.setMessageListener(s),
+            this.spec.worker.setMessageListener(o),
             this.spec.worker.postMessage(e, [t.buffer]);
         } catch (t) {
           this.shrinkWithWorkerFailSafe(
@@ -4563,21 +5088,21 @@
         if (this.spec.thumbnailSize) {
           const i = this.spec.thumbnailSize.w,
             n = this.spec.thumbnailSize.h,
-            o = new st(i, n);
-          o.context().setFillStyle('rgb(255,255,255)'),
-            o.context().fillRect(0, 0, i, n);
-          const s = Math.min(i / e.width(), n / e.height());
+            s = new at(i, n);
+          s.context().setFillStyle('rgb(255,255,255)'),
+            s.context().fillRect(0, 0, i, n);
+          const o = Math.min(i / e.width(), n / e.height());
           return (
-            o
+            s
               .context()
               .context.drawImage(
                 e.element,
-                (i - e.width() * s) / 2,
-                (n - e.height() * s) / 2,
-                e.width() * s,
-                e.height() * s
+                (i - e.width() * o) / 2,
+                (n - e.height() * o) / 2,
+                e.width() * o,
+                e.height() * o
               ),
-            o.toBlob('image/jpeg', t.ThumbnailJpegQuality)
+            s.toBlob('image/jpeg', t.ThumbnailJpegQuality)
           );
         }
         return null;
@@ -4598,16 +5123,16 @@
           : this.completed(this.croppedCanvas);
       }
     }
-    function s(t) {
+    function o(t) {
       const e = t.data;
       n.contains(e.canvasId) &&
         n.get(e.canvasId).shrinkWithWorkerResultHandler(e);
     }
     t.process = function (t) {
-      const e = new o('cs_' + i++, t);
+      const e = new s('cs_' + i++, t);
       n.put(e.canvasId, e), e.process();
     };
-  })(E || (E = {})),
+  })(k || (k = {})),
     (function (t) {
       let e;
       (t.isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0),
@@ -4628,15 +5153,15 @@
             (t[(t.MomentumTranslate = 9)] = 'MomentumTranslate');
         })((e = t.InteractionType || (t.InteractionType = {})));
       class i {
-        constructor(t, e, i, n, o, s, r, a, h) {
+        constructor(t, e, i, n, s, o, a, r, h) {
           (this.type = t),
             (this.interactionIdentifier = e),
             (this.referenceInteraction = i),
             (this.pageX = n),
-            (this.pageY = o),
-            (this.zoomTo = s),
-            (this.canvas = r),
-            (this.isTouch = a),
+            (this.pageY = s),
+            (this.zoomTo = o),
+            (this.canvas = a),
+            (this.isTouch = r),
             (this.isFirstPan = h),
             (this.numTouches = 0),
             i || (this.referenceInteraction = this),
@@ -4745,377 +5270,393 @@
         (t.DoubleTapRadiusPx = 20),
         (t.DoubleTapTimeMs = 300),
         (t.NullTouch = new n(null, 0, 0));
-      let o = !1;
+      let s = !1;
       try {
         let t = Object.defineProperty({}, 'passive', {
           get: function () {
-            o = !0;
+            s = !0;
           }
         });
         window.addEventListener('test', null, t);
       } catch (t) {}
-      t.AddEventListenerThirdArgForTouch = !!o && { passive: !1 };
-    })(k || (k = {})),
+      t.AddEventListenerThirdArgForTouch = !!s && {
+        passive: !1
+      };
+    })(E || (E = {})),
     (function (t) {
-      const e = 1048576,
-        i = 10,
+      t.Mega = 1048576;
+      const e = 10,
+        i = 20,
         n = 100,
-        o = 20,
-        s = 18;
+        s = 20,
+        o = 6,
+        a = s - 2,
+        h = o - 2;
       t.initialized = !1;
-      var r = null;
+      var l = null;
       (t.lockAspectRatio = !1), (t.maxNumMegapixels = 4);
-      var h = 0,
-        l = 0;
-      const c = et.empty();
-      var u = 1,
-        d = null,
-        p = null,
-        g = 0,
-        w = 0,
+      var c = 0,
+        u = 0;
+      const d = it.empty();
+      var p = 1,
+        g = null,
+        w = null,
         b = 0,
-        v = 0;
-      const S = nt.empty();
-      var y = 1,
-        C = 1,
-        x = 0,
-        P = 0;
-      const A = et.empty(),
-        T = et.empty(),
-        E = et.empty(),
-        I = et.empty();
-      var M = !1;
-      const R = et.empty(),
-        F = nt.empty(),
-        D = nt.empty();
-      class _ {
+        v = 0,
+        S = 0,
+        y = 0;
+      const x = st.zero();
+      var C = 1,
+        P = 1,
+        A = 0,
+        T = 0;
+      const k = it.empty(),
+        I = it.empty(),
+        R = it.empty(),
+        M = it.empty();
+      var F = !1;
+      const D = it.empty(),
+        _ = st.zero(),
+        B = st.zero();
+      class L {
         constructor(t, e) {
           (this.key = t),
             (this.anchor = e),
             (this.oppositeAnchor = m.opposite(this.anchor));
         }
       }
-      var B = null;
-      const L = new _('resize-top', m.Top),
-        U = new _('resize-top-right', m.TopRight),
-        N = new _('resize-right', m.Right),
-        z = new _('resize-bottom-right', m.BottomRight),
-        W = new _('resize-bottom', m.Bottom),
-        O = new _('resize-bottom-left', m.BottomLeft),
-        H = new _('resize-left', m.Left),
-        V = new _('resize-top-left', m.TopLeft),
-        X = new _('resize-move', m.Center);
-      function Y(t, i, n, o, s) {
-        n.$().text(t.toFixed(0) + ' x ' + i.toFixed(0) + ' px'),
-          o
-            .$()
-            .text(
-              f.formatAspectRatio(
-                f.fuzzyAspectRatioEx({ w: t, h: i }, r.aspectRatios)
+      var U = null;
+      const N = new L('resize-top', m.Top),
+        z = new L('resize-top-right', m.TopRight),
+        O = new L('resize-right', m.Right),
+        W = new L('resize-bottom-right', m.BottomRight),
+        H = new L('resize-bottom', m.Bottom),
+        V = new L('resize-bottom-left', m.BottomLeft),
+        X = new L('resize-left', m.Left),
+        Y = new L('resize-top-left', m.TopLeft),
+        j = new L('resize-move', m.Center);
+      let G = !1;
+      function q(e, i, n, s, o) {
+        n.$().text(e.toFixed(0) + ' x ' + i.toFixed(0) + ' px'),
+          s.$().text(
+            f.formatAspectRatio(
+              f.fuzzyAspectRatioEx(
+                {
+                  w: e,
+                  h: i
+                },
+                l.aspectRatios
               )
-            ),
-          s.$().text(((t * i) / e).toFixed(1));
-      }
-      function G() {
-        a.PreCrop.Sidebar.MaxNumMegapixels.display
-          .$()
-          .text(t.maxNumMegapixels + ' megapixels'),
-          Y(
-            Math.round(D.width()),
-            Math.round(D.height()),
-            a.PreCrop.Sidebar.cropped_image_size_display,
-            a.PreCrop.Sidebar.cropped_image_aspect_ratio_display,
-            a.PreCrop.Sidebar.cropped_image_megapixels_display
+            )
           ),
-          a.PreCrop.Sidebar.lock_aspect_ratio_button
-            .$()
-            .prop('checked', t.lockAspectRatio);
-        const i = (D.width() * D.height()) / e > t.maxNumMegapixels;
-        a.PreCrop.Sidebar.cropped_image_warning.$().toggle(i),
-          a.PreCrop.Sidebar.cropped_image_success.$().toggle(!i),
-          a.PreCrop.Sidebar.cropped_image_megapixels_display
-            .$()
-            .attr('style', i ? 'color:red;' : '');
-      }
-      function q() {
-        (t.lockAspectRatio = !t.lockAspectRatio), ct(), G();
-      }
-      function j() {
-        (t.maxNumMegapixels = Math.min(
-          t.maxNumMegapixels + 1,
-          r.maxMaxNumMegapixels
-        )),
-          G();
+          o.$().text(((e * i) / t.Mega).toFixed(1));
       }
       function Z() {
-        (t.maxNumMegapixels = Math.max(1, t.maxNumMegapixels - 1)), G();
+        r.PreCrop.Sidebar.MaxNumMegapixels.display
+          .$()
+          .text(t.maxNumMegapixels + ' megapixels'),
+          q(
+            Math.round(B.width()),
+            Math.round(B.height()),
+            r.PreCrop.Sidebar.cropped_image_size_display,
+            r.PreCrop.Sidebar.cropped_image_aspect_ratio_display,
+            r.PreCrop.Sidebar.cropped_image_megapixels_display
+          ),
+          r.PreCrop.Sidebar.lock_aspect_ratio_button
+            .$()
+            .prop('checked', t.lockAspectRatio);
+        const e = (B.width() * B.height()) / t.Mega > t.maxNumMegapixels;
+        r.PreCrop.Sidebar.cropped_image_warning.$().toggle(e),
+          r.PreCrop.Sidebar.cropped_image_success.$().toggle(!e),
+          r.PreCrop.Sidebar.cropped_image_megapixels_display
+            .$()
+            .attr('style', e ? 'color:red;' : '');
       }
       function Q() {
-        $(window).off('beforeunload'), location.reload();
+        (t.lockAspectRatio = !t.lockAspectRatio), pt(), Z();
       }
       function J() {
-        const t = D.width(),
-          e = D.height();
+        (t.maxNumMegapixels = Math.min(
+          t.maxNumMegapixels + 1,
+          l.maxMaxNumMegapixels
+        )),
+          Z();
+      }
+      function K() {
+        (t.maxNumMegapixels = Math.max(1, t.maxNumMegapixels - 1)), Z();
+      }
+      function tt() {
+        $(window).off('beforeunload'), location.reload();
+      }
+      function et() {
+        const t = B.width(),
+          e = B.height();
         t > 0 &&
           e > 0 &&
-          null != r.completed &&
-          (r.completed(D), a.PreCrop.App.$().hide());
+          null != l.completed &&
+          (l.completed(B),
+          r.PreCrop.App.$().hide(),
+          G || r.body.$().removeClass('modal-open'));
       }
-      function K(t, e) {
+      function nt(t, e) {
         if (null != t && null != e) {
-          A.set(E), T.set(I);
-          var i = $(p.element).offset();
+          k.set(R), I.set(M);
+          var i = $(w.element).offset();
           return (
-            E.setXy(t - i.left, e - i.top),
-            (n = E),
-            I.setXy((n.x - S.left) * C, (n.y - S.top) * C),
-            A.notEquals(E) || T.notEquals(I)
+            R.setXy(t - i.left, e - i.top),
+            (n = R),
+            M.setXy((n.x - x.left) * P, (n.y - x.top) * P),
+            k.notEquals(R) || I.notEquals(M)
           );
         }
         var n;
         return !1;
       }
-      function tt() {
-        const t = 20 * C,
-          e = Math.abs(I.x - D.left) < t,
-          i = Math.abs(I.y - D.top) < t,
-          n = Math.abs(I.x - D.right) < t,
-          o = Math.abs(I.y - D.bottom) < t,
-          s = D.center(),
-          r = Math.abs(I.x - s.x) < t && Math.abs(I.y - s.y) < t;
-        var a = null;
-        I.x > D.left - t &&
-          I.x < D.right + t &&
-          I.y > D.top - t &&
-          I.y < D.bottom + t &&
+      function ot() {
+        const t = i * P,
+          e = Math.abs(M.x - B.left) < t,
+          n = Math.abs(M.y - B.top) < t,
+          s = Math.abs(M.x - B.right) < t,
+          o = Math.abs(M.y - B.bottom) < t,
+          a = B.center(),
+          r = Math.abs(M.x - a.x) < t && Math.abs(M.y - a.y) < t;
+        var h = null;
+        M.x > B.left - t &&
+          M.x < B.right + t &&
+          M.y > B.top - t &&
+          M.y < B.bottom + t &&
           (e
-            ? (a = i ? V : o ? O : H)
+            ? (h = n ? Y : o ? V : X)
+            : s
+            ? (h = n ? z : o ? W : O)
             : n
-            ? (a = i ? U : o ? z : N)
-            : i
-            ? (a = L)
+            ? (h = N)
             : o
-            ? (a = W)
-            : r && (a = X)),
-          it(a);
-      }
-      function it(t) {
-        (B = t),
-          null == t
-            ? $(p.element).attr('class', 'canvas-view')
-            : $(p.element).attr('class', B.key + '-tool canvas-view'),
-          Ct();
-      }
-      function ot(t) {
-        const e = t.touches.item(0);
-        lt(e.pageX, e.pageY), dt(e.pageX, e.pageY), t.preventDefault();
+            ? (h = H)
+            : r && (h = j)),
+          rt(h);
       }
       function rt(t) {
-        const e = t.touches.item(0);
-        lt(e.pageX, e.pageY), t.preventDefault();
-      }
-      function at(t) {
-        mt(-1e5, -1e5), t.preventDefault();
+        (U = t),
+          null == t
+            ? $(w.element).attr('class', 'canvas-view')
+            : $(w.element).attr('class', U.key + '-tool canvas-view'),
+          At();
       }
       function ht(t) {
-        lt(t.pageX, t.pageY);
+        const e = t.touches.item(0);
+        dt(e.pageX, e.pageY), gt(e.pageX, e.pageY), t.preventDefault();
       }
-      function lt(t, e) {
-        const i = K(t, e);
-        if (M) {
-          if (null != B && i) {
-            D.setFrom(F),
-              D.moveAnchor(B.anchor, I.minus(R)),
-              D.normalize(),
-              (D.left = Math.max(D.left, 0)),
-              (D.top = Math.max(D.top, 0)),
-              (D.right = Math.min(D.right, h)),
-              (D.bottom = Math.min(D.bottom, l)),
-              D.round();
-            Math.round(Math.max(0, n - D.width())),
-              Math.round(Math.max(0, n - D.height()));
-            D.moveAnchorToMinSize(B.anchor, n, n), D.round(), ct(), G(), Ct();
+      function lt(t) {
+        const e = t.touches.item(0);
+        dt(e.pageX, e.pageY), t.preventDefault();
+      }
+      function ct(t) {
+        wt(-1e5, -1e5), t.preventDefault();
+      }
+      function ut(t) {
+        dt(t.pageX, t.pageY);
+      }
+      function dt(t, e) {
+        const i = nt(t, e);
+        if (F) {
+          if (null != U && i) {
+            B.setFrom(_),
+              B.moveAnchor(U.anchor, M.minus(D)),
+              B.normalize(),
+              (B.left = Math.max(B.left, 0)),
+              (B.top = Math.max(B.top, 0)),
+              (B.right = Math.min(B.right, c)),
+              (B.bottom = Math.min(B.bottom, u)),
+              B.round();
+            Math.round(Math.max(0, n - B.width())),
+              Math.round(Math.max(0, n - B.height()));
+            B.moveAnchorToMinSize(U.anchor, n, n), B.round(), pt(), Z(), At();
           }
-        } else tt();
+        } else ot();
       }
-      function ct() {
+      function pt() {
         if (t.lockAspectRatio) {
           var e = m.Center;
           if (
-            (null != B && (e = B.oppositeAnchor),
-            D.forceAspectRatio(u, e),
-            D.width() > h || D.height() > l)
+            (null != U && (e = U.oppositeAnchor),
+            B.forceAspectRatio(p, e),
+            B.width() > c || B.height() > u)
           )
-            D.set(0, 0, h, l);
+            B.set(0, 0, c, u);
           else {
-            const t = Math.max(0, -D.left) + Math.min(0, h - D.right),
-              e = Math.max(0, -D.top) + Math.min(0, l - D.bottom);
-            D.translate(t, e);
+            const t = Math.max(0, -B.left) + Math.min(0, c - B.right),
+              e = Math.max(0, -B.top) + Math.min(0, u - B.bottom);
+            B.translate(t, e);
           }
-          D.round(), Ct();
+          B.round(), At();
         }
       }
-      function ut(t) {
-        dt(t.pageX, t.pageY),
-          $(window).on('mouseup', pt),
-          $(window).on('mousemove', ht);
+      function mt(t) {
+        gt(t.pageX, t.pageY),
+          $(window).on('mouseup', ft),
+          $(window).on('mousemove', ut);
       }
-      function dt(t, e) {
-        (M = !0), R.set(I), F.setFrom(D), K(t, e);
-      }
-      function pt(t) {
-        mt(t.pageX, t.pageY),
-          $(window).off('mouseup', pt),
-          $(window).off('mousemove', ht);
-      }
-      function mt(t, e) {
-        (M = !1),
-          $(window).off('mouseup', pt),
-          $(window).off('mousemove', ht),
-          K(t, e),
-          tt();
-      }
-      function gt(t) {
-        M || it(null);
+      function gt(t, e) {
+        (F = !0), D.set(M), _.setFrom(B), nt(t, e);
       }
       function ft(t) {
-        M || (K(t.pageX, t.pageY), tt());
+        wt(t.pageX, t.pageY),
+          $(window).off('mouseup', ft),
+          $(window).off('mousemove', ut);
       }
-      function wt() {
-        null != d &&
-          null != p &&
-          ((g = d.outerWidth()),
-          (w = d.outerHeight()),
-          (p.width() == g && p.height() == w) || p.setSize(g, w),
-          (v = w - 20) / (b = g - 20) > l / h
-            ? ((S.left = i),
-              (P = (l / h) * (x = b)),
-              (S.top = i + 0.5 * (v - P)))
-            : ((S.top = i),
-              (x = (h / l) * (P = v)),
-              (S.left = i + 0.5 * (b - x))),
-          (S.right = S.left + x),
-          (S.bottom = S.top + P),
-          (C = 1 / (y = x / h))),
-          G(),
-          Ct();
+      function wt(t, e) {
+        (F = !1),
+          $(window).off('mouseup', ft),
+          $(window).off('mousemove', ut),
+          nt(t, e),
+          ot();
       }
       function bt(t) {
-        return new et(S.left + t.x * y, S.top + t.y * y);
+        F || rt(null);
       }
-      function vt(t, e, i, n, r) {
-        const a = B == r,
-          h = bt(e);
-        t.setFillStyle('#ffffff'),
-          t.fillRect(h.x + i, h.y + n, i * o, 6 * n),
-          t.fillRect(h.x + i, h.y + n, 6 * i, n * o),
-          t.setFillStyle(a ? '#ff0000' : '#000000'),
-          t.fillRect(h.x + 2 * i, h.y + 2 * n, i * s, 4 * n),
-          t.fillRect(h.x + 2 * i, h.y + 2 * n, 4 * i, n * s);
+      function vt(t) {
+        F || (nt(t.pageX, t.pageY), ot());
       }
-      function St(t, e, i, n) {
-        const r = B == n,
-          a = bt(e);
+      function St() {
+        null != g &&
+          null != w &&
+          ((b = g.outerWidth()),
+          (v = g.outerHeight()),
+          (w.width() == b && w.height() == v) || w.setSize(b, v),
+          (y = v - 2 * e) / (S = b - 2 * e) > u / c
+            ? ((x.left = e),
+              (T = (u / c) * (A = S)),
+              (x.top = e + 0.5 * (y - T)))
+            : ((x.top = e),
+              (A = (c / u) * (T = y)),
+              (x.left = e + 0.5 * (S - A))),
+          (x.right = x.left + A),
+          (x.bottom = x.top + T),
+          (P = 1 / (C = A / c))),
+          Z(),
+          At();
+      }
+      function yt(t) {
+        return new it(x.left + t.x * C, x.top + t.y * C);
+      }
+      function xt(t, e, i, n, r) {
+        const l = U == r,
+          c = yt(e);
         t.setFillStyle('#ffffff'),
-          t.fillRect(a.x + i, a.y - 10, 6 * i, o),
+          t.fillRect(c.x + i, c.y + n, i * s, n * o),
+          t.fillRect(c.x + i, c.y + n, i * o, n * s),
+          t.setFillStyle(l ? '#ff0000' : '#000000'),
+          t.fillRect(c.x + 2 * i, c.y + 2 * n, i * a, n * h),
+          t.fillRect(c.x + 2 * i, c.y + 2 * n, i * h, n * a);
+      }
+      function Ct(t, e, i, n) {
+        const r = U == n,
+          l = yt(e);
+        t.setFillStyle('#ffffff'),
+          t.fillRect(l.x + i, l.y - s / 2, i * o, s),
           t.setFillStyle(r ? '#ff0000' : '#000000'),
-          t.fillRect(a.x + 2 * i, a.y - 9, 4 * i, s);
+          t.fillRect(l.x + 2 * i, l.y - a / 2, i * h, a);
       }
-      function yt(t, e, i, n) {
-        const r = B == n,
-          a = bt(e);
+      function Pt(t, e, i, n) {
+        const r = U == n,
+          l = yt(e);
         t.setFillStyle('#ffffff'),
-          t.fillRect(a.x - 10, a.y + i, o, 6 * i),
+          t.fillRect(l.x - s / 2, l.y + i, s, i * o),
           t.setFillStyle(r ? '#ff0000' : '#000000'),
-          t.fillRect(a.x - 9, a.y + 2 * i, s, 4 * i);
+          t.fillRect(l.x - a / 2, l.y + 2 * i, a, i * h);
       }
-      function Ct() {
-        if (null != r.inputCanvas && null != p && 0 != g && 0 != w) {
-          const i = p.context();
-          i.clearRect(0, 0, g, w),
-            i.drawCanvasEx2(r.inputCanvas, S.left, S.top, x, P),
-            i.setStrokeStyle('#000000'),
-            i.setGlobalAlpha(0.4),
-            i.setLineWidth(1);
-          const n = Math.round(((e = D.left), S.left + e * y)) + 0.5,
-            o = Math.round(((t = D.top), S.top + t * y)) + 0.5,
-            s = Math.round(D.width() * y) - 1,
-            a = Math.round(D.height() * y) - 1;
-          i.strokeRect(n, o, s, a),
-            i.setGlobalAlpha(1),
-            vt(i, D.topLeft(), 1, 1, V),
-            vt(i, D.topRight(), -1, 1, U),
-            vt(i, D.bottomRight(), -1, -1, z),
-            vt(i, D.bottomLeft(), 1, -1, O),
-            St(i, D.leftCenter(), 1, H),
-            St(i, D.rightCenter(), -1, N),
-            yt(i, D.topCenter(), 1, L),
-            yt(i, D.bottomCenter(), -1, W),
-            (function (t, e, i) {
-              var n = 17.5,
-                o = B == i ? '#ff0000' : '#000000';
-              const s = bt(e);
+      function At() {
+        if (null != l.inputCanvas && null != w && 0 != b && 0 != v) {
+          const n = w.context();
+          n.clearRect(0, 0, b, v),
+            n.drawCanvasEx2(l.inputCanvas, x.left, x.top, A, T),
+            n.setStrokeStyle('#000000'),
+            n.setGlobalAlpha(0.4),
+            n.setLineWidth(1);
+          const s = Math.round(((e = B.left), x.left + e * C)) + 0.5,
+            o = Math.round(((t = B.top), x.top + t * C)) + 0.5,
+            a = Math.round(B.width() * C) - 1,
+            r = Math.round(B.height() * C) - 1;
+          n.strokeRect(s, o, a, r),
+            n.setGlobalAlpha(1),
+            xt(n, B.topLeft(), 1, 1, Y),
+            xt(n, B.topRight(), -1, 1, z),
+            xt(n, B.bottomRight(), -1, -1, W),
+            xt(n, B.bottomLeft(), 1, -1, V),
+            Ct(n, B.leftCenter(), 1, X),
+            Ct(n, B.rightCenter(), -1, O),
+            Pt(n, B.topCenter(), 1, N),
+            Pt(n, B.bottomCenter(), -1, H),
+            (function (t, e, n) {
+              var s = i / 2,
+                o = 1.75 * s,
+                a = U == n ? '#ff0000' : '#000000';
+              const r = yt(e);
               t.beginPath(),
-                t.triangle(s.x, s.y - n, -Math.PI / 2, 2, 5),
-                t.triangle(s.x, s.y + n, Math.PI / 2, 2, 5),
-                t.triangle(s.x - n, s.y, Math.PI, 2, 5),
-                t.triangle(s.x + n, s.y, 0, 2, 5),
+                t.triangle(r.x, r.y - o, -Math.PI / 2, 2, 5),
+                t.triangle(r.x, r.y + o, Math.PI / 2, 2, 5),
+                t.triangle(r.x - o, r.y, Math.PI, 2, 5),
+                t.triangle(r.x + o, r.y, 0, 2, 5),
                 t.strokeEx(2, '#FFF'),
-                t.fillEx(o),
-                t.fillCircle(s.x, s.y, 12, '#FFFFFF'),
-                t.fillCircle(s.x, s.y, 11, o);
-            })(i, D.center(), X);
+                t.fillEx(a);
+              var h = s + 2;
+              t.fillCircle(r.x, r.y, h, '#FFFFFF'),
+                t.fillCircle(r.x, r.y, h - 1, a);
+            })(n, B.center(), j);
         }
         var t, e;
       }
       t.show = function (e) {
-        (h = (r = e).inputCanvas.width()),
-          (l = r.inputCanvas.height()),
-          c.setXy(0.5 * h, 0.5 * l),
-          D.set(0, 0, h, l),
-          (u = l / h),
-          (t.lockAspectRatio = !!r.lockAspectRatio),
-          (t.maxNumMegapixels = r.maxNumMegapixels),
+        (c = (l = e).inputCanvas.width()),
+          (u = l.inputCanvas.height()),
+          d.setXy(0.5 * c, 0.5 * u),
+          B.set(0, 0, c, u),
+          (p = u / c),
+          (t.lockAspectRatio = !!l.lockAspectRatio),
+          (t.maxNumMegapixels = l.maxNumMegapixels),
           t.initialized ||
             ((t.initialized = !0),
-            (d = a.PreCrop.ViewContainer.$()),
-            (p = new st(d.outerWidth(), d.outerHeight())),
-            d.append(p.element),
-            $(p.element).mousedown(ut).mouseup(pt).mousemove(ht).hover(ft, gt),
-            p.element.addEventListener(
+            (g = r.PreCrop.ViewContainer.$()),
+            (w = new at(g.outerWidth(), g.outerHeight())),
+            g.append(w.element),
+            $(w.element).mousedown(mt).mouseup(ft).mousemove(ut).hover(vt, bt),
+            w.element.addEventListener(
               'touchstart',
-              ot,
-              k.AddEventListenerThirdArgForTouch
+              ht,
+              E.AddEventListenerThirdArgForTouch
             ),
-            p.element.addEventListener(
+            w.element.addEventListener(
               'touchmove',
-              rt,
-              k.AddEventListenerThirdArgForTouch
+              lt,
+              E.AddEventListenerThirdArgForTouch
             ),
-            p.element.addEventListener(
+            w.element.addEventListener(
               'touchend',
-              at,
-              k.AddEventListenerThirdArgForTouch
+              ct,
+              E.AddEventListenerThirdArgForTouch
             ),
-            a.PreCrop.Sidebar.crop_button.$().click(J),
-            a.PreCrop.Sidebar.cancel_button.$().click(Q),
-            a.PreCrop.Sidebar.lock_aspect_ratio_button.$().click(q),
-            r.maxMaxNumMegapixels
-              ? (a.PreCrop.Sidebar.MaxNumMegapixels.decrease.$().click(Z),
-                a.PreCrop.Sidebar.MaxNumMegapixels.increase.$().click(j))
-              : (a.PreCrop.Sidebar.MaxNumMegapixels.decrease.$().hide(),
-                a.PreCrop.Sidebar.MaxNumMegapixels.increase.$().hide()),
-            $(window).resize(wt)),
-          Y(
-            h,
-            l,
-            a.PreCrop.Sidebar.input_image_size_display,
-            a.PreCrop.Sidebar.input_image_aspect_ratio_display,
-            a.PreCrop.Sidebar.input_image_megapixels_display
+            r.PreCrop.Sidebar.crop_button.$().click(et),
+            r.PreCrop.Sidebar.cancel_button.$().click(tt),
+            r.PreCrop.Sidebar.lock_aspect_ratio_button.$().click(Q),
+            l.maxMaxNumMegapixels
+              ? (r.PreCrop.Sidebar.MaxNumMegapixels.decrease.$().click(K),
+                r.PreCrop.Sidebar.MaxNumMegapixels.increase.$().click(J))
+              : (r.PreCrop.Sidebar.MaxNumMegapixels.decrease.$().hide(),
+                r.PreCrop.Sidebar.MaxNumMegapixels.increase.$().hide()),
+            $(window).resize(St)),
+          q(
+            c,
+            u,
+            r.PreCrop.Sidebar.input_image_size_display,
+            r.PreCrop.Sidebar.input_image_aspect_ratio_display,
+            r.PreCrop.Sidebar.input_image_megapixels_display
           ),
-          G(),
-          a.PreCrop.App.$().show(),
-          setTimeout(wt, 0);
+          Z(),
+          r.PreCrop.App.$().show(),
+          (G = r.body.$().hasClass('modal-open')),
+          G || r.body.$().addClass('modal-open'),
+          setTimeout(St, 0);
       };
     })(I || (I = {})),
     (function (t) {
@@ -5125,47 +5666,47 @@
         };
       }
       function n(t, e) {
-        return function (i, n, o) {
+        return function (i, n, s) {
           i.error ? t(i.error) : e(i);
         };
       }
-      (t.createUserImageSpec = function (t, o, s, r, a, h) {
+      (t.createUserImageSpec = function (t, s, o, a, r, h) {
         const l = {
-          originalFilename: s.name,
-          contentType: s.type,
-          w: r.width(),
-          h: r.height(),
-          sizePixels: r.width() * r.height(),
-          sizeBytes: s.size,
+          originalFilename: o.name,
+          contentType: o.type,
+          w: a.width(),
+          h: a.height(),
+          sizePixels: a.width() * a.height(),
+          sizeBytes: o.size,
           originalW: t.w,
           originalH: t.h,
           originalSizePixels: t.sizePixels,
           originalSizeBytes: t.sizeBytes,
           originalDpiOpt: t.dpi,
-          wasShrunk: r.wasShrunk,
+          wasShrunk: a.wasShrunk,
           wasTransparent: t.transparent,
-          isGifImage: o
+          isGifImage: s
         };
         i.ajax({
           url: '/api/images',
           cache: !1,
           data: l,
           dataType: 'json',
-          error: e(a),
-          success: n(a, h),
+          error: e(r),
+          success: n(r, h),
           type: 'POST'
         });
       }),
-        (t.readUserImageSpec = function (t, i, o, s) {
+        (t.readUserImageSpec = function (t, i, s, o) {
           $.ajax('/api/images/' + t + '/' + i, {
             cache: !1,
             dataType: 'json',
-            error: e(o),
-            success: n(o, s),
+            error: e(s),
+            success: n(s, o),
             type: 'GET'
           });
         }),
-        (t.setStickySettings = function (t, o, s) {
+        (t.setStickySettings = function (t, s, o) {
           i.ajax({
             url:
               '/api/setStickySettings?stickySettings=' +
@@ -5173,8 +5714,8 @@
             cache: !1,
             data: {},
             dataType: 'json',
-            error: e(o),
-            success: n(o, s),
+            error: e(s),
+            success: n(s, o),
             type: 'POST'
           });
         }),
@@ -5189,13 +5730,13 @@
           for (let t in e) e.hasOwnProperty(t) && (i += '&' + t + '=' + e[t]);
           return i;
         });
-    })(M || (M = {})),
+    })(R || (R = {})),
     (function (t) {
       const e = 'stickySettings';
       var i = null;
       function n() {
         window.GlobalsEx.email &&
-          M.setStickySettings(
+          R.setStickySettings(
             i,
             function (t) {},
             function (t) {}
@@ -5225,37 +5766,37 @@
         (t.splitView = function (t) {
           return void 0 === t ? 0 != i.splitView : ((i.splitView = t), n(), t);
         });
-    })(R || (R = {})),
+    })(M || (M = {})),
     (function (t) {
-      const e = new ht('Downsampler', [], ut);
-      t.loadImageShrinkAndThumbnail = function (i, n, o, s) {
+      const e = new lt('Downsampler', [], dt);
+      t.loadImageShrinkAndThumbnail = function (i, n, s, o) {
         t.loadCheckRotateFlattenImage(i, n, n => {
-          let r = z.MaxMaxNumPixels;
-          const a = n.width() * n.height(),
-            h = a > r,
+          let a = z.MaxMaxNumPixels;
+          const r = n.width() * n.height(),
+            h = r > a,
             l = {
               w: n.width(),
               h: n.height(),
-              sizePixels: a,
+              sizePixels: r,
               sizeBytes: i.size,
               transparent: !1
             };
-          function c(a) {
-            E.process({
+          function c(r) {
+            k.process({
               inputCanvas: n,
-              crop: a,
-              maxNumPixels: r,
+              crop: r,
+              maxNumPixels: a,
               thumbnailSize: void 0,
-              worker: s ? e : void 0,
-              completed: function (e, n, s) {
+              worker: o ? e : void 0,
+              completed: function (e, n, o) {
                 if (n || t.needsReencoding(i.type)) {
                   let n = t.recodeCanvasFile(i, e);
-                  o(l, n, e);
-                } else o(l, i, e);
+                  s(l, n, e);
+                } else s(l, i, e);
               }
             });
           }
-          h && R.preCropEnabled()
+          h && M.preCropEnabled()
             ? I.show({
                 inputFile: i,
                 inputCanvas: n,
@@ -5264,21 +5805,21 @@
                 maxMaxNumMegapixels: z.MaxMaxNumMegapixels,
                 aspectRatios: [],
                 completed: t => {
-                  (r = 1024 * I.maxNumMegapixels * 1024), c(t);
+                  (a = 1024 * I.maxNumMegapixels * 1024), c(t);
                 }
               })
             : c();
         });
       };
     })(F || (F = {}));
-  class dt {
-    constructor(t, e, i, n, o, s) {
+  class pt {
+    constructor(t, e, i, n, s, o) {
       (this.btn = t),
         (this.action = e),
         (this.delay = i),
         (this.firstDelayMultiplier = n),
-        (this.ondown = o),
-        (this.onup = s),
+        (this.ondown = s),
+        (this.onup = o),
         (this.t = void 0),
         (this.repeat = () => {
           this.action(), (this.t = setTimeout(this.repeat, this.delay));
@@ -5304,16 +5845,16 @@
         t.on('touchend', this.endHandler);
     }
   }
-  class pt {
+  class mt {
     static empty() {
-      return new pt(0, 0, 0, ft.empty());
+      return new mt(0, 0, 0, wt.empty());
     }
-    constructor(t, e, i, n, o) {
+    constructor(t, e, i, n, s) {
       (this.imageTypeE = t),
         (this.imageComplexityE = e),
         (this.usePalette = i),
         (this.palette = n),
-        (this.segmentationEdits = o);
+        (this.segmentationEdits = s);
     }
     getImageTypeE() {
       return this.imageTypeE;
@@ -5369,35 +5910,35 @@
     imageTypeCss() {
       switch (this.imageTypeE) {
         case 1:
-          return a.App.Sidebar.ImageType.Photo;
+          return r.App.Sidebar.ImageType.Photo;
         case 2:
-          return a.App.Sidebar.ImageType.LogoAA;
+          return r.App.Sidebar.ImageType.LogoAA;
         case 3:
-          return a.App.Sidebar.ImageType.Logo;
+          return r.App.Sidebar.ImageType.Logo;
         default:
-          return a.empty;
+          return r.empty;
       }
     }
     imageComplexityCss() {
       switch (this.imageComplexityE) {
         case 3:
-          return a.App.Sidebar.ImageComplexity.high;
+          return r.App.Sidebar.ImageComplexity.high;
         case 2:
-          return a.App.Sidebar.ImageComplexity.medium;
+          return r.App.Sidebar.ImageComplexity.medium;
         case 1:
-          return a.App.Sidebar.ImageComplexity.low;
+          return r.App.Sidebar.ImageComplexity.low;
         default:
-          return a.empty;
+          return r.empty;
       }
     }
     usePaletteCss() {
       switch (this.usePalette) {
         case 1:
-          return a.App.Sidebar.PaletteYesNo.CustomColors;
+          return r.App.Sidebar.PaletteYesNo.CustomColors;
         case 2:
-          return a.App.Sidebar.PaletteYesNo.UnlimitedColors;
+          return r.App.Sidebar.PaletteYesNo.UnlimitedColors;
         default:
-          return a.empty;
+          return r.empty;
       }
     }
     toCommand(t) {
@@ -5436,14 +5977,14 @@
     }
     withImageType(t, e) {
       const i = this.getNewPalette(t, this.imageComplexityE, e);
-      return new pt(t, this.imageComplexityE, this.usePalette, i, void 0);
+      return new mt(t, this.imageComplexityE, this.usePalette, i, void 0);
     }
     withImageComplexity(t, e) {
       const i = this.getNewPalette(this.imageTypeE, t, e);
-      return new pt(this.imageTypeE, t, this.usePalette, i, void 0);
+      return new mt(this.imageTypeE, t, this.usePalette, i, void 0);
     }
     withUsePalette(t, e) {
-      return new pt(
+      return new mt(
         this.imageTypeE,
         this.imageComplexityE,
         t,
@@ -5457,7 +5998,7 @@
         .getBestPalette();
       return e.equals(this.getPalette())
         ? this
-        : new pt(
+        : new mt(
             this.imageTypeE,
             this.imageComplexityE,
             this.usePalette,
@@ -5471,7 +6012,7 @@
         .getPalette(t);
       return i.equals(this.getPalette())
         ? this
-        : new pt(
+        : new mt(
             this.imageTypeE,
             this.imageComplexityE,
             this.usePalette,
@@ -5481,7 +6022,7 @@
     }
     withoutColor(t) {
       const e = this.palette.withoutColor(t);
-      return new pt(
+      return new mt(
         this.imageTypeE,
         this.imageComplexityE,
         this.usePalette,
@@ -5491,7 +6032,7 @@
     }
     withNewColor(t) {
       const e = this.palette.withNewColor(t);
-      return new pt(
+      return new mt(
         this.imageTypeE,
         this.imageComplexityE,
         this.usePalette,
@@ -5501,7 +6042,7 @@
     }
     withColor(t, e) {
       const i = this.palette.withColor(t, e);
-      return new pt(
+      return new mt(
         this.imageTypeE,
         this.imageComplexityE,
         this.usePalette,
@@ -5510,7 +6051,7 @@
       );
     }
     withSegEdits(t) {
-      return new pt(
+      return new mt(
         this.imageTypeE,
         this.imageComplexityE,
         this.usePalette,
@@ -5519,14 +6060,14 @@
       );
     }
   }
-  class mt {
+  class gt {
     constructor(t) {
       (this.palette_with_score_string_list = t),
         (this.paletteWithScores = t
           .trim()
           .split('\n')
           .map(function (t) {
-            return new gt(t);
+            return new ft(t);
           }));
     }
     equals(t) {
@@ -5547,16 +6088,16 @@
       return this.best.palette;
     }
   }
-  class gt {
+  class ft {
     constructor(t) {
       this.scorePaletteS = t;
       const e = t.trim().split(';', 2);
-      (this.score = parseFloat(e[0])), (this.palette = new ft(e[1]));
+      (this.score = parseFloat(e[0])), (this.palette = new wt(e[1]));
     }
   }
-  class ft {
+  class wt {
     static empty() {
-      return new ft('');
+      return new wt('');
     }
     constructor(t) {
       this.paletteS = t;
@@ -5595,25 +6136,25 @@
       return this.paletteS == t.paletteS;
     }
     static fromColors(t) {
-      return new ft(t.length + ',' + t.join(' '));
+      return new wt(t.length + ',' + t.join(' '));
     }
     withoutColor(t) {
       const e = this.colors.slice();
-      return e.splice(t, 1), ft.fromColors(e);
+      return e.splice(t, 1), wt.fromColors(e);
     }
     withNewColor(t) {
       const e = this.colors.slice();
-      return e.push(t), ft.fromColors(e);
+      return e.push(t), wt.fromColors(e);
     }
     withColor(t, e) {
       const i = this.colors.slice();
-      return (i[t] = e), ft.fromColors(i);
+      return (i[t] = e), wt.fromColors(i);
     }
     contains(t) {
       return this.colors.indexOf(t) >= 0;
     }
   }
-  class wt {
+  class bt {
     constructor(t) {
       (this.spec = t), (this.paletteLists = {});
     }
@@ -5635,7 +6176,7 @@
       const i = 'k' + t + '_' + e;
       return (
         this.paletteLists[i] ||
-        (this.paletteLists[i] = new mt(this.getPaletteString(t, e)))
+        (this.paletteLists[i] = new gt(this.getPaletteString(t, e)))
       );
     }
     getConfiguration() {
@@ -5643,7 +6184,7 @@
         this.spec.imageTypeE,
         this.spec.imageComplexityE
       ).getBestPalette();
-      return new pt(
+      return new mt(
         this.spec.imageTypeE,
         this.spec.imageComplexityE,
         this.spec.usePaletteE,
@@ -5652,7 +6193,7 @@
       );
     }
   }
-  class bt {
+  class vt {
     constructor(t) {
       this.spec = t;
     }
@@ -5663,11 +6204,11 @@
       return this.spec.vectorizationStateE;
     }
     getConfiguration() {
-      return new pt(
+      return new mt(
         this.spec.imageTypeE,
         this.spec.imageComplexityE,
         this.spec.paletteS ? 1 : 2,
-        this.spec.paletteS ? new ft(this.spec.paletteS) : ft.empty(),
+        this.spec.paletteS ? new wt(this.spec.paletteS) : wt.empty(),
         this.spec.segmentationEdits
       );
     }
@@ -5675,11 +6216,11 @@
       return this.spec.segmentationUrl;
     }
   }
-  class vt {
+  class St {
     constructor(t) {
       (this.spec = t),
         (this.vectorizations = t.vectorizations.map(e => {
-          let i = new bt(e);
+          let i = new vt(e);
           return (
             i.id() == t.vectorizationRecordId &&
               (this.currentVectorization = i),
@@ -5687,10 +6228,10 @@
           );
         })),
         (this.segmentationEdits = t.segmentationEdits
-          ? new bt(t.segmentationEdits)
+          ? new vt(t.segmentationEdits)
           : null),
         (this.classification = t.classification
-          ? new wt(t.classification)
+          ? new bt(t.classification)
           : null);
     }
     id() {
@@ -5749,7 +6290,7 @@
         case 3:
           return this.currentVectorization.getConfiguration();
         default:
-          return pt.empty();
+          return mt.empty();
       }
     }
     getConfigurationsWithResult() {
@@ -5794,7 +6335,7 @@
       (t[(t.Connected = 2)] = 'Connected'),
       (t[(t.Error = 3)] = 'Error');
   })(D || (D = {}));
-  class St {
+  class yt {
     constructor(t) {
       (this.state = D.Disconnected),
         (this.websocket = null),
@@ -5959,10 +6500,11 @@
       return e.getState() == D.Connected;
     }),
       (t.initialize = function (t) {
-        e = new St({
+        e = new yt({
           url: function () {
-            return M.getWorkerUrl('/api/websocket', {
+            return R.getWorkerUrl('/api/websocket', {
               imageId: t.imageId,
+              version: '1',
               secret: t.secret,
               priority: i.toString()
             });
@@ -5972,7 +6514,13 @@
           },
           disconnectedFromServer: t.disconnectedFromServer,
           newMessageFromServer: t.newMessageFromServer,
-          heartbeat: { millis: 2e4, message: { index: 0, command: 0 } },
+          heartbeat: {
+            millis: 2e4,
+            message: {
+              index: 0,
+              command: 0
+            }
+          },
           label: n.s('Connect to worker'),
           puntOnCloseReason: function (t) {
             return '-3' == t && i++ < window.Globals.NumPuntsWhenWorkersBusy;
@@ -6023,18 +6571,18 @@
       }
       (t.exitHref = '/'),
         (t.initialize = function () {
-          (e = i()), a.$window.on('popstate', n);
+          (e = i()), r.$window.on('popstate', n);
         }),
         (t.goTo = function (n) {
-          const o = location,
-            s = o.pathname,
-            r = '/images/' + n.id + '/edit/' + n.secret,
-            a = 0 === s.lastIndexOf(r, 0);
+          const s = location,
+            o = s.pathname,
+            a = '/images/' + n.id + '/edit/' + n.secret,
+            r = 0 === o.lastIndexOf(a, 0);
           (document.title = n.originalFilename + ' - Vector Magic'),
-            a
-              ? (t.exitHref = o.protocol + '//' + o.host)
-              : ((t.exitHref = o.href),
-                history.pushState(n, '', r),
+            r
+              ? (t.exitHref = s.protocol + '//' + s.host)
+              : ((t.exitHref = s.href),
+                history.pushState(n, '', a),
                 f.gaSetPageAndSendPageview('/images/edit'),
                 (e = i()));
         }),
@@ -6046,7 +6594,7 @@
               location.reload();
         });
     })(B || (B = {}));
-  class yt {
+  class xt {
     constructor(t, e) {
       (this.color = t), (this.lenghts = e);
     }
@@ -6054,34 +6602,34 @@
   class Ct {
     constructor(t, e) {
       (this.shapes = t), (this.floats = e), (this.hasPaths = !1);
-      // let i = 0;
-      // try {
-      //   let t = 0;
-      //   for (var n of this.shapes) {
-      //     let e = new Path2D();
-      //     for (var o of n.lenghts) {
-      //       for (t += o, e.moveTo(this.floats[i++], this.floats[i++]); i < t; )
-      //         e.bezierCurveTo(
-      //           this.floats[i++],
-      //           this.floats[i++],
-      //           this.floats[i++],
-      //           this.floats[i++],
-      //           this.floats[i++],
-      //           this.floats[i++]
-      //         );
-      //       e.closePath();
-      //     }
-      //     n.path = e;
-      //   }
-      //   this.hasPaths = !0;
-      // } catch (t) {
-      //   this.hasPaths = !1;
-      // }
+      let i = 0;
+      try {
+        let t = 0;
+        for (var n of this.shapes) {
+          let e = new Path2D();
+          for (var s of n.lenghts) {
+            for (t += s, e.moveTo(this.floats[i++], this.floats[i++]); i < t; )
+              e.bezierCurveTo(
+                this.floats[i++],
+                this.floats[i++],
+                this.floats[i++],
+                this.floats[i++],
+                this.floats[i++],
+                this.floats[i++]
+              );
+            e.closePath();
+          }
+          n.path = e;
+        }
+        this.hasPaths = !0;
+      } catch (t) {
+        this.hasPaths = !1;
+      }
     }
     static from(t) {
       const e = new Float32Array(t.arraybuffer),
         i = t.shapes.map(function (t) {
-          return new yt(t.color, t.lengths);
+          return new xt(t.color, t.lengths);
         });
       return new Ct(i, e);
     }
@@ -6092,18 +6640,18 @@
             ? ((t.fillStyle = n.color), t.fill(n.path))
             : (i && (t.strokeStyle = n.color), t.stroke(n.path));
       else {
-        let s = 0,
-          r = 0;
+        let o = 0,
+          a = 0;
         for (var n of this.shapes) {
-          for (var o of (t.beginPath(), n.lenghts)) {
-            for (r += o, t.moveTo(this.floats[s++], this.floats[s++]); s < r; )
+          for (var s of (t.beginPath(), n.lenghts)) {
+            for (a += s, t.moveTo(this.floats[o++], this.floats[o++]); o < a; )
               t.bezierCurveTo(
-                this.floats[s++],
-                this.floats[s++],
-                this.floats[s++],
-                this.floats[s++],
-                this.floats[s++],
-                this.floats[s++]
+                this.floats[o++],
+                this.floats[o++],
+                this.floats[o++],
+                this.floats[o++],
+                this.floats[o++],
+                this.floats[o++]
               );
             t.closePath();
           }
@@ -6114,7 +6662,7 @@
       }
     }
   }
-  class xt {
+  class Pt {
     constructor(t, e, i) {
       (this.name = t),
         (this.imageWidth = e),
@@ -6149,59 +6697,60 @@
     }
   }
   !(function (t) {
-    const e = 'RESET';
-    var i,
+    const e = 'RESET',
+      i = 200;
+    var s,
       o,
-      s,
-      r,
       a,
+      r,
       h,
-      l = [],
+      l,
       c = [],
-      u = !1,
-      d = 0;
-    function p() {
-      s &&
-        (s.removeEventListener('load', m), s.removeEventListener('error', g)),
-        (s = void 0);
-    }
+      u = [],
+      d = !1,
+      p = 0;
     function m() {
-      (r = F.flattenImage(s)),
-        p(),
-        (a = r.context().getImageDataFull()),
+      a &&
+        (a.removeEventListener('load', g), a.removeEventListener('error', w)),
+        (a = void 0);
+    }
+    function g() {
+      (r = F.flattenImage(a)),
+        m(),
         (h = r.context().getImageDataFull()),
-        w(),
-        O.segmentationSetDefaultColor(zt.fromImageData(a, 0, 0));
+        (l = r.context().getImageDataFull()),
+        b(),
+        W.segmentationSetDefaultColor(Ot.fromImageData(h, 0, 0));
     }
-    function g(t) {
-      p(), U.failedToLoadSegmentation();
-    }
-    function w() {
-      for (var t of (h.data.set(a.data), l)) t.doEdit(h);
-      b();
+    function w(t) {
+      m(), U.failedToLoadSegmentation();
     }
     function b() {
-      r.context().context.putImageData(h, 0, 0),
-        O.segmentationNode().setSegmentation(r),
-        P(!1),
-        O.segmentationSetEnabled(l.length > 0, c.length > 0, S());
+      for (var t of (l.data.set(h.data), c)) t.doEdit(l);
+      v();
     }
     function v() {
-      var t = '';
-      for (var e of l) t = e.concatenateOpString(t);
-      return 0 == t.length ? void 0 : t;
+      r.context().context.putImageData(l, 0, 0),
+        W.segmentationNode().setSegmentation(r),
+        A(!1),
+        W.segmentationSetEnabled(c.length > 0, u.length > 0, y());
     }
     function S() {
-      return l.length > 0 && l[l.length - 1].opString() != e;
+      var t = '';
+      for (var e of c) t = e.concatenateOpString(t);
+      return 0 == t.length ? void 0 : t;
     }
-    function y(t) {
-      t.isInside(h) &&
-        t.wantsEdit(h) &&
-        (c.length > 0 && (c = []),
-        l.push(t),
-        l.length > 300 && O.segmentationDontEditTooMuch(),
-        t.doEdit(h),
-        b());
+    function y() {
+      return c.length > 0 && c[c.length - 1].opString() != e;
+    }
+    function x(t) {
+      t.isInside(l) &&
+        t.wantsEdit(l) &&
+        (u.length > 0 && (u = []),
+        c.push(t),
+        c.length > 300 && W.segmentationDontEditTooMuch(),
+        t.doEdit(l),
+        v());
     }
     function C(t, e, i) {
       const n = 4 * (e + i * t.width);
@@ -6212,7 +6761,7 @@
         t.data[n + 2]
       );
     }
-    function x(t, e) {
+    function P(t, e) {
       return (
         (e *= 4),
         (t.data[e + 3] << 24) |
@@ -6221,44 +6770,44 @@
           t.data[e + 2]
       );
     }
-    function P(e) {
-      u
+    function A(e) {
+      d
         ? e
-          ? T()
-          : d || (d = setTimeout(T, 500))
-        : t.pinchPoints.length > 0 && ((t.pinchPoints.length = 0), A());
-    }
-    function A() {
-      O.segmentationNode().finder.invalidate();
+          ? k()
+          : p || (p = setTimeout(k, 500))
+        : t.pinchPoints.length > 0 && ((t.pinchPoints.length = 0), T());
     }
     function T() {
-      if ((d && (clearTimeout(d), (d = 0)), !h)) return;
+      W.segmentationNode().finder.invalidate();
+    }
+    function k() {
+      if ((p && (clearTimeout(p), (p = 0)), !l)) return;
       f.tic(), (t.pinchPoints.length = 0);
-      const e = h;
+      const e = l;
       for (
-        var i, n, o, s, r = 0;
-        r < e.height - 1 && t.pinchPoints.length < 200;
+        var n, s, o, a, r = 0;
+        r < e.height - 1 && t.pinchPoints.length < i;
         r++
       ) {
-        (n = C(e, 0, r)), (s = C(e, 0, r + 1));
-        for (var a = 1; a < e.width; a++)
-          (i = n),
-            (o = s),
-            (n = C(e, a, r)),
-            (s = C(e, a, r + 1)),
-            i == o ||
-              n == s ||
-              (i != s && o != n) ||
-              t.pinchPoints.push(new et(a, r + 1));
+        (s = C(e, 0, r)), (a = C(e, 0, r + 1));
+        for (var h = 1; h < e.width; h++)
+          (n = s),
+            (o = a),
+            (s = C(e, h, r)),
+            (a = C(e, h, r + 1)),
+            n == o ||
+              s == a ||
+              (n != a && o != s) ||
+              t.pinchPoints.push(new it(h, r + 1));
       }
-      f.toc('SegEditor.computePinchPoints'), A();
+      f.toc('SegEditor.computePinchPoints'), T();
     }
     (t.pinchPoints = []),
-      (t.ensureInitialized = function (t, e, u) {
-        (i = t),
-          (e == o && u == v()) ||
-            ((l = []),
-            (c = []),
+      (t.ensureInitialized = function (t, e, i) {
+        (s = t),
+          (e == o && i == S()) ||
+            ((c = []),
+            (u = []),
             (function (t) {
               if (t) {
                 const e = t.split('\n');
@@ -6266,20 +6815,20 @@
                   const t = e.shift();
                   if (t.length > 0) {
                     const e = E.factory(t);
-                    e && l.push(e);
+                    e && c.push(e);
                   }
                 }
               }
-            })(u)),
-          e != o && ((o = e), p(), (r = void 0), (a = void 0), (h = void 0)),
+            })(i)),
+          e != o && ((o = e), m(), (r = void 0), (h = void 0), (l = void 0)),
           o
             ? r
-              ? w()
-              : (O.segmentationNode().setProgress(50),
-                ((s = new Image()).crossOrigin = 'anonymous'),
-                s.addEventListener('load', m),
-                s.addEventListener('error', g),
-                (s.src = o))
+              ? b()
+              : (W.segmentationNode().setProgress(50),
+                ((a = new Image()).crossOrigin = 'anonymous'),
+                a.addEventListener('load', g),
+                a.addEventListener('error', w),
+                (a.src = o))
             : (f.gaTrack('ErrorShown', 'SegEditor', 'No segmentationUrl'),
               alert(
                 n.s(
@@ -6287,42 +6836,42 @@
                 )
               ));
       }),
-      (t.getSegmentationEdits = v),
+      (t.getSegmentationEdits = S),
       (t.zap = function (t, e, i) {
-        y(new R(t, e, i));
+        x(new $(t, e, i));
       }),
       (t.fill = function (t, e, i) {
-        y(new M(t, e, i));
+        x(new M(t, e, i));
       }),
       (t.pixel = function (t, e, i) {
-        y(new I(t, e, i));
+        x(new R(t, e, i));
       }),
       (t.color = function (t, e) {
-        return zt.fromImageData(h, t, e);
+        return Ot.fromImageData(l, t, e);
       }),
       (t.isInside = function (t, e) {
-        return 0 <= t && t < h.width && 0 <= e && e < h.height;
+        return 0 <= t && t < l.width && 0 <= e && e < l.height;
       }),
       (t.reset = function () {
-        S() && y(new k());
+        y() && x(new I());
       }),
       (t.undo = function () {
-        if (l.length > 0) {
-          const t = l.pop();
-          c.push(t), w();
+        if (c.length > 0) {
+          const t = c.pop();
+          u.push(t), b();
         }
       }),
       (t.redo = function () {
-        if (c.length > 0) {
-          const t = c.pop();
-          l.push(t), t.doEdit(h), b();
+        if (u.length > 0) {
+          const t = u.pop();
+          c.push(t), t.doEdit(l), v();
         }
       }),
       (t.toggleFinder = function () {
-        (u = !u), P(!0);
+        (d = !d), A(!0);
       }),
       (t.getShowPinchPoints = function () {
-        return u;
+        return d;
       });
     class E {
       constructor(t, e, i) {
@@ -6354,23 +6903,23 @@
       static factory(t) {
         var e = t.split(','),
           i = e.shift(),
-          n = zt.fromHex(e.shift()),
-          o = parseInt(e.shift()),
-          s = parseInt(e.shift());
-        if (!isNaN(o) && !isNaN(s))
+          n = Ot.fromHex(e.shift()),
+          s = parseInt(e.shift()),
+          o = parseInt(e.shift());
+        if (!isNaN(s) && !isNaN(o))
           switch (i) {
             case 'p':
-              return new I(o, s, n);
+              return new R(s, o, n);
             case 'f':
-              return new M(o, s, n);
+              return new M(s, o, n);
             case 'd':
-              return new R(o, s, n);
+              return new $(s, o, n);
           }
       }
     }
-    class k extends E {
+    class I extends E {
       constructor() {
-        super(0, 0, zt.black);
+        super(0, 0, Ot.black);
       }
       opString() {
         return e;
@@ -6382,10 +6931,10 @@
         return !0;
       }
       doEdit(t) {
-        t.data.set(a.data);
+        t.data.set(h.data);
       }
     }
-    class I extends E {
+    class R extends E {
       opString() {
         return 'p';
       }
@@ -6408,36 +6957,36 @@
         const e = t.width,
           i = t.height;
         var n = this.x + this.y * t.width;
-        const o = this.color.toArgb(),
-          s = x(t, n);
-        if (s != o) {
-          const o = [];
-          for (o.push(n); o.length > 0; ) {
-            const n = o.pop(),
+        const s = this.color.toArgb(),
+          o = P(t, n);
+        if (o != s) {
+          const s = [];
+          for (s.push(n); s.length > 0; ) {
+            const n = s.pop(),
               l = n / e,
               c = n - (n % e),
               u = c + e,
               d = l > 0,
               p = l < i - 1;
-            for (var r = !0, a = !0, h = n; h < u && x(t, h) == s; h++) {
+            for (var a = !0, r = !0, h = n; h < u && P(t, h) == o; h++) {
               if ((this.color.writeToImageDataK(t, h), d)) {
                 const i = h - e;
-                r ? x(t, i) == s && (o.push(i), (r = !1)) : (r = x(t, i) != s);
+                a ? P(t, i) == o && (s.push(i), (a = !1)) : (a = P(t, i) != o);
               }
               if (p) {
                 const i = h + e;
-                a ? x(t, i) == s && (o.push(i), (a = !1)) : (a = x(t, i) != s);
+                r ? P(t, i) == o && (s.push(i), (r = !1)) : (r = P(t, i) != o);
               }
             }
-            (r = !0), (a = !0);
-            for (h = n - 1; h >= c && x(t, h) == s; h--) {
+            (a = !0), (r = !0);
+            for (h = n - 1; h >= c && P(t, h) == o; h--) {
               if ((this.color.writeToImageDataK(t, h), d)) {
                 const i = h - e;
-                r ? x(t, i) == s && (o.push(i), (r = !1)) : (r = x(t, i) != s);
+                a ? P(t, i) == o && (s.push(i), (a = !1)) : (a = P(t, i) != o);
               }
               if (p) {
                 const i = h + e;
-                a ? x(t, i) == s && (o.push(i), (a = !1)) : (a = x(t, i) != s);
+                r ? P(t, i) == o && (s.push(i), (r = !1)) : (r = P(t, i) != o);
               }
             }
           }
@@ -6445,7 +6994,7 @@
         f.toc('FloodFillEdit.doEdit');
       }
     }
-    class R extends E {
+    class $ extends E {
       constructor() {
         super(...arguments),
           (this.pixelsX = []),
@@ -6464,12 +7013,12 @@
           this.neighborColors.length > 0 ? this.divide(t) : this.fill(t);
       }
       initialize(t) {
-        this.color = zt.fromImageData(t, this.x, this.y);
+        this.color = Ot.fromImageData(t, this.x, this.y);
         const e = this.color.toArgb(),
-          i = new ct([0]),
-          n = new zt(0, 0, 0, 127),
-          o = n.toArgb();
-        var s, r, a;
+          i = new ut([0]),
+          n = new Ot(0, 0, 0, 127),
+          s = n.toArgb();
+        var o, a, r;
         this.pixelsX.push(this.x),
           this.pixelsY.push(this.y),
           n.writeToImageData(t, this.x, this.y);
@@ -6479,28 +7028,28 @@
           for (var l = 0; l < 4; l++) {
             switch (l) {
               case 0:
-                (s = c - 1), (r = u);
+                (o = c - 1), (a = u);
                 break;
               case 1:
-                (s = c + 1), (r = u);
+                (o = c + 1), (a = u);
                 break;
               case 2:
-                (s = c), (r = u - 1);
+                (o = c), (a = u - 1);
                 break;
               case 3:
-                (s = c), (r = u + 1);
+                (o = c), (a = u + 1);
             }
-            0 <= s &&
-              s < t.width &&
-              0 <= r &&
-              r < t.height &&
-              ((a = C(t, s, r)) == e
-                ? (this.pixelsX.push(s),
-                  this.pixelsY.push(r),
-                  n.writeToImageData(t, s, r))
-                : a == o ||
-                  (i.add(a) &&
-                    this.neighborColors.push(zt.fromImageData(t, s, r))));
+            0 <= o &&
+              o < t.width &&
+              0 <= a &&
+              a < t.height &&
+              ((r = C(t, o, a)) == e
+                ? (this.pixelsX.push(o),
+                  this.pixelsY.push(a),
+                  n.writeToImageData(t, o, a))
+                : r == s ||
+                  (i.add(r) &&
+                    this.neighborColors.push(Ot.fromImageData(t, o, a))));
           }
         }
         this.initialized = !0;
@@ -6511,18 +7060,18 @@
           n < this.neighborColors.length;
           n++
         ) {
-          const o = this.neighborColors[n],
-            s = t.distanceSqr(o);
-          s < i && ((e = o), (i = s));
+          const s = this.neighborColors[n],
+            o = t.distanceSqr(s);
+          o < i && ((e = s), (i = o));
         }
         return e;
       }
       divide(t) {
-        const e = i.context().getImageDataFull();
-        for (var n, o, s = 0; s < this.pixelsX.length; s++) {
-          (n = this.pixelsX[s]), (o = this.pixelsY[s]);
-          let i = zt.fromImageData(e, n, o);
-          (i = this.getClosestNeighborColor(i)), i.writeToImageData(t, n, o);
+        const e = s.context().getImageDataFull();
+        for (var i, n, o = 0; o < this.pixelsX.length; o++) {
+          (i = this.pixelsX[o]), (n = this.pixelsY[o]);
+          let s = Ot.fromImageData(e, i, n);
+          (s = this.getClosestNeighborColor(s)), s.writeToImageData(t, i, n);
         }
       }
       fill(t) {
@@ -6533,7 +7082,7 @@
       }
     }
   })(L || (L = {}));
-  class Pt {
+  class At {
     showState() {}
     takeAction() {}
     disconnectedFromServer() {}
@@ -6553,27 +7102,28 @@
   !(function (t) {
     var e,
       i,
-      o,
       s,
-      r,
+      o,
+      a,
       h = 0,
       l = 0,
       c = 1;
     const u = {};
     var d, p, m;
-    let g;
-    function w(t, e) {
+    const g = 5;
+    let w;
+    function b(t, e) {
       (i = t),
-        v(e),
-        o.meta().wasShrunk && a.App.ImageView.ShrunkNotification.$().show(),
-        o.meta().wasTransparent &&
-          a.App.ImageView.TransparencyNotification.$().show(),
-        O.imageUpdated(i, e.originalFilename),
-        $(window).on('beforeunload', x),
+        S(e),
+        s.meta().wasShrunk && r.App.ImageView.ShrunkNotification.$().show(),
+        s.meta().wasTransparent &&
+          r.App.ImageView.TransparencyNotification.$().show(),
+        W.imageUpdated(i, e.originalFilename),
+        $(window).on('beforeunload', A),
         B.goTo(e),
-        a.App.force_exit.$().click(A),
-        a.App.exit_app.$().click(T).removeAttr('disabled'),
-        // a.App.Sidebar.ReviewResult.Download.$().attr(
+        r.App.force_exit.$().click(T),
+        r.App.exit_app.$().click(k).removeAttr('disabled'),
+        // r.App.Sidebar.ReviewResult.Download.$().attr(
         //   'href',
         //   P.shareUrl(e.id, e.secret)
         // );
@@ -6595,9 +7145,9 @@
         });
     }
     !(function (t) {
-      t.Uploading = new (class extends Pt {
+      t.Uploading = new (class extends At {
         showState() {
-          O.showProgress(0, 0);
+          W.showProgress(0, 0);
         }
         cannotExit() {
           return n.s(
@@ -6605,86 +7155,88 @@
           );
         }
       })();
-      t.Uploaded = new (class extends Pt {
+      t.Uploaded = new (class extends At {
         showState() {
-          O.showProgress(0, 100), O.showProgress(1, 5);
+          W.showProgress(0, 100), W.showProgress(1, g);
         }
         takeAction() {
-          D(3, { jobId: E() });
+          U(3, {
+            jobId: E()
+          });
         }
         needsConnection() {
           return !0;
         }
       })();
-      t.Classifying = new (class extends Pt {
+      t.Classifying = new (class extends At {
         showState() {
-          O.showProgress(1, 5);
+          W.showProgress(1, g);
         }
         disconnectedFromServer() {
-          H();
+          V();
         }
         cannotExit() {
           return n.s('Please wait for your job to finish before exiting. ');
         }
       })();
-      t.Classified = new (class extends Pt {
+      t.Classified = new (class extends At {
         showState() {
-          O.showProgress(1, 100);
+          W.showProgress(1, 100);
         }
         takeAction() {
-          R.fullyAutomatic() ? k(t.Configured) : k(t.ImageTypeSelection);
+          M.fullyAutomatic() ? I(t.Configured) : I(t.ImageTypeSelection);
         }
         needsConnection() {
           return !0;
         }
       })();
-      t.ClassificationFailed = new (class extends Pt {
+      t.ClassificationFailed = new (class extends At {
         showState() {
-          O.setAppState(11);
+          W.setAppState(11);
         }
         goNext() {
-          H();
+          V();
         }
         canNext() {
           return !0;
         }
       })();
-      t.ImageTypeSelection = new (class extends Pt {
+      t.ImageTypeSelection = new (class extends At {
         showState() {
-          O.setAppState(3);
+          W.setAppState(3);
         }
         goBack() {
-          this.canBack() && k(t.ReviewResult);
+          this.canBack() && I(t.ReviewResult);
         }
         goNext() {
-          k(t.ImageComplexitySelection);
+          I(t.ImageComplexitySelection);
         }
         canBack() {
-          return I();
+          return R();
         }
         canNext() {
           return !0;
         }
       })();
-      t.ImageComplexitySelection = new (class extends Pt {
+      t.ImageComplexitySelection = new (class extends At {
         showState() {
-          switch (r.getImageTypeE()) {
+          switch (a.getImageTypeE()) {
             default:
             case 1:
-              O.setAppState(4);
+              W.setAppState(4);
               break;
             case 2:
-              O.setAppState(5);
+              W.setAppState(5);
               break;
             case 3:
-              O.setAppState(6);
+              W.setAppState(6);
           }
         }
         goBack() {
-          k(t.ImageTypeSelection);
+          I(t.ImageTypeSelection);
         }
         goNext() {
-          k(t.PaletteYesNoSelection);
+          I(t.PaletteYesNoSelection);
         }
         canBack() {
           return !0;
@@ -6693,15 +7245,15 @@
           return !0;
         }
       })();
-      t.PaletteYesNoSelection = new (class extends Pt {
+      t.PaletteYesNoSelection = new (class extends At {
         showState() {
-          O.setAppState(7);
+          W.setAppState(7);
         }
         goBack() {
-          k(t.ImageComplexitySelection);
+          I(t.ImageComplexitySelection);
         }
         goNext() {
-          r.getUsePalette() ? k(t.PickPaletteContents) : k(t.Configured);
+          a.getUsePalette() ? I(t.PickPaletteContents) : I(t.Configured);
         }
         canBack() {
           return !0;
@@ -6710,15 +7262,15 @@
           return !0;
         }
       })();
-      t.PickPaletteContents = new (class extends Pt {
+      t.PickPaletteContents = new (class extends At {
         showState() {
-          O.setAppState(8);
+          W.setAppState(8);
         }
         goBack() {
-          k(t.PaletteYesNoSelection);
+          I(t.PaletteYesNoSelection);
         }
         goNext() {
-          k(t.Configured);
+          I(t.Configured);
         }
         canBack() {
           return !0;
@@ -6727,19 +7279,19 @@
           return !0;
         }
       })();
-      t.Configured = new (class extends Pt {
+      t.Configured = new (class extends At {
         showState() {
-          O.showProgress(2, 5);
+          W.showProgress(2, g);
         }
         takeAction() {
-          if (I()) k(t.ReviewResult);
+          if (R()) I(t.ReviewResult);
           else {
-            d = r.name();
-            D(4, {
+            d = a.name();
+            U(4, {
               version: 0,
               vectorize: !0,
               sendResult: !(p = u[d]),
-              configuration: r.toCommand(E())
+              configuration: a.toCommand(E())
             });
           }
         }
@@ -6747,29 +7299,29 @@
           return !0;
         }
       })();
-      t.Vectorizing = new (class extends Pt {
+      t.Vectorizing = new (class extends At {
         showState() {
-          O.showProgress(2, 5);
+          W.showProgress(2, g);
         }
         disconnectedFromServer() {
-          V();
+          X();
         }
         cannotExit() {
           return n.s('Please wait for your job to finish before exiting. ');
         }
       })();
-      t.VectorizationFailed = new (class extends Pt {
+      t.VectorizationFailed = new (class extends At {
         showState() {
-          a.App.Sidebar.VectorizationFailed.EditSegmentation.$().toggle(
-            !!r.getSegmentationEdits()
+          r.App.Sidebar.VectorizationFailed.EditSegmentation.$().toggle(
+            !!a.getSegmentationEdits()
           ),
-            O.setAppState(12);
+            W.setAppState(12);
         }
         goBack() {
-          X();
+          Y();
         }
         goNext() {
-          V();
+          X();
         }
         canBack() {
           return !0;
@@ -6778,22 +7330,22 @@
           return !0;
         }
       })();
-      t.FetchingResult = new (class extends Pt {
+      t.FetchingResult = new (class extends At {
         showState() {
-          O.setAppState(9);
+          W.setAppState(9);
         }
         disconnectedFromServer() {
-          V();
+          X();
         }
       })();
-      t.ReviewResult = new (class extends Pt {
+      t.ReviewResult = new (class extends At {
         showState() {
-          O.setAppState(9);
+          W.setAppState(9);
         }
         goBack() {
-          r.getUsePalette()
-            ? k(t.PickPaletteContents)
-            : k(t.PaletteYesNoSelection);
+          a.getUsePalette()
+            ? I(t.PickPaletteContents)
+            : I(t.PaletteYesNoSelection);
         }
         goNext() {}
         canBack() {
@@ -6803,26 +7355,26 @@
           return !1;
         }
       })();
-      t.SegEditing = new (class extends Pt {
+      t.SegEditing = new (class extends At {
         showState() {
-          a.App.ImageView.ShrunkNotification.$().hide(),
-            a.App.ImageView.TransparencyNotification.$().hide(),
+          r.App.ImageView.ShrunkNotification.$().hide(),
+            r.App.ImageView.TransparencyNotification.$().hide(),
             L.ensureInitialized(
               i,
-              o.getSegmentationUrl(),
-              r.getSegmentationEdits()
+              s.getSegmentationUrl(),
+              a.getSegmentationEdits()
             ),
-            O.setAppState(10);
+            W.setAppState(10);
         }
         goBack() {
-          a.App.ImageView.DontEditTooMuchNotification.$().hide(),
-            5 == o.getUserImageState()
-              ? k(t.VectorizationFailed)
-              : k(t.ReviewResult);
+          r.App.ImageView.DontEditTooMuchNotification.$().hide(),
+            5 == s.getUserImageState()
+              ? I(t.VectorizationFailed)
+              : I(t.ReviewResult);
         }
         goNext() {
-          a.App.ImageView.DontEditTooMuchNotification.$().hide(),
-            C(r.withSegEdits(L.getSegmentationEdits()));
+          r.App.ImageView.DontEditTooMuchNotification.$().hide(),
+            C(a.withSegEdits(L.getSegmentationEdits()));
         }
         canBack() {
           return !0;
@@ -6831,87 +7383,87 @@
           return !0;
         }
         cannotExit() {
-          return r.getSegmentationEdits() != L.getSegmentationEdits()
+          return a.getSegmentationEdits() != L.getSegmentationEdits()
             ? n.s(
                 'Your segmentation edits have not been saved. Be sure to click Next before exiting to save your changes. '
               )
             : void 0;
         }
       })();
-      t.FetchingSegmentationFailed = new (class extends Pt {
+      t.FetchingSegmentationFailed = new (class extends At {
         showState() {
-          O.setAppState(13);
+          W.setAppState(13);
         }
       })();
-    })(g || (g = {})),
-      (t.create = function (t, e, i, s) {
+    })(w || (w = {})),
+      (t.create = function (t, e, i, o) {
         y.uploadS3WithRetry(t, i.image, {
           url: window.Globals.s3_url,
           backupUrl: window.Globals.s3_backup_url,
           label: n.s('Uploading original image'),
           maxAge: 31536e3,
           success: () => {
-            o.setHasImage(), F(), k(g.Uploaded);
+            s.setHasImage(), D(), I(w.Uploaded);
           },
           progress: t => {
-            O.showProgress(0, t);
+            W.showProgress(0, t);
           }
         }),
-          w(e, i),
-          k(g.Uploading);
+          b(e, i),
+          I(w.Uploading);
       }),
       (t.resume = function (t, e) {
-        w(t, e);
+        b(t, e);
         const i = n.s('Unknown error. ');
-        switch ((O.setErrorMessage(i), o.getUserImageState())) {
+        switch ((W.setErrorMessage(i), s.getUserImageState())) {
           case 0:
             throw 'Illegal starting state';
           case 1:
-            k(g.Uploaded);
+            I(w.Uploaded);
             break;
           case 2:
-            k(g.Classified);
+            I(w.Classified);
             break;
           case 3:
-            k(g.ClassificationFailed);
+            I(w.ClassificationFailed);
             break;
           case 4:
-            k(g.Configured);
+            I(w.Configured);
             break;
           case 5:
-            O.resultFailedToLoad(i), k(g.VectorizationFailed);
+            W.resultFailedToLoad(i), I(w.VectorizationFailed);
             break;
           case 6:
-            k(g.SegEditing);
+            I(w.SegEditing);
         }
       });
-    var b = !1;
-    function v(t) {
-      (o = new vt(t)),
-        (s = $.extend({}, o.meta())),
-        O.setClassification(o.classification),
-        O.setConfigurations(o);
-      var e = o.getConfiguration();
-      e.isEmpty() &&
-        o.hasSuccessfulClassification() &&
-        (e = o.classification.getConfiguration()),
-        S(e);
-    }
+    var v = !1;
     function S(t) {
-      t.getPalette().isEmpty() &&
-        o.hasSuccessfulClassification() &&
-        (t = t.withDefaultPalette(o.classification)),
-        (r = t),
-        O.setConfiguration(r);
-    }
-    function C(t) {
-      S(t), V();
+      (s = new St(t)),
+        (o = $.extend({}, s.meta())),
+        W.setClassification(s.classification),
+        W.setConfigurations(s);
+      var e = s.getConfiguration();
+      e.isEmpty() &&
+        s.hasSuccessfulClassification() &&
+        (e = s.classification.getConfiguration()),
+        x(e);
     }
     function x(t) {
+      t.getPalette().isEmpty() &&
+        s.hasSuccessfulClassification() &&
+        (t = t.withDefaultPalette(s.classification)),
+        (a = t),
+        W.setConfiguration(a);
+    }
+    function C(t) {
+      x(t), X();
+    }
+    function A(t) {
       let i = e.cannotExit();
       return (
         !i &&
-          M() &&
+          F() &&
           (i = n.s(
             'Synchronizing state with server, please wait before exiting. '
           )),
@@ -6919,54 +7471,58 @@
         i
       );
     }
-    function A() {
+    function T() {
       return $(window).off('beforeunload'), B.exit(), !1;
     }
-    function T() {
-      return e == g.SegEditing ? e.goBack() : B.exit(), !1;
+    function k() {
+      return e == w.SegEditing ? e.goBack() : B.exit(), !1;
     }
     function E() {
       return ++c;
     }
-    function k(t) {
+    function I(t) {
       (e = t),
-        O.setBackAndNext(e.canBack(), e.canNext()),
+        W.setBackAndNext(e.canBack(), e.canNext()),
         e.showState(),
         e.takeAction();
     }
-    function I() {
-      return m && o.getConfiguration().equals(r) && m.name == r.name();
-    }
-    function M() {
-      return !s.hasImage && o.meta().hasImage;
+    function R() {
+      return m && s.getConfiguration().equals(a) && m.name == a.name();
     }
     function F() {
-      M() && D(2, o.meta());
+      return !o.hasImage && s.meta().hasImage;
     }
-    function D(t, e) {
-      const i = { index: ++l, command: t, body: e };
-      b ||
-        ((b = !0),
+    function D() {
+      F() && U(2, s.meta());
+    }
+    function U(t, e) {
+      const i = {
+        index: ++l,
+        command: t,
+        body: e
+      };
+      v ||
+        ((v = !0),
         _.initialize({
-          imageId: o.id(),
-          secret: o.secret(),
-          newMessageFromServer: N,
-          connectedToNewServer: z,
-          disconnectedFromServer: W
+          imageId: s.id(),
+          secret: s.secret(),
+          newMessageFromServer: z,
+          connectedToNewServer: O,
+          disconnectedFromServer: H
         })),
         _.send(i);
     }
-    function U() {
-      (u[p.name] = p), O.resultUpdated(p), (m = p), k(g.ReviewResult);
+    function N() {
+      (u[p.name] = p), W.resultUpdated(p), (m = p), I(w.ReviewResult);
     }
-    function N(t) {
-      const o = t;
-      if (!o.body || !o.body.jobId || o.body.jobId == c) {
-        switch ((o.body && (o.body.arraybuffer = t.arraybuffer), o.command)) {
+    function z(t) {
+      const s = t;
+      if (!s.body || !s.body.jobId || s.body.jobId == c) {
+        switch ((s.body && (s.body.arraybuffer = t.arraybuffer), s.command)) {
           case 1:
             break;
           case 11:
-            const t = o.body;
+            const t = s.body;
             f.gaTrack('ErrorShown', 'Panic', t.message),
               alert(
                 n.s(
@@ -6977,113 +7533,113 @@
                   '\n\n' +
                   n.s('Please try again, or try another image.')
               ),
-              A();
+              T();
             break;
           case 3:
-            k(g.Classifying);
+            I(w.Classifying);
             break;
           case 4:
-            const s = o.body;
-            s.version, s.vectorize && k(g.Vectorizing);
+            const o = s.body;
+            o.version, o.vectorize && I(w.Vectorizing);
             break;
           case 5:
-            const r = o.body,
-              a = 5 + (95 * r.progress) / 100;
+            const a = s.body,
+              r = g + (a.progress * (100 - g)) / 100;
             switch (e) {
-              case g.Classifying:
-                O.showProgress(1, a),
-                  r.finished &&
-                    (v(r.userImage),
-                    r.errorMessageTr
-                      ? (O.setErrorMessage(r.errorMessageTr),
-                        k(g.ClassificationFailed))
-                      : k(g.Classified));
+              case w.Classifying:
+                W.showProgress(1, r),
+                  a.finished &&
+                    (S(a.userImage),
+                    a.errorMessageTr
+                      ? (W.setErrorMessage(a.errorMessageTr),
+                        I(w.ClassificationFailed))
+                      : I(w.Classified));
                 break;
-              case g.Vectorizing:
-                O.showProgress(2, a),
-                  r.finished &&
-                    (v(r.userImage),
-                    r.errorMessageTr
-                      ? (O.setErrorMessage(r.errorMessageTr),
-                        O.resultFailedToLoad(r.errorMessageTr),
-                        k(g.VectorizationFailed))
+              case w.Vectorizing:
+                W.showProgress(2, r),
+                  a.finished &&
+                    (S(a.userImage),
+                    a.errorMessageTr
+                      ? (W.setErrorMessage(a.errorMessageTr),
+                        W.resultFailedToLoad(a.errorMessageTr),
+                        I(w.VectorizationFailed))
                       : p
-                      ? U()
-                      : k(g.FetchingResult));
+                      ? N()
+                      : I(w.FetchingResult));
             }
             break;
           case 7:
-            (p = new xt(d, i.width(), i.height())), O.resultProgress(1);
+            (p = new Pt(d, i.width(), i.height())), W.resultProgress(1);
             break;
           case 8:
-            const h = o.body;
-            O.resultProgress(h.progress), p.append(Ct.from(h));
+            const h = s.body;
+            W.resultProgress(h.progress), p.append(Ct.from(h));
             break;
           case 9:
-            U();
+            N();
             break;
           case 10:
-            O.setErrorMessage(
+            W.setErrorMessage(
               n.s('Failed to fetch the vectorization result. ')
             ),
-              k(g.VectorizationFailed);
+              I(w.VectorizationFailed);
             break;
           default:
             f.fatalErrorStr(
-              n.s('Received unknown server response: "{0}".', '' + o.body)
+              n.s('Received unknown server response: "{0}".', '' + s.body)
             );
         }
-        h = o.index;
+        h = s.index;
       }
     }
-    function z() {
-      F(), e.takeAction();
-    }
-    function W() {
-      return e.disconnectedFromServer(), l != h || M() || e.needsConnection();
+    function O() {
+      D(), e.takeAction();
     }
     function H() {
-      k(g.Uploaded);
+      return e.disconnectedFromServer(), l != h || F() || e.needsConnection();
     }
     function V() {
-      k(g.Configured);
+      I(w.Uploaded);
     }
     function X() {
-      k(g.ImageTypeSelection);
+      I(w.Configured);
+    }
+    function Y() {
+      I(w.ImageTypeSelection);
     }
     (t.setConfigurationAndGo = C),
       (t.setImageType = function (t, e) {
-        S(r.withImageType(t, o.classification)),
-          k(e ? g.Configured : g.ImageComplexitySelection);
+        x(a.withImageType(t, s.classification)),
+          I(e ? w.Configured : w.ImageComplexitySelection);
       }),
       (t.setImageComplexity = function (t, e) {
-        S(r.withImageComplexity(t, o.classification)),
-          k(e ? g.Configured : g.PaletteYesNoSelection);
+        x(a.withImageComplexity(t, s.classification)),
+          I(e ? w.Configured : w.PaletteYesNoSelection);
       }),
       (t.setPaletteYesNo = function (t) {
-        S(r.withUsePalette(t, o.classification)),
-          k(1 == t ? g.PickPaletteContents : g.Configured);
+        x(a.withUsePalette(t, s.classification)),
+          I(1 == t ? w.PickPaletteContents : w.Configured);
       }),
       (t.pickSuggestedPalette = function (t, e) {
-        const i = r.withPalette(t, o.classification);
-        i != r && S(i), e && k(g.Configured);
+        const i = a.withPalette(t, s.classification);
+        i != a && x(i), e && I(w.Configured);
       }),
       (t.paletteWithoutColor = function (t) {
-        S(r.withoutColor(t));
+        x(a.withoutColor(t));
       }),
       (t.paletteWithNewColor = function (t) {
-        S(r.withNewColor(t.toHex()));
+        x(a.withNewColor(t.toHex()));
       }),
       (t.paletteWithColor = function (t, e) {
         const i = e.toHex();
-        r.getPalette().contains(i) || S(r.withColor(t, i));
+        a.getPalette().contains(i) || x(a.withColor(t, i));
       }),
-      (t.retryClassification = H),
-      (t.retryVectorization = V),
+      (t.retryClassification = V),
+      (t.retryVectorization = X),
       (t.startSegEditing = function () {
-        k(g.SegEditing);
+        I(w.SegEditing);
       }),
-      (t.handPickSettings = X),
+      (t.handPickSettings = Y),
       (t.goBack = function () {
         e.goBack();
       }),
@@ -7091,7 +7647,7 @@
         e.goNext();
       }),
       (t.failedToLoadSegmentation = function () {
-        k(g.FetchingSegmentationFailed);
+        I(w.FetchingSegmentationFailed);
       });
   })(U || (U = {})),
     (function (t) {
@@ -7107,7 +7663,9 @@
         }),
         (t.buttonFor = function (t) {
           return 1 == (1 & t.buttons)
-            ? 'left'
+            ? t.ctrlKey
+              ? 'right'
+              : 'left'
             : 2 == (2 & t.buttons)
             ? 'right'
             : 4 == (4 & t.buttons)
@@ -7118,20 +7676,27 @@
           (t.dx = e), (t.dy = i);
         });
     })(N || (N = {}));
-  class At {
-    constructor(t, e, i, n, o, s, r) {
+  class Tt {
+    constructor(t, e, i, n, s, o, a) {
       (this.pointerEvent = t),
         (this.x = e),
         (this.y = i),
         (this.type = n),
-        (this.numTouches = o),
-        (this.down = s),
-        (this.root = r),
+        (this.numTouches = s),
+        (this.down = o),
+        (this.root = a),
+        (this.isSynthetic = !1),
         (this.button = N.buttonFor(this.pointerEvent)),
         (this.timestamp = Date.now());
     }
+    isMouse() {
+      return this.pointerEvent && 'mouse' == this.pointerEvent.pointerType;
+    }
+    isTouch() {
+      return !this.isMouse();
+    }
     getPoint() {
-      return new et(this.x, this.y);
+      return new it(this.x, this.y);
     }
     getRoot() {
       return this.root || this;
@@ -7140,7 +7705,7 @@
       return this.x == t.x && this.y == t.y;
     }
   }
-  class Tt {
+  class kt {
     constructor(t) {
       (this.owner = t), (this.dx = 0), (this.dy = 0), (this.scale = 1);
     }
@@ -7149,7 +7714,9 @@
       return t;
     }
     quantizeOffset() {
-      (this.dx = Math.round(this.dx)), (this.dy = Math.round(this.dy));
+      const t = window.devicePixelRatio || 1;
+      (this.dx = Math.round(this.dx * t) / t),
+        (this.dy = Math.round(this.dy * t) / t);
     }
     translateBy(t, e, i = !0) {
       (0 == t && 0 == e) ||
@@ -7182,7 +7749,7 @@
     transformEvent(t, e) {
       const i = t.getRoot(),
         n = e ? i : t;
-      return new At(
+      return new Tt(
         t.pointerEvent,
         (n.x - this.dx) / this.scale,
         (n.y - this.dy) / this.scale,
@@ -7198,10 +7765,10 @@
         : t.context.transform(this.scale, 0, 0, this.scale, this.dx, this.dy);
     }
     transformPoint(t) {
-      return new et(this.scale * t.x + this.dx, this.scale * t.y + this.dy);
+      return new it(this.scale * t.x + this.dx, this.scale * t.y + this.dy);
     }
     transformRect(t) {
-      return new nt(
+      return new st(
         this.scale * t.left + this.dx,
         this.scale * t.top + this.dy,
         this.scale * t.right + this.dx,
@@ -7209,10 +7776,10 @@
       );
     }
     inverseTransformPoint(t) {
-      return new et((t.x - this.dx) / this.scale, (t.y - this.dy) / this.scale);
+      return new it((t.x - this.dx) / this.scale, (t.y - this.dy) / this.scale);
     }
     inverseTransformRect(t) {
-      return new nt(
+      return new st(
         (t.left - this.dx) / this.scale,
         (t.top - this.dy) / this.scale,
         (t.right - this.dx) / this.scale,
@@ -7226,7 +7793,7 @@
       return this.scale;
     }
     getDxDy() {
-      return new et(this.dx, this.dy);
+      return new it(this.dx, this.dy);
     }
     getDx() {
       return this.dx;
@@ -7235,13 +7802,14 @@
       return this.dy;
     }
   }
-  class Et extends Tt {
-    constructor(t = 1, e = 1) {
+  class Et extends kt {
+    constructor(t = 1, e = 1, i = !1) {
       super(void 0),
         (this.imageWidth = t),
         (this.imageHeight = e),
+        (this.isQuantized = i),
         (this.views = []),
-        (this.canvasPad = nt.empty()),
+        (this.canvasPad = st.zero()),
         (this.stickyZoom = 0),
         (this.owner = this);
     }
@@ -7252,9 +7820,25 @@
         i = this.canvasWidth / 2;
       t > i ? (this.dx -= t - i) : e < i && (this.dx -= e - i);
       const n = 0 * this.scale + this.dy,
-        o = this.imageHeight * this.scale + this.dy,
-        s = this.canvasHeight / 2;
-      n > s ? (this.dy -= n - s) : o < s && (this.dy -= o - s);
+        s = this.imageHeight * this.scale + this.dy,
+        o = this.canvasHeight / 2;
+      n > o ? (this.dy -= n - o) : s < o && (this.dy -= s - o),
+        this.isQuantized && this.quantizeOffset();
+    }
+    getState() {
+      return {
+        dx: this.dx,
+        dy: this.dy,
+        scale: this.scale,
+        stickyZoom: this.stickyZoom
+      };
+    }
+    setState(t) {
+      (this.dx = t.dx),
+        (this.dy = t.dy),
+        (this.scale = t.scale),
+        (this.stickyZoom = t.stickyZoom),
+        this.owner.invalidate();
     }
     constrainScale(t) {
       return (
@@ -7276,16 +7860,30 @@
     canvasCenterY() {
       return this.canvasPad.top + 0.5 * this.canvasHeightInterior();
     }
+    canvasCenter() {
+      return new it(this.canvasCenterX(), this.canvasCenterY());
+    }
     stopAllPanAnimations() {
       for (let t of this.views) t.stopPanAnimation();
+    }
+    visibleImageRect() {
+      return this.inverseTransformRect(this.canvasRect()).intersectionWith(
+        this.imageRect()
+      );
+    }
+    imageRect() {
+      return new st(0, 0, this.imageWidth, this.imageHeight);
+    }
+    canvasRect() {
+      return new st(0, 0, this.canvasWidth, this.canvasHeight);
     }
     zoomTo(t) {
       this.zoomAboutTo(this.canvasCenterX(), this.canvasCenterY(), t);
     }
-    centerImagePoint(t, e) {
+    centerImagePoint(t, e, i = !0) {
       (this.dx = this.canvasCenterX() - t * this.scale),
         (this.dy = this.canvasCenterY() - e * this.scale),
-        this.quantizeOffset(),
+        i && this.quantizeOffset(),
         this.invalidate();
     }
     center() {
@@ -7370,10 +7968,10 @@
       for (let e of this.views) e.invalidate(t);
     }
   }
-  class kt {
+  class It {
     constructor(...t) {
       (this.children = []),
-        (this.transform = new Tt(this)),
+        (this.transform = new kt(this)),
         (this.visible = !0),
         (this.fixedCoordinates = !1),
         (this.handler = void 0),
@@ -7420,7 +8018,7 @@
       if (this.visible) {
         t.context.save(), this.transformContext(t), this.drawInner(t);
         for (let e of this.children) e.drawTo(t);
-        t.context.restore();
+        this.drawInnerAfterChildren(t), t.context.restore();
       }
 
       if (t.context.canvas.id === 'App-ImageView-RightCanvas') {
@@ -7437,10 +8035,17 @@
         }
       }
     }
+    toggleVisible() {
+      this.setVisible(!this.visible);
+    }
+    setVisible(t) {
+      (this.visible = t), this.view && this.view.invalidate();
+    }
     invalidate(t) {
       this.visible && this.view && this.view.invalidate(t);
     }
     drawInner(t) {}
+    drawInnerAfterChildren(t) {}
     moveHandlerWithPropagation(t) {
       const e = this.transformEvent(t);
       if (this.children.length > 0)
@@ -7463,27 +8068,34 @@
       if (this.handler) return this.handler.mouseCursor(t);
     }
   }
-  class It extends kt {
+  class Rt extends It {
     moveHandlerWithPropagation(t) {}
     moveHandler(t) {}
     mouseCursor(t) {}
   }
-  class Mt extends kt {
+  class Mt extends It {
     constructor(t) {
       super(),
         (this.camera = t),
         (this.eventHistory = []),
-        (this.panPxPerMs = et.zero()),
+        (this.panPxPerMs = it.zero()),
+        (this.panimationListeners = []),
         (this.panAnimationFrame = () => {
           if (!this.hasPanSpeed()) return;
           this.timerId = void 0;
           let t = Date.now(),
             e = t - this.lastPanFrameAt;
+          this.lastPanFrameAt = t;
+          let i = this.camera.getDx(),
+            n = this.camera.getDy();
           if (
-            ((this.lastPanFrameAt = t),
-            this.camera.translateBy(
+            (this.camera.translateBy(
               this.panPxPerMs.x * e,
               this.panPxPerMs.y * e
+            ),
+            this.firePanimationListeners(
+              this.camera.getDx() - i,
+              this.camera.getDy() - n
             ),
             t - this.lastPanInteraction.timestamp > 150)
           ) {
@@ -7495,33 +8107,29 @@
           } else this.triggerPanAnimation();
         });
     }
-    clearDeltaMoveEvent() {
-      this.deltaMoveEvent = void 0;
+    addPanimationListener(t) {
+      this.panimationListeners.push(t);
+    }
+    removePanimationListener(t) {
+      this.panimationListeners = this.panimationListeners.filter(e => e != t);
+    }
+    firePanimationListeners(t, e) {
+      for (let i of this.panimationListeners) i(t, e);
     }
     moveHandler(t) {
       if (1 == t.type) 'left' == t.button && this.camera.stopAllPanAnimations();
-      else if (2 == t.type)
+      else if (2 == t.type) {
         if (
           (this.camera.stopAllPanAnimations(), t.down && 'left' == t.button)
         ) {
           const e = t.getRoot();
-          if (this.deltaMoveEvent)
-            this.camera.translateBy(
-              e.x - this.deltaMoveEvent.x,
-              e.y - this.deltaMoveEvent.y
-            );
-          else {
-            t.down.getRoot();
-          }
-          this.deltaMoveEvent = e;
-        } else this.deltaMoveEvent = void 0;
-      else
-        3 == t.type &&
-          (this.tryStartPanAnimation(t), (this.deltaMoveEvent = void 0));
+          this.camera.translateBy(e.pointerEvent.dx, e.pointerEvent.dy);
+        }
+      } else 3 == t.type && this.tryStartPanAnimation(t);
       return this.addEventToHistory(t), this;
     }
     mouseCursor(t) {
-      return t ? a.grab_closed : a.grab_open;
+      return t ? r.grab_closed : r.grab_open;
     }
     stopPanAnimation() {
       this.timerId &&
@@ -7566,9 +8174,9 @@
         i = e[e.length - 1];
       if (2 == i.type) {
         for (let n = e.length - 1; n >= 0; n--) {
-          let o = e[n];
-          if (2 != o.type) return i;
-          if (((i = o), i.timestamp < t)) return i;
+          let s = e[n];
+          if (2 != s.type) return i;
+          if (((i = s), i.timestamp < t)) return i;
         }
         return i;
       }
@@ -7583,15 +8191,15 @@
         this.eventHistory.shift();
     }
   }
-  class Rt {
+  class Ft {
     constructor(t, e, i) {
       (this.pointerId = t),
         (this.pageX = e),
         (this.pageY = i),
-        (this.pageXy = new et(this.pageX, this.pageY));
+        (this.pageXy = new it(this.pageX, this.pageY));
     }
   }
-  class Ft {
+  class $t {
     constructor(t, e) {
       (this.imageView = t),
         (this.isParent = e),
@@ -7602,7 +8210,7 @@
       return this.touchPointsMap.size;
     }
     dup() {
-      let t = new Ft(this.imageView, !1);
+      let t = new $t(this.imageView, !1);
       for (let e of this.touchPointsMap.values()) t.addOrUpdate(e);
       return (
         (t.pinchPageCenter = this.pinchPageCenter.dup()),
@@ -7617,7 +8225,7 @@
       this.touchPointsMap.set(t.pointerId, t);
       let i = this.numTouches();
       if (2 == i) {
-        this.pinchPageCenter = et.zero();
+        this.pinchPageCenter = it.zero();
         for (let t of this.touchPointsMap.values())
           this.pinchPageCenter.plusEquals(t.pageXy);
         this.pinchPageCenter.timesEquals(0.5), (this.pinchWidth = 0);
@@ -7636,13 +8244,13 @@
           (this.startPinchZoom = void 0);
     }
   }
-  class $t {
-    constructor(t, e, i, n, s) {
+  class Dt {
+    constructor(t, e, i, n, o) {
       (this.camera = t),
         (this.root = e),
         (this.canvas = i),
         (this.topText = n),
-        (this.bottomText = s),
+        (this.bottomText = o),
         (this.visible = !1),
         (this.redrawTimeout = void 0),
         (this.lastRedrawAt = 0),
@@ -7654,22 +8262,22 @@
         (this.mightBeDiscreteDevice = !0),
         (this.lastX = 0),
         (this.lastY = 0),
-        (this.touchPointList = new Ft(this, !0)),
+        (this.touchPointList = new $t(this, !0)),
         (this.topTextMargin = 20),
         (this.mouseWheel = t => {
-          let e = o.cast(t.originalEvent);
+          let e = s.cast(t.originalEvent);
           this.updateIsDiscrete(e);
-          const i = k.zoomDelta(t, N.zoomStep, this.isDiscreteDevice),
+          const i = E.zoomDelta(t, N.zoomStep, this.isDiscreteDevice),
             n = this.canvasXyFromPageXy(t);
           this.camera.stopAllPanAnimations(),
             this.camera.zoomAboutBy(n.canvasX, n.canvasY, i);
-          let s = this.getStaticLastPointerEvent();
-          s && this.moveHandler(s), t.preventDefault();
+          let o = this.getStaticLastPointerEvent();
+          o && this.moveHandler(o), t.preventDefault();
         }),
         (this.pointerDown = t => {
           this.checkAddDxDy(t),
             this.touchPointList.addOrUpdate(
-              new Rt(t.pointerId, t.pageX, t.pageY)
+              new Ft(t.pointerId, t.pageX, t.pageY)
             ),
             1 == this.touchPointList.numTouches() && this.downHandler(t),
             t.isPrimary && (this.lastPrimaryPointerEvent = t),
@@ -7678,7 +8286,7 @@
         (this.pointerMove = t => {
           this.checkAddDxDy(t),
             this.touchPointList.addOrUpdate(
-              new Rt(t.pointerId, t.pageX, t.pageY)
+              new Ft(t.pointerId, t.pageX, t.pageY)
             );
           let e = this.touchPointList.numTouches();
           if (e <= 1)
@@ -7689,11 +8297,11 @@
               e = this.canvasPointFromPagePoint(t),
               i = this.touchPointList.startPinchZoom.pinchWidth,
               n = this.touchPointList.startPinchZoom.pinchScale,
-              o = this.touchPointList.pinchPageCenter,
-              s =
-                (this.canvasPointFromPagePoint(o),
+              s = this.touchPointList.pinchPageCenter,
+              o =
+                (this.canvasPointFromPagePoint(s),
                 (n * this.touchPointList.pinchWidth) / i);
-            this.getCamera().zoomAboutTo(e.x, e.y, s),
+            this.getCamera().zoomAboutTo(e.x, e.y, o),
               this.clearLastPrimaryPointerEvent(),
               (this.grabLayer.lastPinchZoomAt = Date.now());
           }
@@ -7771,10 +8379,10 @@
       return this.canvas.logicalHeight();
     }
     canvasRect() {
-      return new nt(0, 0, this.canvasWidth(), this.canvasHeight());
+      return new st(0, 0, this.canvasWidth(), this.canvasHeight());
     }
     canvasRectLogical() {
-      return new nt(
+      return new st(
         0,
         0,
         this.canvasWidthLogical(),
@@ -7782,7 +8390,7 @@
       );
     }
     setIsDark(t) {
-      this.canvas.$element.parent().toggleClass(a.dark_checker.name(), t);
+      this.canvas.$element.parent().toggleClass(r.dark_checker.name(), t);
     }
     setCanvasPad(t, e, i, n) {
       this.camera.setCanvasPad(t, e, i, n);
@@ -7846,15 +8454,18 @@
     }
     canvasXyFromPageXy(t) {
       const e = this.canvas.$element.offset();
-      return { canvasX: t.pageX - e.left, canvasY: t.pageY - e.top };
+      return {
+        canvasX: t.pageX - e.left,
+        canvasY: t.pageY - e.top
+      };
     }
     canvasPointFromPagePoint(t) {
       const e = this.canvas.$element.offset();
-      return new et(t.x - e.left, t.y - e.top);
+      return new it(t.x - e.left, t.y - e.top);
     }
     sceneMoveEvent(t, e, i) {
       const n = this.canvas.$element.offset();
-      return new At(
+      return new Tt(
         t,
         t.pageX - n.left,
         t.pageY - n.top,
@@ -7870,7 +8481,7 @@
       if (void 0 !== i) {
         let t = !Number.isInteger(i);
         void 0 === this.countDeltaYisNotInteger
-          ? (this.countDeltaYisNotInteger = t ? $t.ThreshDeltaIsNotInteger : 0)
+          ? (this.countDeltaYisNotInteger = t ? Dt.ThreshDeltaIsNotInteger : 0)
           : t
           ? this.countDeltaYisNotInteger++
           : (this.countDeltaYisNotInteger = 0);
@@ -7882,16 +8493,16 @@
         let t = Math.abs(e) % 120 == 0;
         void 0 === this.countWheelDeltaMod120IsZero
           ? (this.countWheelDeltaMod120IsZero = t
-              ? $t.ThreshWheelDeltaMod120IsZero
+              ? Dt.ThreshWheelDeltaMod120IsZero
               : 0)
           : t
           ? this.countWheelDeltaMod120IsZero++
           : (this.countWheelDeltaMod120IsZero = 0),
-          this.countWheelDeltaMod120IsZero >= $t.ThreshWheelDeltaMod120IsZero
+          this.countWheelDeltaMod120IsZero >= Dt.ThreshWheelDeltaMod120IsZero
             ? (this.mightBeDiscreteDevice = this.isDiscreteDevice = !0)
-            : k.isMac
+            : E.isMac
             ? (this.mightBeDiscreteDevice = this.isDiscreteDevice =
-                this.countDeltaYisNotInteger >= $t.ThreshDeltaIsNotInteger)
+                this.countDeltaYisNotInteger >= Dt.ThreshDeltaIsNotInteger)
             : ((this.isDiscreteDevice = !1), (this.mightBeDiscreteDevice = t));
       }
     }
@@ -7905,8 +8516,7 @@
         : N.addMovement(t, t.movementX || 0, t.movementY || 0);
     }
     clearLastPrimaryPointerEvent() {
-      (this.lastPrimaryPointerEvent = void 0),
-        this.grabLayer.clearDeltaMoveEvent();
+      this.lastPrimaryPointerEvent = void 0;
     }
     hit(t) {
       return (this.hitNode =
@@ -7937,10 +8547,10 @@
         let e = this.sceneMoveEvent(t, 1, this.downEvent);
         (e = this.downNode.transformEventWithAncestors(e)),
           this.downNode.moveHandler(e),
-          a.body.$().addClass(a.noselect.name()),
+          r.body.$().addClass(r.noselect.name()),
           this.removeMoveClass(),
           (this.downClass = this.downNode.mouseCursor(!0)),
-          this.downClass && a.body.$().addClass(this.downClass.name());
+          this.downClass && r.body.$().addClass(this.downClass.name());
       }
     }
     moveHandler(t) {
@@ -7955,8 +8565,8 @@
     upHandler(t) {
       if (this.downNode) {
         this.canvas.element.releasePointerCapture(t.pointerId),
-          a.body.$().removeClass(a.noselect.name()),
-          this.downClass && a.body.$().removeClass(this.downClass.name()),
+          r.body.$().removeClass(r.noselect.name()),
+          this.downClass && r.body.$().removeClass(this.downClass.name()),
           (this.downEvent = void 0),
           (this.downNode = void 0),
           (this.downClass = void 0);
@@ -7977,9 +8587,9 @@
         if (this.downNode) {
           const t = this.downNode.mouseCursor(!0);
           t != this.downClass &&
-            (this.downClass && a.body.$().removeClass(this.downClass.name()),
+            (this.downClass && r.body.$().removeClass(this.downClass.name()),
             (this.downClass = t),
-            this.downClass && a.body.$().addClass(this.downClass.name()));
+            this.downClass && r.body.$().addClass(this.downClass.name()));
         } else
           this.lastMoveEvent &&
             this.checkAddMoveClass(this.hit(this.lastMoveEvent));
@@ -8010,15 +8620,15 @@
         t.restore();
     }
   }
-  ($t.ThreshWheelDeltaMod120IsZero = 3),
-    ($t.ThreshDeltaIsNotInteger = 3),
+  (Dt.ThreshWheelDeltaMod120IsZero = 3),
+    (Dt.ThreshDeltaIsNotInteger = 3),
     (function (t) {
       (t.BigImageCutoffPoints = 5e3),
         (t.BigImageSizeMegapixels = 2),
         (t.BigImageMaxScaleFactor = 4),
         (t.BigImageScaleTimeoutMillis = 150);
     })(z || (z = {}));
-  class Dt extends kt {
+  class _t extends It {
     constructor(t, e) {
       super(), (this.imageCanvas = t), (this.handler = e);
     }
@@ -8029,7 +8639,7 @@
       this.imageCanvas && t.drawCanvasEx(this.imageCanvas, 0, 0);
     }
   }
-  class _t extends kt {
+  class Bt extends It {
     constructor() {
       super(...arguments),
         (this.progress0to100 = 0),
@@ -8050,21 +8660,21 @@
       const e = t.context.canvas.width,
         i = t.context.canvas.height,
         n = Math.min(125, e / 2),
-        o = Math.floor(0.5 * (i - 10)),
-        s = Math.floor(0.5 * (e - n));
+        s = Math.floor(0.5 * (i - 10)),
+        o = Math.floor(0.5 * (e - n));
       this.errorMessageTr
         ? t.drawCenteredText(this.errorMessageTr, i / 2)
         : (t.setLineWidth(2),
           t.setLineCap('round'),
           t.setStrokeStyle('#265a88'),
-          t.strokeRect(s, o, n, 10),
+          t.strokeRect(o, s, n, 10),
           t.setFillStyle('#FFF'),
-          t.fillRect(s, o, n, 10),
+          t.fillRect(o, s, n, 10),
           t.setFillStyle('#337ab7'),
-          t.fillRect(s, o, (n * this.progress0to100 * 0.5) / 100, 10));
+          t.fillRect(o, s, (n * this.progress0to100 * 0.5) / 100, 10));
     }
   }
-  class Bt extends _t {
+  class Lt extends Bt {
     constructor(t, e) {
       super(),
         (this.result = t),
@@ -8107,7 +8717,7 @@
         );
         let e = Math.round(this.bigImageScaleFactor * this.imageCanvas.width()),
           i = Math.round(this.bigImageScaleFactor * this.imageCanvas.height());
-        this.bigImage = new st(e, i);
+        this.bigImage = new at(e, i);
         let n = this.bigImage.context();
         n.context.scale(this.bigImageScaleFactor, this.bigImageScaleFactor),
           this.result.drawTo(n.context);
@@ -8152,9 +8762,9 @@
       else this.drawProgress(t);
     }
   }
-  class Lt extends _t {
+  class Ut extends Bt {
     constructor() {
-      super(), (this.finder = new Ut()), this.add(this.finder);
+      super(), (this.finder = new Nt()), this.add(this.finder);
     }
     setSegmentation(t) {
       (this.segmentation = t), (this.fixedCoordinates = !1), this.invalidate();
@@ -8168,11 +8778,11 @@
         : this.drawProgress(t);
     }
   }
-  class Ut extends It {
+  class Nt extends Rt {
     constructor() {
       super(...arguments),
-        (this.offset0 = new et(5, 5)),
-        (this.offset1 = new et(20, 20)),
+        (this.offset0 = new it(5, 5)),
+        (this.offset1 = new it(20, 20)),
         (this.len0 = this.offset0.length()),
         (this.len1 = this.offset1.length());
     }
@@ -8203,7 +8813,7 @@
         this.drawPinchPoint(t, i, e);
     }
   }
-  class Nt extends kt {
+  class zt extends It {
     constructor(t, e, i) {
       super(t, e, i),
         (this.bitmap = t),
@@ -8211,27 +8821,27 @@
         (this.segmentation = i),
         (this.showBitmap = () => {
           (this.view.topText = n.s('Original Image')),
-            this.setVisible(!1, !0, !1),
+            this.setComponentVisibility(!1, !0, !1),
             this.vector.setShowBitmapAndOutlines(!0);
         }),
         (this.showVector = () => {
           (this.view.topText = n.s('Vectorized Result')),
-            this.setVisible(!1, !0, !1),
+            this.setComponentVisibility(!1, !0, !1),
             this.vector.setShowBitmapAndOutlines(!1);
         }),
         (this.showSegmentation = () => {
           (this.view.topText = n.s('Edit Segmentation')),
-            this.setVisible(!1, !1, !0);
+            this.setComponentVisibility(!1, !1, !0);
         });
     }
-    setVisible(t, e, i) {
+    setComponentVisibility(t, e, i) {
       (this.bitmap.visible = t),
         (this.vector.visible = e),
         (this.segmentation.visible = i),
         this.invalidate();
     }
   }
-  class zt {
+  class Ot {
     constructor(t, e, i, n) {
       (this.r255 = t),
         (this.g255 = e),
@@ -8243,21 +8853,21 @@
         (this.a255 = 255 & n);
     }
     static fromCanvasContext(t, e, i) {
-      return zt.fromImageData(t.getImageData(0 | e, 0 | i, 1, 1), 0, 0);
+      return Ot.fromImageData(t.getImageData(0 | e, 0 | i, 1, 1), 0, 0);
     }
     static fromImageData(t, e, i) {
       const n = 4 * ((0 | e) + (0 | i) * t.width);
-      return new zt(t.data[n], t.data[n + 1], t.data[n + 2], t.data[n + 3]);
+      return new Ot(t.data[n], t.data[n + 1], t.data[n + 2], t.data[n + 3]);
     }
     static fromHex(t) {
       const e = parseInt(t, 16);
-      return new zt(e >> 16, e >> 8, e, 255);
+      return new Ot(e >> 16, e >> 8, e, 255);
     }
     static fromCss(t) {
-      return zt.fromHex(t.substr(1));
+      return Ot.fromHex(t.substr(1));
     }
     static fromRgb(t) {
-      return new zt(t >> 16, t >> 8, t, 255);
+      return new Ot(t >> 16, t >> 8, t, 255);
     }
     equals(t) {
       return (
@@ -8326,8 +8936,8 @@
       );
     }
   }
-  (zt.black = new zt(0, 0, 0, 255)),
-    (zt.white = new zt(255, 255, 255, 255)),
+  (Ot.black = new Ot(0, 0, 0, 255)),
+    (Ot.white = new Ot(255, 255, 255, 255)),
     (function (t) {
       function e(t, e) {
         const i = (function (t) {
@@ -8341,7 +8951,7 @@
                 return n.s('Artwork');
             }
           })(t.getImageTypeE()),
-          o = (function (t) {
+          s = (function (t) {
             switch (t) {
               default:
               case 3:
@@ -8353,8 +8963,8 @@
             }
           })(t.getImageComplexityE());
         return t.getSegmentationEdits()
-          ? n.s('{0}, {1}, {2}, Edited', i, o, e)
-          : n.s('{0}, {1}, {2}', i, o, e);
+          ? n.s('{0}, {1}, {2}, Edited', i, s, e)
+          : n.s('{0}, {1}, {2}', i, s, e);
       }
       (t.localizedConfigurationString = function (t) {
         return e(
@@ -8362,29 +8972,29 @@
           t.getUsePalette() ? n.s('Custom colors') : n.s('Unlimited colors')
         );
       }),
-        (t.renderConfiguration = function (t, i, o, s) {
-          let r = `<li${
+        (t.renderConfiguration = function (t, i, s, o) {
+          let a = `<li${
             i ? " class='active'" : ''
-          }><a class="${s.name()}" href='#' data-index='${o}'>`;
+          }><a class="${o.name()}" href='#' data-index='${s}'>`;
           return (
-            (r += e(
+            (a += e(
               t,
               t.getUsePalette()
-                ? t.getPalette().getSwatchesHtml(a.App.Toolbar.revert_swatch)
+                ? t.getPalette().getSwatchesHtml(r.App.Toolbar.revert_swatch)
                 : n.s('Unlimited colors')
             )),
-            (r += '</a></li>\n'),
-            r
+            (a += '</a></li>\n'),
+            a
           );
         }),
         (t.renderEmptyConfiguration = function () {
           return "<li class='disabled'><a href='#'>No vectorization results available yet. </a></li>";
         });
-    })(W || (W = {})),
+    })(O || (O = {})),
     (function (t) {
       var e,
         i,
-        s,
+        o,
         h,
         l,
         c,
@@ -8398,35 +9008,35 @@
       function v(t) {
         if (
           (11 == (e = t) && (b = !0),
-          a.App.Sidebar.content_pane.$().hide(),
+          r.App.Sidebar.content_pane.$().hide(),
           (function (t) {
             switch (e) {
               case 2:
-                return a.App.Sidebar.Progress.Pane;
+                return r.App.Sidebar.Progress.Pane;
               case 3:
-                return a.App.Sidebar.ImageType.Pane;
+                return r.App.Sidebar.ImageType.Pane;
               case 4:
-                return a.App.Sidebar.ImageComplexityPhoto.Pane;
+                return r.App.Sidebar.ImageComplexityPhoto.Pane;
               case 5:
-                return a.App.Sidebar.ImageComplexityLogoAa.Pane;
+                return r.App.Sidebar.ImageComplexityLogoAa.Pane;
               case 6:
-                return a.App.Sidebar.ImageComplexityLogo.Pane;
+                return r.App.Sidebar.ImageComplexityLogo.Pane;
               case 7:
-                return a.App.Sidebar.PaletteYesNo.Pane;
+                return r.App.Sidebar.PaletteYesNo.Pane;
               case 8:
-                return a.App.Sidebar.PaletteContents.Pane;
+                return r.App.Sidebar.PaletteContents.Pane;
               case 9:
-                return a.App.Sidebar.ReviewResult.Pane;
+                return r.App.Sidebar.ReviewResult.Pane;
               case 10:
-                return a.App.Sidebar.SegEdit.Pane;
+                return r.App.Sidebar.SegEdit.Pane;
               case 11:
-                return a.App.Sidebar.ClassificationFailed.Pane;
+                return r.App.Sidebar.ClassificationFailed.Pane;
               case 12:
-                return a.App.Sidebar.VectorizationFailed.Pane;
+                return r.App.Sidebar.VectorizationFailed.Pane;
               case 13:
-                return a.App.Sidebar.FetchingSegmentationFailed.Pane;
+                return r.App.Sidebar.FetchingSegmentationFailed.Pane;
             }
-            return a.App.Sidebar.StateMachineBug.Pane;
+            return r.App.Sidebar.StateMachineBug.Pane;
           })()
             .$()
             .show(),
@@ -8443,24 +9053,24 @@
               (p.handler = I), I.drawLoupeInternal();
               break;
             case 8:
-              p.handler = M;
+              p.handler = R;
           }
         switch (e) {
           default:
-            a.App.Toolbar.ResultReview.$().hide(),
-              a.App.Toolbar.SegEditor.$().hide();
+            r.App.Toolbar.ResultReview.$().hide(),
+              r.App.Toolbar.SegEditor.$().hide();
             break;
           case 10:
             F.initialize(),
-              a.App.Toolbar.ResultReview.$().hide(),
-              a.App.Toolbar.SegEditor.$().show();
+              r.App.Toolbar.ResultReview.$().hide(),
+              r.App.Toolbar.SegEditor.$().show();
             break;
           case 9:
             g.showVector(),
-              a.App.Toolbar.ResultReview.$().show(),
-              a.App.Toolbar.SegEditor.$().hide();
+              r.App.Toolbar.ResultReview.$().show(),
+              r.App.Toolbar.SegEditor.$().hide();
         }
-        k();
+        E();
       }
       (t.segmentationNode = function () {
         return g.segmentation;
@@ -8476,25 +9086,25 @@
         }),
         (t.setAppState = v),
         (t.setErrorMessage = function (t) {
-          a.App.Sidebar.job_failed_message.$().html(t);
+          r.App.Sidebar.job_failed_message.$().html(t);
         });
       var S = !1;
       function y() {
         S &&
-          a.App.Sidebar.Progress.Vectorize.Pane.$().toggle(
-            R.fullyAutomatic() || l == a.App.Sidebar.Progress.Vectorize
+          r.App.Sidebar.Progress.Vectorize.Pane.$().toggle(
+            M.fullyAutomatic() || l == r.App.Sidebar.Progress.Vectorize
           );
       }
-      function C() {
-        return s && !s.failed();
+      function x() {
+        return o && !o.failed();
       }
-      function x(t) {
-        R.splitView(t), k();
+      function C(t) {
+        M.splitView(t), E();
       }
       function P(t, e) {
-        a.App.Toolbar.ViewBitmap.$().toggleClass(r.active.name(), t),
-          a.App.Toolbar.SegEditViewBitmap.$().toggleClass(r.active.name(), t),
-          a.App.Toolbar.SegEditViewVector.$().toggleClass(r.active.name(), e);
+        r.App.Toolbar.ViewBitmap.$().toggleClass(a.active.name(), t),
+          r.App.Toolbar.SegEditViewBitmap.$().toggleClass(a.active.name(), t),
+          r.App.Toolbar.SegEditViewVector.$().toggleClass(a.active.name(), e);
       }
       function A() {
         g.showBitmap(), P(!0, !1);
@@ -8502,31 +9112,31 @@
       function T() {
         g.showVector(), P(!1, !0);
       }
-      function E() {
+      function k() {
         g.showSegmentation(), P(!1, !1);
       }
-      function k() {
+      function E() {
         let t = $('body');
-        t.removeClass(a.App.Sidebar.bottom_mode.name());
-        let n = a.App.flex_horizontal_section.$().outerWidth(),
-          o = a.App.Sidebar.OuterPane.$().outerWidth() > 0.5 * n;
-        if ((t.toggleClass(a.App.Sidebar.bottom_mode.name(), o), i)) {
-          const n = a.App.ImageView.CanvasContainer.$().outerWidth(),
-            o = a.App.ImageView.CanvasContainer.$().outerHeight();
-          let s = (function (t, e) {
+        t.removeClass(r.App.Sidebar.bottom_mode.name());
+        let n = r.App.flex_horizontal_section.$().outerWidth(),
+          s = r.App.Sidebar.OuterPane.$().outerWidth() > 0.5 * n;
+        if ((t.toggleClass(r.App.Sidebar.bottom_mode.name(), s), i)) {
+          const n = r.App.ImageView.CanvasContainer.$().outerWidth(),
+            s = r.App.ImageView.CanvasContainer.$().outerHeight();
+          let o = (function (t, e) {
             function n(t) {
               return Math.min(8e3, Math.max(100, 0 | t));
             }
-            let o = n(e - 88),
-              s = n(t),
-              r = s / 2 / o,
-              a = s / (o / 2),
+            let s = n(e - 88),
+              o = n(t),
+              a = o / 2 / s,
+              r = o / (s / 2),
               h = n(i.height()),
               l = n(i.width()) / h;
-            return Math.abs(l - r) <= Math.abs(l - a);
-          })(n, o);
+            return Math.abs(l - a) <= Math.abs(l - r);
+          })(n, s);
           switch (
-            (t.toggleClass(a.App.ImageView.vertical_mode.name(), !s), e)
+            (t.toggleClass(r.App.ImageView.vertical_mode.name(), !o), e)
           ) {
             case 0:
             case 1:
@@ -8540,39 +9150,651 @@
             case 11:
             case 12:
             default:
-              m.show(), w.hide(), m.checkSetSize(n, o);
+              m.show(), w.hide(), m.checkSetSize(n, s);
               break;
             case 9:
-              R.splitView() && $(window).innerWidth() > 768
-                ? (a.App.Toolbar.ViewSplit.$().addClass('active'),
-                  a.App.Toolbar.ViewSingle.$().removeClass('active'),
+              M.splitView() && $(window).innerWidth() > 768
+                ? (r.App.Toolbar.ViewSplit.$().addClass('active'),
+                  r.App.Toolbar.ViewSingle.$().removeClass('active'),
                   m.show(),
                   w.show(),
-                  s
-                    ? (m.checkSetSize(Math.floor(n / 2), o),
-                      w.checkSetSize(Math.ceil(n / 2), o))
-                    : (m.checkSetSize(n, Math.floor(o / 2)),
-                      w.checkSetSize(n, Math.ceil(o / 2))))
-                : (a.App.Toolbar.ViewSplit.$().removeClass('active'),
-                  a.App.Toolbar.ViewSingle.$().addClass('active'),
+                  o
+                    ? (m.checkSetSize(Math.floor(n / 2), s),
+                      w.checkSetSize(Math.ceil(n / 2), s))
+                    : (m.checkSetSize(n, Math.floor(s / 2)),
+                      w.checkSetSize(n, Math.ceil(s / 2))))
+                : (r.App.Toolbar.ViewSplit.$().removeClass('active'),
+                  r.App.Toolbar.ViewSingle.$().addClass('active'),
                   m.hide(),
                   w.show(),
-                  w.checkSetSize(n, o));
+                  w.checkSetSize(n, s));
               break;
             case 10:
-              m.hide(), w.show(), w.checkSetSize(n, o);
+              m.hide(), w.show(), w.checkSetSize(n, s);
           }
         }
       }
-      let I, M, F;
-      function D(t) {
+      let I, R, F;
+      (t.showProgress = function (t, i) {
+        2 != e &&
+          ((S = 0 == t),
+          r.App.Sidebar.Progress.progress.$().toggle(S),
+          r.App.Sidebar.Progress.FullyAutomaticContainer.$().toggle(S),
+          y()),
+          b && r.App.Sidebar.Progress.Upload.Pane.$().hide(),
+          v(2),
+          (l = (function (t) {
+            switch (t) {
+              case 0:
+                return r.App.Sidebar.Progress.Upload;
+              case 1:
+                return r.App.Sidebar.Progress.Classify;
+              default:
+                return r.App.Sidebar.Progress.Vectorize;
+            }
+          })(t)),
+          r.App.Sidebar.Progress.bar.$().removeClass('active'),
+          l.Bar.$().addClass('active'),
+          l.Pane.$().show(),
+          f.progressBar(l, i);
+      }),
+        (t.checkShowVectorizeProgressBar = y),
+        (t.setClassification = function (t) {
+          const e = r.App.Sidebar.BigButton.is_recommended.name();
+          r.App.Sidebar.BigButton.pane.$().removeClass(e),
+            (o = t),
+            x() && o.getConfiguration().addClass(e);
+        }),
+        (t.setConfiguration = function (t) {
+          h = t;
+          const e = 'active';
+          if ((r.App.Sidebar.BigButton.pane.$().removeClass(e), t)) {
+            t.addClass(e);
+            const i = 'active';
+            if (x()) {
+              const t = o.getConfiguration();
+              r.App.Sidebar.ReviewResult.ScanOrDrawingContainer.$().toggle(
+                1 == t.getImageTypeE() && 1 == h.getImageTypeE()
+              ),
+                r.App.Sidebar.ReviewResult.SpotsBetweenEdgesContainer.$().toggle(
+                  2 == t.getImageTypeE() && 3 == h.getImageTypeE()
+                ),
+                r.App.Sidebar.ReviewResult.JaggedEdgesContainer.$().toggle(
+                  3 == t.getImageTypeE() && 2 == h.getImageTypeE()
+                );
+            }
+            switch (
+              (r.App.Sidebar.ReviewResult.detail_button.$().removeClass(i),
+              t.getImageComplexityE())
+            ) {
+              case 3:
+                r.App.Sidebar.ReviewResult.DetailHigh.$().addClass(i);
+                break;
+              case 2:
+                r.App.Sidebar.ReviewResult.DetailMedium.$().addClass(i);
+                break;
+              default:
+                r.App.Sidebar.ReviewResult.DetailLow.$().addClass(i);
+            }
+            t.getUsePalette()
+              ? (r.App.Sidebar.ReviewResult.UnlimitedColors.$().removeClass(i),
+                r.App.Sidebar.ReviewResult.CustomColors.$().addClass(i),
+                r.App.Sidebar.ReviewResult.ChangeCustomPaletteContainer.$().show())
+              : (r.App.Sidebar.ReviewResult.UnlimitedColors.$().addClass(i),
+                r.App.Sidebar.ReviewResult.CustomColors.$().removeClass(i),
+                r.App.Sidebar.ReviewResult.ChangeCustomPaletteContainer.$().hide()),
+              r.App.Sidebar.ReviewResult.CustomPaletteContainer.$().html(
+                t
+                  .getPalette()
+                  .getSwatchesHtml(
+                    r.App.Sidebar.ReviewResult.custom_palette_swatch
+                  )
+              ),
+              R.updatePalette(),
+              w && (w.bottomText = O.localizedConfigurationString(t));
+          }
+        }),
+        (t.setBackAndNext = function (t, e) {
+          r.App.Sidebar.BackButton.$().toggleClass('disabled', !t),
+            r.App.Sidebar.NextButton.$().toggleClass('disabled', !e);
+        }),
+        (t.setConfigurations = function (t) {
+          var e = '';
+          const i = t.getConfiguration();
+          var n = 0;
+          const s = t.getConfigurationsWithResult();
+          for (let t of s)
+            e += O.renderConfiguration(
+              t,
+              i.equals(t),
+              n++,
+              r.App.Toolbar.revert_link
+            );
+          const o = t.getSegEditConfiguration();
+          o &&
+            ((e += "<li class='divider'></li>\n"),
+            (e += O.renderConfiguration(
+              o,
+              i.equals(o),
+              -1,
+              r.App.Toolbar.revert_link
+            ))),
+            e || (e = O.renderEmptyConfiguration()),
+            r.App.Toolbar.revert_link.$().off('click'),
+            r.App.Toolbar.RevertMenu.$().html(e),
+            r.App.Toolbar.revert_link.$(!0).click(function (t) {
+              const e = 0 | parseInt($(this).data('index'));
+              e < 0
+                ? U.setConfigurationAndGo(o)
+                : e < s.length && U.setConfigurationAndGo(s[e]),
+                t.preventDefault();
+            });
+        }),
+        (t.imageUpdated = function (t, s) {
+          i = t;
+          originImageWidth = i.width();
+          originImageHeight = i.height();
+          originImageName = o;
+          ctx.clearRect(0, 0, originImageWidth, originImageHeight);
+          ctx = new C2S(originImageWidth, originImageHeight);
+          const o = new at(1, 1),
+            a = new at(1, 1);
+          (o.element.id = r.App.ImageView.LeftCanvas.name()),
+            (a.element.id = r.App.ImageView.RightCanvas.name()),
+            r.App.ImageView.CanvasContainer.$().append(o.element, a.element),
+            (u = s + ` (${i.width()} x ${i.height()} px)`),
+            (d = new Et(i.width(), i.height())),
+            (p = new _t(i, I)),
+            (m = new Dt(d, p, o, n.s('Original Image'), u)),
+            (g = new zt(new _t(i), new Lt(c, i), new Ut())),
+            (w = new Dt(d, g, a, void 0, u)),
+            E(),
+            $(window).resize(() => {
+              E();
+            }),
+            setTimeout(function () {
+              d.zoomToFit();
+            }, 0),
+            r.App.Sidebar.ImageType.Photo.$().click(function () {
+              U.setImageType(1, !1);
+            }),
+            r.App.Sidebar.ImageType.LogoAA.$().click(function () {
+              U.setImageType(2, !1);
+            }),
+            r.App.Sidebar.ImageType.Logo.$().click(function () {
+              U.setImageType(3, !1);
+            }),
+            r.App.Sidebar.ImageComplexity.high.$().click(function () {
+              U.setImageComplexity(3, !1);
+            }),
+            r.App.Sidebar.ImageComplexity.medium.$().click(function () {
+              U.setImageComplexity(2, !1);
+            }),
+            r.App.Sidebar.ImageComplexity.low.$().click(function () {
+              U.setImageComplexity(1, !1);
+            }),
+            r.App.Sidebar.PaletteYesNo.UnlimitedColors.$().click(function () {
+              U.setPaletteYesNo(2);
+            }),
+            r.App.Sidebar.PaletteYesNo.CustomColors.$().click(function () {
+              U.setPaletteYesNo(1);
+            }),
+            R.initialize(),
+            r.App.Sidebar.ReviewResult.ProcessAsLogoAaWithCustomColorsButton.$().click(
+              function () {
+                U.setImageType(2, !1), U.setPaletteYesNo(1);
+              }
+            ),
+            r.App.Sidebar.ReviewResult.WithBlendingButton.$().click(
+              function () {
+                U.setImageType(2, !0);
+              }
+            ),
+            r.App.Sidebar.ReviewResult.JaggedEdgesContainer.$().click(
+              function () {
+                U.setImageType(3, !0);
+              }
+            ),
+            r.App.Sidebar.ReviewResult.DetailHigh.$().click(function () {
+              U.setImageComplexity(3, !0);
+            }),
+            r.App.Sidebar.ReviewResult.DetailMedium.$().click(function () {
+              U.setImageComplexity(2, !0);
+            }),
+            r.App.Sidebar.ReviewResult.DetailLow.$().click(function () {
+              U.setImageComplexity(1, !0);
+            }),
+            r.App.Sidebar.ReviewResult.UnlimitedColors.$().click(function () {
+              U.setPaletteYesNo(2);
+            }),
+            r.App.Sidebar.ReviewResult.custom_colors.$().click(function () {
+              U.setPaletteYesNo(1);
+            }),
+            r.App.Sidebar.ReviewResult.EditResult.$().click(() => {
+              k(), U.startSegEditing();
+            }),
+            r.App.Sidebar.ReviewResult.RemoveBackground.$().click(function () {
+              f.modal(r.App.RemoveBackgroundDialog);
+            }),
+            r.App.Sidebar.ReviewResult.HandPickSettings.$().click(
+              U.handPickSettings
+            ),
+            r.App.Sidebar.VectorizationFailed.HandPickSettings.$().click(
+              U.handPickSettings
+            ),
+            r.App.Sidebar.VectorizationFailed.EditSegmentation.$().click(
+              U.startSegEditing
+            ),
+            r.App.Sidebar.BackButton.$().click(function () {
+              U.goBack();
+            }),
+            r.App.Sidebar.NextButton.$().click(function () {
+              U.goNext();
+            }),
+            r.App.Sidebar.ClassificationFailed.Retry.$().click(
+              U.retryClassification
+            ),
+            r.App.Sidebar.VectorizationFailed.Retry.$().click(
+              U.retryVectorization
+            ),
+            r.App.Sidebar.FetchingSegmentationFailed.Retry.$().click(
+              U.startSegEditing
+            ),
+            new pt(
+              r.App.Toolbar.ZoomIn.$(),
+              function () {
+                d.zoomBy(N.zoomStep);
+              },
+              50,
+              1
+            ),
+            new pt(
+              r.App.Toolbar.ZoomOut.$(),
+              function () {
+                d.zoomBy(1 / N.zoomStep);
+              },
+              50,
+              1
+            ),
+            r.App.Toolbar.ZoomToFit.$().click(function () {
+              d.zoomToFit();
+            }),
+            r.App.Toolbar.Zoom1To1.$().click(function () {
+              d.zoom1To1();
+            }),
+            r.App.Toolbar.ViewSingle.$().click(function () {
+              C(!1);
+            }),
+            r.App.Toolbar.ViewSplit.$().click(function () {
+              C(!0);
+            }),
+            f.radioButton(r.App.Toolbar.ViewBitmap, A, T),
+            r.App.StickySettings.fully_automatic
+              .$()
+              .prop('checked', M.fullyAutomatic()),
+            r.App.StickySettings.fully_automatic.$().click(function () {
+              let t = M.fullyAutomatic(!M.fullyAutomatic());
+              r.App.StickySettings.fully_automatic.$().prop('checked', t), y();
+            }),
+            r.App.StickySettings.pre_crop_enabled_checkbox
+              .$()
+              .prop('checked', M.preCropEnabled()),
+            r.App.StickySettings.pre_crop_enabled_checkbox
+              .$()
+              .click(function () {
+                let t = M.preCropEnabled(!M.preCropEnabled());
+                r.App.StickySettings.pre_crop_enabled_checkbox
+                  .$()
+                  .prop('checked', t);
+              }),
+            r.App.StickySettings.show.$().click(function () {
+              return f.modal(r.App.StickySettings.Lightbox), !1;
+            }),
+            r.$window.keydown(_),
+            r.$window.keyup(B),
+            (e = 1),
+            $('.navbar').hide(),
+            $('.footer').hide(),
+            $('.container >').hide(),
+            r.App.App.$().show();
+        }),
+        (t.resultProgress = function (t) {
+          g.vector.setProgress(t);
+        }),
+        (t.resultUpdated = function (t) {
+          (c = t), g.vector.setResult(t);
+        }),
+        (t.resultFailedToLoad = function (t) {
+          g.vector.setFailedToLoad(t);
+        }),
+        (function (t) {
+          var n, o;
+          function a() {
+            var t = (function () {
+              switch (e) {
+                case 3:
+                  return r.App.Sidebar.ImageType.Loupe;
+                case 5:
+                  return r.App.Sidebar.ImageComplexityLogoAa.Loupe;
+                case 6:
+                  return r.App.Sidebar.ImageComplexityLogo.Loupe;
+              }
+            })();
+            if (t) {
+              const e = t.$()[0],
+                a = i.element,
+                r = e.getContext('2d');
+              s.set(r, 'msImageSmoothingEnabled', !1),
+                (r.mozImageSmoothingEnabled = !1),
+                (r.webkitImageSmoothingEnabled = !1),
+                (r.imageSmoothingEnabled = !1),
+                r.save();
+              const h = 6,
+                l = e.width / (2 * h),
+                c = e.height / (2 * h),
+                u = a.width,
+                d = a.height,
+                p = f.clamp(n || u / 2, l, u - l),
+                m = f.clamp(o || d / 2, c, d - c);
+              r.scale(6, 6),
+                r.translate(l, c),
+                r.translate(-p, -m),
+                r.drawImage(i.element, 0, 0),
+                r.restore();
+            }
+          }
+          (t.moveHandler = function (t) {
+            return (n = t.x), (o = t.y), requestAnimationFrame(a), !1;
+          }),
+            (t.drawLoupeInternal = a),
+            (t.mouseCursor = function (t) {});
+        })(I || (I = {})),
+        (function (t) {
+          const e = [
+              r.App.Sidebar.PaletteContents.P2,
+              r.App.Sidebar.PaletteContents.P3,
+              r.App.Sidebar.PaletteContents.P4,
+              r.App.Sidebar.PaletteContents.P5,
+              r.App.Sidebar.PaletteContents.P6,
+              r.App.Sidebar.PaletteContents.P7,
+              r.App.Sidebar.PaletteContents.P8,
+              r.App.Sidebar.PaletteContents.P9,
+              r.App.Sidebar.PaletteContents.P10,
+              r.App.Sidebar.PaletteContents.P11,
+              r.App.Sidebar.PaletteContents.P12
+            ],
+            n = [
+              r.App.Sidebar.PaletteContents.CustomColor0,
+              r.App.Sidebar.PaletteContents.CustomColor1,
+              r.App.Sidebar.PaletteContents.CustomColor2,
+              r.App.Sidebar.PaletteContents.CustomColor3,
+              r.App.Sidebar.PaletteContents.CustomColor4,
+              r.App.Sidebar.PaletteContents.CustomColor5,
+              r.App.Sidebar.PaletteContents.CustomColor6,
+              r.App.Sidebar.PaletteContents.CustomColor7,
+              r.App.Sidebar.PaletteContents.CustomColor8,
+              r.App.Sidebar.PaletteContents.CustomColor9,
+              r.App.Sidebar.PaletteContents.CustomColor10,
+              r.App.Sidebar.PaletteContents.CustomColor11
+            ];
+          var s = -1,
+            a = void 0;
+          function l(t) {
+            0 <= s && s < n.length && n[s].$().removeClass('active'),
+              (s = t),
+              h &&
+                0 <= s &&
+                s < h.getPalette().getNumColors() &&
+                (n[s].$().addClass('active'),
+                r.App.Sidebar.PaletteContents.eye_dropper_swatch
+                  .$()
+                  .css('background', h.getPalette().getCssColor(s)));
+          }
+          (t.moveHandler = function (t) {
+            return (
+              s >= 0 &&
+                (0 <= t.x &&
+                  t.x < i.width() &&
+                  0 <= t.y &&
+                  t.y < i.height() &&
+                  ((a = Ot.fromCanvasContext(i.context().context, t.x, t.y)),
+                  r.App.Sidebar.PaletteContents.EyeDropper1.$().css(
+                    'background',
+                    a.toCss()
+                  )),
+                t.down ? a && U.paletteWithColor(s, a) : 3 == t.type && l(-1)),
+              s >= 0
+            );
+          }),
+            (t.mouseCursor = function (t) {
+              if (s >= 0) return r.eyedropper_tool;
+            }),
+            (t.updatePalette = function () {
+              if (x() && h) {
+                var t = h.getPalette();
+                const s = o.getPaletteList(
+                    h.getImageTypeE(),
+                    h.getImageComplexityE()
+                  ),
+                  a = s.getBestPalette();
+                var i;
+                for (
+                  r.App.Sidebar.PaletteContents.suggested_palettes_item
+                    .$()
+                    .removeClass(
+                      r.App.Sidebar.PaletteContents.recommended_palette.name() +
+                        ' active'
+                    ),
+                    i = 0;
+                  i < e.length;
+                  i++
+                ) {
+                  const n = e[i],
+                    o = s.getPalette(i);
+                  n
+                    .$()
+                    .html(
+                      s
+                        .getPalette(i)
+                        .getSwatchesHtml(
+                          r.App.Sidebar.PaletteContents.suggested_swatch
+                        )
+                    ),
+                    o.equals(a) &&
+                      n
+                        .$()
+                        .addClass(
+                          r.App.Sidebar.PaletteContents.recommended_palette.name()
+                        ),
+                    o.equals(t) && n.$().addClass('active');
+                }
+                for (i = 0; i < t.getNumColors(); i++) {
+                  const e = n[i];
+                  e.$().show();
+                  const s =
+                    e.css() +
+                    ' > ' +
+                    r.App.Sidebar.PaletteContents.custom_swatch.css();
+                  $(s).css('background-color', t.getCssColor(i));
+                }
+                for (; i < n.length; i++) {
+                  n[i].$().hide();
+                }
+                r.App.Sidebar.PaletteContents.AddCustomColor.$().toggle(
+                  t.getNumColors() < 12
+                ),
+                  r.App.Sidebar.PaletteContents.CustomColorsList.$().toggleClass(
+                    r.App.Sidebar.PaletteContents.can_delete.name(),
+                    t.getNumColors() > 2
+                  );
+              }
+            }),
+            (t.initialize = function () {
+              function t(t) {
+                e[t].$().click(function () {
+                  l(-1), U.pickSuggestedPalette(t, !1);
+                }),
+                  e[t].$().dblclick(function () {
+                    U.pickSuggestedPalette(t, !0);
+                  });
+              }
+              var o;
+              for (o = 0; o < e.length; o++) t(o);
+              function a(t) {
+                const e = n[t];
+                e.$().click(function () {
+                  return l(t), !1;
+                }),
+                  $(
+                    e.css() +
+                      ' ' +
+                      r.App.Sidebar.PaletteContents.delete_color.css()
+                  ).click(function () {
+                    return (
+                      U.paletteWithoutColor(t),
+                      t == s ? l(-1) : t < s && l(s - 1),
+                      !1
+                    );
+                  });
+              }
+              for (o = 0; o < n.length; o++) a(o);
+              r.App.Sidebar.PaletteContents.AddCustomColor.$().click(
+                function () {
+                  const t = Ot.fromCanvasContext(i.context().context, 0, 0);
+                  U.paletteWithNewColor(t),
+                    h && l(h.getPalette().getNumColors() - 1);
+                }
+              );
+            });
+        })(R || (R = {})),
+        (function (t) {
+          var e,
+            i,
+            n,
+            s = !1,
+            o = 0,
+            a = Ot.black,
+            h = Ot.black,
+            l = !1;
+          function c(t) {
+            a.equals(t) ||
+              ((a = t),
+              r.App.Toolbar.ColorSwatch0.$().css('background', a.toCss()));
+          }
+          function u(t) {
+            h.equals(t) ||
+              ((h = t),
+              r.App.Toolbar.ColorSwatch1.$().css('background', h.toCss()));
+          }
+          function d(t, i) {
+            (o = t),
+              (e = i),
+              r.App.Toolbar.tool_button.$().removeClass('active'),
+              i.$().addClass('active'),
+              w.invalidateMouseCursor();
+          }
+          (t.moveHandler = function (t) {
+            switch (o) {
+              case 1:
+                return 1 == t.type && L.zap(t.x, t.y, a), !0;
+              case 2:
+                return 1 == t.type && L.fill(t.x, t.y, a), !0;
+              case 3:
+                return t.down && L.pixel(t.x, t.y, a), !0;
+              case 4:
+                if (L.isInside(t.x, t.y)) {
+                  const e = L.color(t.x, t.y);
+                  t.down && c(e), u(e);
+                }
+                return !0;
+            }
+            return !1;
+          }),
+            (t.mouseCursor = function (t) {
+              switch (o) {
+                case 1:
+                  return r.App.Toolbar.zap_tool;
+                case 2:
+                  return r.App.Toolbar.fill_tool;
+                case 3:
+                  return r.App.Toolbar.pixel_tool;
+                case 4:
+                  return r.eyedropper_tool;
+              }
+            }),
+            (t.setDefaultColor = function (t) {
+              c(t), u(t);
+            }),
+            (t.segmentationSetEnabled = function (t, e, i) {
+              r.App.Toolbar.Undo.$().prop('disabled', !t),
+                r.App.Toolbar.Redo.$().prop('disabled', !e),
+                r.App.Toolbar.Reset.$().prop('disabled', !i);
+            }),
+            (t.segmentationDontEditTooMuch = function () {
+              l ||
+                (r.App.ImageView.DontEditTooMuchNotification.$().show(),
+                (l = !0));
+            }),
+            (t.keyDownHandler = function (t) {
+              switch (t.keyCode) {
+                case 90:
+                  return t.shiftKey ? L.redo() : L.undo(), !0;
+                case 89:
+                  return L.redo(), !0;
+                case 16:
+                  return (
+                    0 != o && ((i = o), (n = e), d(0, r.App.Toolbar.Pan)), !0
+                  );
+              }
+              return !1;
+            }),
+            (t.keyUpHandler = function (t) {
+              return 16 === t.keyCode && (0 == o && d(i, n), !0);
+            }),
+            (t.initialize = function () {
+              s ||
+                ((s = !0),
+                r.App.Toolbar.Undo.$().click(L.undo),
+                r.App.Toolbar.Redo.$().click(L.redo),
+                r.App.Toolbar.Reset.$().click(L.reset),
+                f.radioButton(r.App.Toolbar.SegEditViewBitmap, A, k),
+                f.radioButton(r.App.Toolbar.SegEditViewVector, T, k),
+                r.App.Toolbar.Finder.$().click(function () {
+                  L.toggleFinder(),
+                    r.App.Toolbar.Finder.$().toggleClass(
+                      'active',
+                      L.getShowPinchPoints()
+                    );
+                }),
+                r.App.Toolbar.Pan.$().click(function () {
+                  d(0, r.App.Toolbar.Pan);
+                }),
+                r.App.Toolbar.Zap.$().click(function () {
+                  d(1, r.App.Toolbar.Zap);
+                }),
+                r.App.Toolbar.Fill.$().click(function () {
+                  d(2, r.App.Toolbar.Fill);
+                }),
+                r.App.Toolbar.Pixel.$().click(function () {
+                  d(3, r.App.Toolbar.Pixel);
+                }),
+                r.App.Toolbar.ColorPicker.$().click(function () {
+                  d(4, r.App.Toolbar.ColorPicker);
+                }),
+                (g.segmentation.handler = t),
+                r.App.Toolbar.Pan.$().click()),
+                g.showSegmentation();
+            });
+        })(F || (F = {}));
+      const D = 30;
+      function _(t) {
         if (10 != e || !F.keyDownHandler(t))
           switch (t.keyCode) {
             case 49:
-              x(!1);
+              C(!1);
               break;
             case 50:
-              x(!0);
+              C(!0);
               break;
             case 66:
               A();
@@ -8591,628 +9813,29 @@
               break;
             case 34:
               d.zoomBy(1 / 1.2);
+              break;
+            case 37:
+              d.translateBy(-D, 0);
+              break;
+            case 39:
+              d.translateBy(D, 0);
+              break;
+            case 40:
+              d.translateBy(0, D);
+              break;
+            case 38:
+              d.translateBy(0, -D);
           }
       }
-      function _(t) {
+      function B(t) {
         if (10 != e || !F.keyUpHandler(t))
           switch (t.keyCode) {
             case 66:
             case 86:
-              10 == e ? E() : T();
+              10 == e ? k() : T();
           }
       }
-      (t.showProgress = function (t, i) {
-        2 != e &&
-          ((S = 0 == t),
-          a.App.Sidebar.Progress.progress.$().toggle(S),
-          a.App.Sidebar.Progress.FullyAutomaticContainer.$().toggle(S),
-          y()),
-          b && a.App.Sidebar.Progress.Upload.Pane.$().hide(),
-          v(2),
-          (l = (function (t) {
-            switch (t) {
-              case 0:
-                return a.App.Sidebar.Progress.Upload;
-              case 1:
-                return a.App.Sidebar.Progress.Classify;
-              default:
-                return a.App.Sidebar.Progress.Vectorize;
-            }
-          })(t)),
-          a.App.Sidebar.Progress.bar.$().removeClass('active'),
-          l.Bar.$().addClass('active'),
-          l.Pane.$().show(),
-          f.progressBar(l, i);
-      }),
-        (t.checkShowVectorizeProgressBar = y),
-        (t.setClassification = function (t) {
-          const e = a.App.Sidebar.BigButton.is_recommended.name();
-          a.App.Sidebar.BigButton.pane.$().removeClass(e),
-            (s = t),
-            C() && s.getConfiguration().addClass(e);
-        }),
-        (t.setConfiguration = function (t) {
-          h = t;
-          const e = 'active';
-          if ((a.App.Sidebar.BigButton.pane.$().removeClass(e), t)) {
-            t.addClass(e);
-            const i = 'active';
-            if (C()) {
-              const t = s.getConfiguration();
-              a.App.Sidebar.ReviewResult.ScanOrDrawingContainer.$().toggle(
-                1 == t.getImageTypeE() && 1 == h.getImageTypeE()
-              ),
-                a.App.Sidebar.ReviewResult.SpotsBetweenEdgesContainer.$().toggle(
-                  2 == t.getImageTypeE() && 3 == h.getImageTypeE()
-                ),
-                a.App.Sidebar.ReviewResult.JaggedEdgesContainer.$().toggle(
-                  3 == t.getImageTypeE() && 2 == h.getImageTypeE()
-                );
-            }
-            switch (
-              (a.App.Sidebar.ReviewResult.detail_button.$().removeClass(i),
-              t.getImageComplexityE())
-            ) {
-              case 3:
-                a.App.Sidebar.ReviewResult.DetailHigh.$().addClass(i);
-                break;
-              case 2:
-                a.App.Sidebar.ReviewResult.DetailMedium.$().addClass(i);
-                break;
-              default:
-                a.App.Sidebar.ReviewResult.DetailLow.$().addClass(i);
-            }
-            t.getUsePalette()
-              ? (a.App.Sidebar.ReviewResult.UnlimitedColors.$().removeClass(i),
-                a.App.Sidebar.ReviewResult.CustomColors.$().addClass(i),
-                a.App.Sidebar.ReviewResult.ChangeCustomPaletteContainer.$().show())
-              : (a.App.Sidebar.ReviewResult.UnlimitedColors.$().addClass(i),
-                a.App.Sidebar.ReviewResult.CustomColors.$().removeClass(i),
-                a.App.Sidebar.ReviewResult.ChangeCustomPaletteContainer.$().hide()),
-              a.App.Sidebar.ReviewResult.CustomPaletteContainer.$().html(
-                t
-                  .getPalette()
-                  .getSwatchesHtml(
-                    a.App.Sidebar.ReviewResult.custom_palette_swatch
-                  )
-              ),
-              M.updatePalette(),
-              w && (w.bottomText = W.localizedConfigurationString(t));
-          }
-        }),
-        (t.setBackAndNext = function (t, e) {
-          a.App.Sidebar.BackButton.$().toggleClass('disabled', !t),
-            a.App.Sidebar.NextButton.$().toggleClass('disabled', !e);
-        }),
-        (t.setConfigurations = function (t) {
-          var e = '';
-          const i = t.getConfiguration();
-          var n = 0;
-          const o = t.getConfigurationsWithResult();
-          for (let t of o)
-            e += W.renderConfiguration(
-              t,
-              i.equals(t),
-              n++,
-              a.App.Toolbar.revert_link
-            );
-          const s = t.getSegEditConfiguration();
-          s &&
-            ((e += "<li class='divider'></li>\n"),
-            (e += W.renderConfiguration(
-              s,
-              i.equals(s),
-              -1,
-              a.App.Toolbar.revert_link
-            ))),
-            e || (e = W.renderEmptyConfiguration()),
-            a.App.Toolbar.revert_link.$().off('click'),
-            a.App.Toolbar.RevertMenu.$().html(e),
-            a.App.Toolbar.revert_link.$(!0).click(function (t) {
-              const e = 0 | parseInt($(this).data('index'));
-              e < 0
-                ? U.setConfigurationAndGo(s)
-                : e < o.length && U.setConfigurationAndGo(o[e]),
-                t.preventDefault();
-            });
-        }),
-        (t.imageUpdated = function (t, o) {
-          i = t;
-          originImageWidth = i.width();
-          originImageHeight = i.height();
-          originImageName = o;
-          ctx.clearRect(0, 0, originImageWidth, originImageHeight);
-          ctx = new C2S(originImageWidth, originImageHeight);
-          const s = new st(1, 1),
-            r = new st(1, 1);
-          (s.element.id = a.App.ImageView.LeftCanvas.name()),
-            (r.element.id = a.App.ImageView.RightCanvas.name()),
-            a.App.ImageView.CanvasContainer.$().append(s.element, r.element),
-            (u = o + ` (${i.width()} x ${i.height()} px)`),
-            (d = new Et(i.width(), i.height())),
-            (p = new Dt(i, I)),
-            (m = new $t(d, p, s, n.s('Original Image'), u)),
-            (g = new Nt(new Dt(i), new Bt(c, i), new Lt())),
-            (w = new $t(d, g, r, void 0, u)),
-            k(),
-            $(window).resize(() => {
-              k();
-            }),
-            setTimeout(function () {
-              d.zoomToFit();
-            }, 0),
-            a.App.Sidebar.ImageType.Photo.$().click(function () {
-              U.setImageType(1, !1);
-            }),
-            a.App.Sidebar.ImageType.LogoAA.$().click(function () {
-              U.setImageType(2, !1);
-            }),
-            a.App.Sidebar.ImageType.Logo.$().click(function () {
-              U.setImageType(3, !1);
-            }),
-            a.App.Sidebar.ImageComplexity.high.$().click(function () {
-              U.setImageComplexity(3, !1);
-            }),
-            a.App.Sidebar.ImageComplexity.medium.$().click(function () {
-              U.setImageComplexity(2, !1);
-            }),
-            a.App.Sidebar.ImageComplexity.low.$().click(function () {
-              U.setImageComplexity(1, !1);
-            }),
-            a.App.Sidebar.PaletteYesNo.UnlimitedColors.$().click(function () {
-              U.setPaletteYesNo(2);
-            }),
-            a.App.Sidebar.PaletteYesNo.CustomColors.$().click(function () {
-              U.setPaletteYesNo(1);
-            }),
-            M.initialize(),
-            a.App.Sidebar.ReviewResult.ProcessAsLogoAaWithCustomColorsButton.$().click(
-              function () {
-                U.setImageType(2, !1), U.setPaletteYesNo(1);
-              }
-            ),
-            a.App.Sidebar.ReviewResult.WithBlendingButton.$().click(
-              function () {
-                U.setImageType(2, !0);
-              }
-            ),
-            a.App.Sidebar.ReviewResult.JaggedEdgesContainer.$().click(
-              function () {
-                U.setImageType(3, !0);
-              }
-            ),
-            a.App.Sidebar.ReviewResult.DetailHigh.$().click(function () {
-              U.setImageComplexity(3, !0);
-            }),
-            a.App.Sidebar.ReviewResult.DetailMedium.$().click(function () {
-              U.setImageComplexity(2, !0);
-            }),
-            a.App.Sidebar.ReviewResult.DetailLow.$().click(function () {
-              U.setImageComplexity(1, !0);
-            }),
-            a.App.Sidebar.ReviewResult.UnlimitedColors.$().click(function () {
-              U.setPaletteYesNo(2);
-            }),
-            a.App.Sidebar.ReviewResult.custom_colors.$().click(function () {
-              U.setPaletteYesNo(1);
-            }),
-            a.App.Sidebar.ReviewResult.EditResult.$().click(() => {
-              E(), U.startSegEditing();
-            }),
-            a.App.Sidebar.ReviewResult.RemoveBackground.$().click(function () {
-              f.modal(a.App.RemoveBackgroundDialog);
-            }),
-            a.App.Sidebar.ReviewResult.HandPickSettings.$().click(
-              U.handPickSettings
-            ),
-            a.App.Sidebar.VectorizationFailed.HandPickSettings.$().click(
-              U.handPickSettings
-            ),
-            a.App.Sidebar.VectorizationFailed.EditSegmentation.$().click(
-              U.startSegEditing
-            ),
-            a.App.Sidebar.BackButton.$().click(function () {
-              U.goBack();
-            }),
-            a.App.Sidebar.NextButton.$().click(function () {
-              U.goNext();
-            }),
-            a.App.Sidebar.ClassificationFailed.Retry.$().click(
-              U.retryClassification
-            ),
-            a.App.Sidebar.VectorizationFailed.Retry.$().click(
-              U.retryVectorization
-            ),
-            a.App.Sidebar.FetchingSegmentationFailed.Retry.$().click(
-              U.startSegEditing
-            ),
-            new dt(
-              a.App.Toolbar.ZoomIn.$(),
-              function () {
-                d.zoomBy(N.zoomStep);
-              },
-              50,
-              1
-            ),
-            new dt(
-              a.App.Toolbar.ZoomOut.$(),
-              function () {
-                d.zoomBy(1 / N.zoomStep);
-              },
-              50,
-              1
-            ),
-            a.App.Toolbar.ZoomToFit.$().click(function () {
-              d.zoomToFit();
-            }),
-            a.App.Toolbar.Zoom1To1.$().click(function () {
-              d.zoom1To1();
-            }),
-            a.App.Toolbar.ViewSingle.$().click(function () {
-              x(!1);
-            }),
-            a.App.Toolbar.ViewSplit.$().click(function () {
-              x(!0);
-            }),
-            f.radioButton(a.App.Toolbar.ViewBitmap, A, T),
-            a.App.StickySettings.fully_automatic
-              .$()
-              .prop('checked', R.fullyAutomatic()),
-            a.App.StickySettings.fully_automatic.$().click(function () {
-              let t = R.fullyAutomatic(!R.fullyAutomatic());
-              a.App.StickySettings.fully_automatic.$().prop('checked', t), y();
-            }),
-            a.App.StickySettings.pre_crop_enabled_checkbox
-              .$()
-              .prop('checked', R.preCropEnabled()),
-            a.App.StickySettings.pre_crop_enabled_checkbox
-              .$()
-              .click(function () {
-                let t = R.preCropEnabled(!R.preCropEnabled());
-                a.App.StickySettings.pre_crop_enabled_checkbox
-                  .$()
-                  .prop('checked', t);
-              }),
-            a.App.StickySettings.show.$().click(function () {
-              return f.modal(a.App.StickySettings.Lightbox), !1;
-            }),
-            a.$window.keydown(D),
-            a.$window.keyup(_),
-            (e = 1),
-            $('.navbar').hide(),
-            $('.footer').hide(),
-            $('.container >').hide(),
-            a.App.App.$().show();
-        }),
-        (t.resultProgress = function (t) {
-          g.vector.setProgress(t);
-        }),
-        (t.resultUpdated = function (t) {
-          (c = t), g.vector.setResult(t);
-        }),
-        (t.resultFailedToLoad = function (t) {
-          g.vector.setFailedToLoad(t);
-        }),
-        (function (t) {
-          var n, s;
-          function r() {
-            var t = (function () {
-              switch (e) {
-                case 3:
-                  return a.App.Sidebar.ImageType.Loupe;
-                case 5:
-                  return a.App.Sidebar.ImageComplexityLogoAa.Loupe;
-                case 6:
-                  return a.App.Sidebar.ImageComplexityLogo.Loupe;
-              }
-            })();
-            if (t) {
-              const e = t.$()[0],
-                r = i.element,
-                a = e.getContext('2d');
-              o.set(a, 'msImageSmoothingEnabled', !1),
-                (a.mozImageSmoothingEnabled = !1),
-                (a.webkitImageSmoothingEnabled = !1),
-                (a.imageSmoothingEnabled = !1),
-                a.save();
-              const h = 6,
-                l = e.width / (2 * h),
-                c = e.height / (2 * h),
-                u = r.width,
-                d = r.height,
-                p = f.clamp(n || u / 2, l, u - l),
-                m = f.clamp(s || d / 2, c, d - c);
-              a.scale(6, 6),
-                a.translate(l, c),
-                a.translate(-p, -m),
-                a.drawImage(i.element, 0, 0),
-                a.restore();
-            }
-          }
-          (t.moveHandler = function (t) {
-            return (n = t.x), (s = t.y), requestAnimationFrame(r), !1;
-          }),
-            (t.drawLoupeInternal = r),
-            (t.mouseCursor = function (t) {});
-        })(I || (I = {})),
-        (function (t) {
-          const e = [
-              a.App.Sidebar.PaletteContents.P2,
-              a.App.Sidebar.PaletteContents.P3,
-              a.App.Sidebar.PaletteContents.P4,
-              a.App.Sidebar.PaletteContents.P5,
-              a.App.Sidebar.PaletteContents.P6,
-              a.App.Sidebar.PaletteContents.P7,
-              a.App.Sidebar.PaletteContents.P8,
-              a.App.Sidebar.PaletteContents.P9,
-              a.App.Sidebar.PaletteContents.P10,
-              a.App.Sidebar.PaletteContents.P11,
-              a.App.Sidebar.PaletteContents.P12
-            ],
-            n = [
-              a.App.Sidebar.PaletteContents.CustomColor0,
-              a.App.Sidebar.PaletteContents.CustomColor1,
-              a.App.Sidebar.PaletteContents.CustomColor2,
-              a.App.Sidebar.PaletteContents.CustomColor3,
-              a.App.Sidebar.PaletteContents.CustomColor4,
-              a.App.Sidebar.PaletteContents.CustomColor5,
-              a.App.Sidebar.PaletteContents.CustomColor6,
-              a.App.Sidebar.PaletteContents.CustomColor7,
-              a.App.Sidebar.PaletteContents.CustomColor8,
-              a.App.Sidebar.PaletteContents.CustomColor9,
-              a.App.Sidebar.PaletteContents.CustomColor10,
-              a.App.Sidebar.PaletteContents.CustomColor11
-            ];
-          var o = -1,
-            r = void 0;
-          function l(t) {
-            0 <= o && o < n.length && n[o].$().removeClass('active'),
-              (o = t),
-              h &&
-                0 <= o &&
-                o < h.getPalette().getNumColors() &&
-                (n[o].$().addClass('active'),
-                a.App.Sidebar.PaletteContents.eye_dropper_swatch
-                  .$()
-                  .css('background', h.getPalette().getCssColor(o)));
-          }
-          (t.moveHandler = function (t) {
-            return (
-              o >= 0 &&
-                (0 <= t.x &&
-                  t.x < i.width() &&
-                  0 <= t.y &&
-                  t.y < i.height() &&
-                  ((r = zt.fromCanvasContext(i.context().context, t.x, t.y)),
-                  a.App.Sidebar.PaletteContents.EyeDropper1.$().css(
-                    'background',
-                    r.toCss()
-                  )),
-                t.down ? r && U.paletteWithColor(o, r) : 3 == t.type && l(-1)),
-              o >= 0
-            );
-          }),
-            (t.mouseCursor = function (t) {
-              if (o >= 0) return a.eyedropper_tool;
-            }),
-            (t.updatePalette = function () {
-              if (C() && h) {
-                var t = h.getPalette();
-                const o = s.getPaletteList(
-                    h.getImageTypeE(),
-                    h.getImageComplexityE()
-                  ),
-                  r = o.getBestPalette();
-                var i;
-                for (
-                  a.App.Sidebar.PaletteContents.suggested_palettes_item
-                    .$()
-                    .removeClass(
-                      a.App.Sidebar.PaletteContents.recommended_palette.name() +
-                        ' active'
-                    ),
-                    i = 0;
-                  i < e.length;
-                  i++
-                ) {
-                  const n = e[i],
-                    s = o.getPalette(i);
-                  n
-                    .$()
-                    .html(
-                      o
-                        .getPalette(i)
-                        .getSwatchesHtml(
-                          a.App.Sidebar.PaletteContents.suggested_swatch
-                        )
-                    ),
-                    s.equals(r) &&
-                      n
-                        .$()
-                        .addClass(
-                          a.App.Sidebar.PaletteContents.recommended_palette.name()
-                        ),
-                    s.equals(t) && n.$().addClass('active');
-                }
-                for (i = 0; i < t.getNumColors(); i++) {
-                  const e = n[i];
-                  e.$().show();
-                  const o =
-                    e.css() +
-                    ' > ' +
-                    a.App.Sidebar.PaletteContents.custom_swatch.css();
-                  $(o).css('background-color', t.getCssColor(i));
-                }
-                for (; i < n.length; i++) {
-                  n[i].$().hide();
-                }
-                a.App.Sidebar.PaletteContents.AddCustomColor.$().toggle(
-                  t.getNumColors() < 12
-                ),
-                  a.App.Sidebar.PaletteContents.CustomColorsList.$().toggleClass(
-                    a.App.Sidebar.PaletteContents.can_delete.name(),
-                    t.getNumColors() > 2
-                  );
-              }
-            }),
-            (t.initialize = function () {
-              function t(t) {
-                e[t].$().click(function () {
-                  l(-1), U.pickSuggestedPalette(t, !1);
-                }),
-                  e[t].$().dblclick(function () {
-                    U.pickSuggestedPalette(t, !0);
-                  });
-              }
-              var s;
-              for (s = 0; s < e.length; s++) t(s);
-              function r(t) {
-                const e = n[t];
-                e.$().click(function () {
-                  return l(t), !1;
-                }),
-                  $(
-                    e.css() +
-                      ' ' +
-                      a.App.Sidebar.PaletteContents.delete_color.css()
-                  ).click(function () {
-                    return (
-                      U.paletteWithoutColor(t),
-                      t == o ? l(-1) : t < o && l(o - 1),
-                      !1
-                    );
-                  });
-              }
-              for (s = 0; s < n.length; s++) r(s);
-              a.App.Sidebar.PaletteContents.AddCustomColor.$().click(
-                function () {
-                  const t = zt.fromCanvasContext(i.context().context, 0, 0);
-                  U.paletteWithNewColor(t),
-                    h && l(h.getPalette().getNumColors() - 1);
-                }
-              );
-            });
-        })(M || (M = {})),
-        (function (t) {
-          var e,
-            i,
-            n,
-            o = !1,
-            s = 0,
-            r = zt.black,
-            h = zt.black,
-            l = !1;
-          function c(t) {
-            r.equals(t) ||
-              ((r = t),
-              a.App.Toolbar.ColorSwatch0.$().css('background', r.toCss()));
-          }
-          function u(t) {
-            h.equals(t) ||
-              ((h = t),
-              a.App.Toolbar.ColorSwatch1.$().css('background', h.toCss()));
-          }
-          function d(t, i) {
-            (s = t),
-              (e = i),
-              a.App.Toolbar.tool_button.$().removeClass('active'),
-              i.$().addClass('active'),
-              w.invalidateMouseCursor();
-          }
-          (t.moveHandler = function (t) {
-            switch (s) {
-              case 1:
-                return 1 == t.type && L.zap(t.x, t.y, r), !0;
-              case 2:
-                return 1 == t.type && L.fill(t.x, t.y, r), !0;
-              case 3:
-                return t.down && L.pixel(t.x, t.y, r), !0;
-              case 4:
-                if (L.isInside(t.x, t.y)) {
-                  const e = L.color(t.x, t.y);
-                  t.down && c(e), u(e);
-                }
-                return !0;
-            }
-            return !1;
-          }),
-            (t.mouseCursor = function (t) {
-              switch (s) {
-                case 1:
-                  return a.App.Toolbar.zap_tool;
-                case 2:
-                  return a.App.Toolbar.fill_tool;
-                case 3:
-                  return a.App.Toolbar.pixel_tool;
-                case 4:
-                  return a.eyedropper_tool;
-              }
-            }),
-            (t.setDefaultColor = function (t) {
-              c(t), u(t);
-            }),
-            (t.segmentationSetEnabled = function (t, e, i) {
-              a.App.Toolbar.Undo.$().prop('disabled', !t),
-                a.App.Toolbar.Redo.$().prop('disabled', !e),
-                a.App.Toolbar.Reset.$().prop('disabled', !i);
-            }),
-            (t.segmentationDontEditTooMuch = function () {
-              l ||
-                (a.App.ImageView.DontEditTooMuchNotification.$().show(),
-                (l = !0));
-            }),
-            (t.keyDownHandler = function (t) {
-              switch (t.keyCode) {
-                case 90:
-                  return t.shiftKey ? L.redo() : L.undo(), !0;
-                case 89:
-                  return L.redo(), !0;
-                case 16:
-                  return (
-                    0 != s && ((i = s), (n = e), d(0, a.App.Toolbar.Pan)), !0
-                  );
-              }
-              return !1;
-            }),
-            (t.keyUpHandler = function (t) {
-              return 16 === t.keyCode && (0 == s && d(i, n), !0);
-            }),
-            (t.initialize = function () {
-              o ||
-                ((o = !0),
-                a.App.Toolbar.Undo.$().click(L.undo),
-                a.App.Toolbar.Redo.$().click(L.redo),
-                a.App.Toolbar.Reset.$().click(L.reset),
-                f.radioButton(a.App.Toolbar.SegEditViewBitmap, A, E),
-                f.radioButton(a.App.Toolbar.SegEditViewVector, T, E),
-                a.App.Toolbar.Finder.$().click(function () {
-                  L.toggleFinder(),
-                    a.App.Toolbar.Finder.$().toggleClass(
-                      'active',
-                      L.getShowPinchPoints()
-                    );
-                }),
-                a.App.Toolbar.Pan.$().click(function () {
-                  d(0, a.App.Toolbar.Pan);
-                }),
-                a.App.Toolbar.Zap.$().click(function () {
-                  d(1, a.App.Toolbar.Zap);
-                }),
-                a.App.Toolbar.Fill.$().click(function () {
-                  d(2, a.App.Toolbar.Fill);
-                }),
-                a.App.Toolbar.Pixel.$().click(function () {
-                  d(3, a.App.Toolbar.Pixel);
-                }),
-                a.App.Toolbar.ColorPicker.$().click(function () {
-                  d(4, a.App.Toolbar.ColorPicker);
-                }),
-                (g.segmentation.handler = t),
-                a.App.Toolbar.Pan.$().click()),
-                g.showSegmentation();
-            });
-        })(F || (F = {}));
-    })(O || (O = {})),
+    })(W || (W = {})),
     (function (t) {
       let e;
       !(function (t) {
@@ -9236,12 +9859,16 @@
         for (let e in t) t.hasOwnProperty(e) && n(e, t[e]);
         return e.join('&').replace(' ', '+');
       }
-      function o(t) {
+      function s(t) {
         return function (e, i, n) {
-          t({ error: { message: s(e, i) } });
+          t({
+            error: {
+              message: o(e, i)
+            }
+          });
         };
       }
-      function s(t, e) {
+      function o(t, e) {
         if (0 === t.status)
           return (
             n.s('Failed to connect to the server.') +
@@ -9250,19 +9877,24 @@
             '\n'
           );
         {
-          const i = t.responseText.toString().substring(0, 200);
+          const s = ((i = t.response),
+          i
+            ? 'object' == typeof i
+              ? JSON.stringify(i)
+              : i.toString()
+            : 'null').substring(0, 200);
           return t.status < 200 || 299 < t.status
-            ? t.statusText + ' [' + t.status + ']\n' + i
+            ? t.statusText + ' [' + t.status + ']\n' + s
             : 'parsererror' === e
-            ? n.s('Failed to parse JSON response.') + ' [' + e + ']\n' + i
+            ? n.s('Failed to parse JSON response.') + ' [' + e + ']\n' + s
             : 'timeout' === e
             ? n.s('Request time out.') + ' [' + e + ']'
             : 'abort' === e
             ? n.s('Request aborted by the server.') + ' [' + e + ']'
-            : n.s('Unknown error.') + '\n' + i;
+            : n.s('Unknown error.') + '\n' + s;
         }
       }
-      function r() {
+      function a() {
         return (
           merchantJs.settings.host +
           '/payments/v0/preapprovals/' +
@@ -9271,52 +9903,52 @@
         );
       }
       function h(t, e) {
-        let n = r() + 'payment_method?' + i(t);
+        let n = a() + 'payment_method?' + i(t);
         $.ajax(n, {
           dataType: 'jsonp',
           timeout: 3e4,
           success: function (t) {
             e(t);
           },
-          error: o(e)
+          error: s(e)
         });
       }
       let l, c, u, d;
       !(function (t) {
         let n = null,
-          s = null;
-        function a() {
-          n && (s && (clearInterval(s), (s = null)), n.close(), (n = null));
+          o = null;
+        function r() {
+          n && (o && (clearInterval(o), (o = null)), n.close(), (n = null));
         }
-        function l(t, s, h) {
-          a(),
+        function l(t, o, h) {
+          r(),
             (n = window.open('', '_blank')),
             n.document.write('<h3>Loading...</h3>');
-          var l = r() + e[t] + '?' + i(s);
+          var l = a() + e[t] + '?' + i(o);
           $.ajax(l, {
             dataType: 'jsonp',
             timeout: 3e4,
             success: function (t) {
               h(t);
             },
-            error: o(h)
+            error: s(h)
           });
         }
         t.handler = function (t) {
-          return function (e, i, o) {
+          return function (e, i, s) {
             l(t, e, function (t) {
-              var e, r;
+              var e, a;
               !t || t.error
-                ? (a(), i(t))
+                ? (r(), i(t))
                 : ((e = t.preapproval.processorToken.url),
-                  (r = function () {
-                    o(), h(t.preapproval, i);
+                  (a = function () {
+                    s(), h(t.preapproval, i);
                   }),
                   n &&
                     ((n.location.href = e),
                     n.focus(),
-                    (s = setInterval(function () {
-                      n.closed && (clearInterval(s), (s = null), r());
+                    (o = setInterval(function () {
+                      n.closed && (clearInterval(o), (o = null), a());
                     }, 100))));
             });
           };
@@ -9327,10 +9959,14 @@
             return !0;
           }),
             (t.pay = function (t) {
-              t({ error: { message: 'Unavailable' } });
+              t({
+                error: {
+                  message: 'Unavailable'
+                }
+              });
             }),
             (t.radioButton = function () {
-              return new Q('__unavailable_payment_processor__');
+              return new J('__unavailable_payment_processor__');
             }),
             (t.name = function () {
               return 'unavailable';
@@ -9342,21 +9978,27 @@
             return (
               'undefined' != typeof Stripe &&
               ((e = Stripe(merchantJs.settings.stripePublishableKey)),
-              (i = e.elements({ locale: GlobalsShared.locale })),
-              (n = i.create('card', {
-                style: { base: { lineHeight: '1.429' } }
+              (i = e.elements({
+                locale: GlobalsShared.locale
               })),
-              n.mount(a.merchant.StripeCardElement.css()),
+              (n = i.create('card', {
+                style: {
+                  base: {
+                    lineHeight: '1.429'
+                  }
+                }
+              })),
+              n.mount(r.merchant.StripeCardElement.css()),
               n.on('change', function (t) {
                 t && t.error
-                  ? a.merchant.StripeCardErrors.$().text(t.error.message)
-                  : a.merchant.StripeCardErrors.$().text('');
+                  ? r.merchant.StripeCardErrors.$().text(t.error.message)
+                  : r.merchant.StripeCardErrors.$().text('');
               }),
               n.on('focus', function () {
-                a.merchant.StripeCardElement.$().addClass('focus');
+                r.merchant.StripeCardElement.$().addClass('focus');
               }),
               n.on('blur', function () {
-                a.merchant.StripeCardElement.$().removeClass('focus');
+                r.merchant.StripeCardElement.$().removeClass('focus');
               }),
               !0)
             );
@@ -9365,17 +10007,25 @@
               g(),
                 e
                   .createToken(n, {
-                    name: a.merchant.StripeNameElement.$().val()
+                    name: r.merchant.StripeNameElement.$().val()
                   })
                   .then(function (e) {
-                    if (e.error) t({ error: { message: e.error.message } });
+                    if (e.error)
+                      t({
+                        error: {
+                          message: e.error.message
+                        }
+                      });
                     else {
                       b();
                       const i = e.token;
                       h(
                         {
                           processor: 'stripe',
-                          processorToken: { id: i.id, card: i.card },
+                          processorToken: {
+                            id: i.id,
+                            card: i.card
+                          },
                           preapprovalSpec: merchantJs.preapprovalSpec
                         },
                         t
@@ -9384,7 +10034,7 @@
                   });
             }),
             (t.radioButton = function () {
-              return a.merchant.RadioStripe;
+              return r.merchant.RadioStripe;
             }),
             (t.name = function () {
               return 'stripe';
@@ -9399,18 +10049,26 @@
                 braintree.dropin
                   .create({
                     authorization: merchantJs.settings.braintreeTokenizationKey,
-                    container: a.merchant.BraintreeDropinContainer.css(),
+                    container: r.merchant.BraintreeDropinContainer.css(),
                     locale: GlobalsShared.locale.replace('-', '_'),
-                    card: { cardholderName: !0 },
-                    dataCollector: { kount: !0 }
+                    card: {
+                      cardholderName: !0
+                    },
+                    dataCollector: {
+                      kount: !0
+                    }
                   })
                   .then(function (t) {
-                    e = t;
+                    if (((e = t), 'USD' != merchantJs.preapprovalSpec.currency))
+                      for (let t of ['american-express', 'jcb', 'discover'])
+                        $(
+                          "div[data-braintree-id='" + t + "-card-icon']"
+                        ).addClass('braintree-hidden');
                   })
                   .catch(function (e) {
                     (t = !1),
                       g(),
-                      a.merchant.PaymentError.$().text(e.message).show();
+                      r.merchant.PaymentError.$().text(e.message).show();
                   }),
                 t
               );
@@ -9420,7 +10078,11 @@
             (t.pay = function (t) {
               g(),
                 e.requestPaymentMethod(function (i, n) {
-                  if (i) e.clearSelectedPaymentMethod(), t({ error: i });
+                  if (i)
+                    e.clearSelectedPaymentMethod(),
+                      t({
+                        error: i
+                      });
                   else {
                     b();
                     h(
@@ -9437,7 +10099,7 @@
                 });
             }),
             (t.radioButton = function () {
-              return a.merchant.RadioBraintree;
+              return r.merchant.RadioBraintree;
             }),
             (t.name = function () {
               return 'braintree';
@@ -9446,31 +10108,31 @@
       const p = l.handler(e.paypal),
         m = l.handler(e.fake);
       function g() {
-        a.merchant.PaymentError.$().hide(),
-          a.merchant.StripePaymentError.$().hide(),
-          a.merchant.PaymentMethodFormSubmit.$().attr('disabled', 'disabled');
+        r.merchant.PaymentError.$().hide(),
+          r.merchant.StripePaymentError.$().hide(),
+          r.merchant.PaymentMethodFormSubmit.$().attr('disabled', 'disabled');
       }
       function f() {
-        a.merchant.PaymentMethodFormSubmit.$().removeAttr('disabled');
+        r.merchant.PaymentMethodFormSubmit.$().removeAttr('disabled');
       }
       function w(t) {
-        a.merchant.PaymentError.$()
+        r.merchant.PaymentError.$()
           .html('<p>' + t)
           .show(),
           f();
       }
       function b() {
-        a.merchant.ShowWhenMinibrowsing.$().modal('hide'),
-          a.merchant.ShowWhenCreatingPm.$().modal('show');
+        r.merchant.ShowWhenMinibrowsing.$().modal('hide'),
+          r.merchant.ShowWhenCreatingPm.$().modal('show');
       }
       function v(t) {
-        a.merchant.ShowWhenMinibrowsing.$().modal('hide'),
-          a.merchant.ShowWhenCreatingPm.$().modal('hide'),
+        r.merchant.ShowWhenMinibrowsing.$().modal('hide'),
+          r.merchant.ShowWhenCreatingPm.$().modal('hide'),
           null === t
             ? w('Got a null response from the server')
             : t.error
             ? w(t.error.message)
-            : (a.merchant.ShowWhenSubmitting.$().modal('show'),
+            : (r.merchant.ShowWhenSubmitting.$().modal('show'),
               y({
                 streamlexPaymentToken: t.paymentMethod.streamlexPaymentToken,
                 defaultPaymentMethod: S
@@ -9492,59 +10154,63 @@
               ? (i = !0)
               : merchantJs.settings.canBraintree && (e = !0);
             const n = e ? d : i ? u : c,
-              o = n.initialize(),
-              s =
-                o &&
+              s = n.initialize(),
+              o =
+                s &&
                 (merchantJs.settings.canBraintree ||
                   merchantJs.settings.canStripe ||
                   merchantJs.settings.canPaypal);
             S = n.name();
-            const r = $('input[type=radio][name=paymentMethod]');
+            const a = $('input[type=radio][name=paymentMethod]');
             let h = null,
               l = !1;
-            r.change(function () {
+            a.change(function () {
               var t;
-              a.merchant.CreditCardProcessorForm.$().toggle(
+              r.merchant.CreditCardProcessorForm.$().toggle(
                 n.radioButton().$().prop('checked')
               ),
                 (h = $(this)),
+                r.merchant.RadioPaypal.$().prop('checked') &&
+                r.merchant.CantPaypal.$().length > 0
+                  ? (r.merchant.CantPaypal.$().show(), g())
+                  : (r.merchant.CantPaypal.$().hide(), o && f()),
                 (l =
                   merchantJs.needZipCode &&
                   ('paypal' == (t = h.data('processor') || h.val()) ||
                     'fake' == t)),
-                a.merchant.TaxSection.$().toggle(l);
+                r.merchant.TaxSection.$().toggle(l);
             }),
               $('#paymentMethod_' + merchantJs.defaultPaymentMethod)
                 .prop('checked', !0)
                 .change(),
-              a.merchant.AcceptTermsWrapper.$().removeClass(
-                a.merchant.has_error.name()
+              r.merchant.AcceptTermsWrapper.$().removeClass(
+                r.merchant.has_error.name()
               ),
-              a.merchant.InitializingIndicator.$().hide(),
-              a.merchant.SubmitSection.$().show(),
-              a.merchant.PaymentMethodForm.$().submit(function () {
+              r.merchant.InitializingIndicator.$().hide(),
+              r.merchant.SubmitSection.$().show(),
+              r.merchant.PaymentMethodForm.$().submit(function () {
                 S = (h && h.val()) || n.name();
                 let e = !1;
                 if (l) {
                   let t = /^\d{5}$/,
-                    i = ('' + a.merchant.TaxPostalCode.$().val()).trim();
+                    i = ('' + r.merchant.TaxPostalCode.$().val()).trim();
                   t.test(i)
-                    ? (a.merchant.TaxPostalCodeFormGroup.removeClass(
-                        a.merchant.has_error
+                    ? (r.merchant.TaxPostalCodeFormGroup.removeClass(
+                        r.merchant.has_error
                       ),
-                      a.merchant.TaxLocationPostalCode.$().val(i))
-                    : (a.merchant.TaxPostalCodeFormGroup.addClass(
-                        a.merchant.has_error
+                      r.merchant.TaxLocationPostalCode.$().val(i))
+                    : (r.merchant.TaxPostalCodeFormGroup.addClass(
+                        r.merchant.has_error
                       ),
                       (e = !0));
                 }
                 if (
-                  (a.merchant.AcceptTerms.$().prop('checked')
-                    ? a.merchant.AcceptTermsWrapper.removeClass(
-                        a.merchant.has_error
+                  (r.merchant.AcceptTerms.$().prop('checked')
+                    ? r.merchant.AcceptTermsWrapper.removeClass(
+                        r.merchant.has_error
                       )
-                    : (a.merchant.AcceptTermsWrapper.addClass(
-                        a.merchant.has_error
+                    : (r.merchant.AcceptTermsWrapper.addClass(
+                        r.merchant.has_error
                       ),
                       (e = !0)),
                   e)
@@ -9558,28 +10224,31 @@
                     d.pay(v);
                     break;
                   case 'paypal':
-                    a.merchant.ShowWhenMinibrowsing.$().modal('show'),
+                    r.merchant.ShowWhenMinibrowsing.$().modal('show'),
                       p(merchantJs.preapprovalSpec, v, b);
                     break;
                   case 'fake':
                     merchantJs.settings.isTesting &&
-                      (a.merchant.ShowWhenMinibrowsing.$().modal('show'),
+                      (r.merchant.ShowWhenMinibrowsing.$().modal('show'),
                       m(merchantJs.preapprovalSpec, v, b));
                     break;
                   default:
-                    a.merchant.ShowWhenSubmitting.$().modal('show'),
-                      t({ streamlexPaymentToken: S, defaultPaymentMethod: S });
+                    r.merchant.ShowWhenSubmitting.$().modal('show'),
+                      t({
+                        streamlexPaymentToken: S,
+                        defaultPaymentMethod: S
+                      });
                 }
                 return !1;
               }),
-              s
+              o
                 ? f()
                 : (g(),
-                  o || a.merchant.FailedToLoadPaymentBackendJs.$().show());
+                  s || r.merchant.FailedToLoadPaymentBackendJs.$().show());
           })(function (t) {
-            a.merchant.StreamlexPaymentToken.$().val(t.streamlexPaymentToken),
-              a.merchant.DefaultPaymentMethod.$().val(t.defaultPaymentMethod),
-              a.merchant.PaymentForm.$().submit();
+            r.merchant.StreamlexPaymentToken.$().val(t.streamlexPaymentToken),
+              r.merchant.DefaultPaymentMethod.$().val(t.defaultPaymentMethod),
+              r.merchant.PaymentForm.$().submit();
           }),
           $(window).on('load', function () {
             new Image().src = 'https://www.paypal.com/home';
@@ -9591,7 +10260,7 @@
         const t = merchantJs.preapprovalSpec.currency,
           e = f.clamp(
             f.parseIntWithAlt(
-              a.ProjectMerchant.NumLicenses.$().val(),
+              r.ProjectMerchant.NumLicenses.$().val(),
               10,
               z.MinNumLicensesInPurchase
             ),
@@ -9599,103 +10268,150 @@
             z.MaxNumLicensesInPurchase
           ),
           i = e * productPurchaseJs.centsPerLicense,
-          o = i - productPurchaseJs.vmdeCreditCents,
-          s = n.currencyAmount(t, o);
-        (merchantJs.preapprovalSpec.cents = o),
-          a.ProjectMerchant.NumLicenses.$().val('' + e),
-          a.ProjectMerchant.VmdeTotal.$().html(n.currencyAmount(t, i)),
-          a.ProjectMerchant.Total.$().html(s),
-          a.merchant.Cents.$().val('' + o),
+          s = i - productPurchaseJs.vmdeCreditCents,
+          o = n.currencyAmount(t, s);
+        (merchantJs.preapprovalSpec.cents = s),
+          r.ProjectMerchant.NumLicenses.$().val('' + e),
+          r.ProjectMerchant.VmdeTotal.$().html(n.currencyAmount(t, i)),
+          r.ProjectMerchant.Total.$().html(o),
+          r.merchant.Cents.$().val('' + s),
           merchantJs.maybeCollectSalesTax
-            ? a.merchant.PaymentMethodFormSubmit.$().html(
+            ? r.merchant.PaymentMethodFormSubmit.$().html(
                 n.s(
                   'Buy {0} {0,plural,one{license}other{licenses}} for {1} + tax<sup>*</sup> &raquo;',
                   e,
-                  s
+                  o
                 )
               )
-            : a.merchant.PaymentMethodFormSubmit.$().html(
+            : r.merchant.PaymentMethodFormSubmit.$().html(
                 n.s(
                   'Buy {0} {0,plural,one{license}other{licenses}} for {1} &raquo;',
                   e,
-                  s
+                  o
                 )
               );
       }
       $(document).ready(function () {
-        a.ProjectMerchant.NumLicenses.exists() &&
+        r.ProjectMerchant.NumLicenses.exists() &&
           'undefined' != typeof productPurchaseJs &&
           'undefined' != typeof merchantJs &&
-          (a.ProjectMerchant.NumLicenses.$().on('input', e), e());
+          (r.ProjectMerchant.NumLicenses.$().on('input', e), e());
       });
     })(V || (V = {})),
     (function (t) {
       let e = !1,
         i = [];
       function n() {
-        if (0 == i.length) (e = !1), a.$window.off('.SvgAnimation');
+        if (0 == i.length) (e = !1), r.$window.off('.SvgAnimation');
         else {
           const t = $(document).scrollTop(),
-            e = a.$window.height(),
+            e = r.$window.height(),
             n = t + e,
-            o = t + 0.5 * e;
-          let r = [];
+            s = t + 0.5 * e;
+          let a = [];
           for (let t of i) {
             const e = t.Id.$().offset().top,
               i = e + t.Id.$().height();
-            (o > e || n > i) && r.push(t);
+            (s > e || n > i) && a.push(t);
           }
-          for (let t of r) i.splice(i.indexOf(t), 1), s(t);
+          for (let t of a) i.splice(i.indexOf(t), 1), o(t);
         }
       }
       t.register = function (t) {
         t.Id.$().length > 0 &&
           (e ||
             ((e = !0),
-            a.$window.on('resize.SvgAnimation scroll.SvgAnimation', n)),
+            r.$window.on('resize.SvgAnimation scroll.SvgAnimation', n)),
           i.push(t),
           n());
       };
-      const o = 1.5;
-      function s(t) {
+      const s = 1.5;
+      function o(t) {
         let e = new TimelineLite(),
           i = +t.Id.$().data('zoom-to-x-min') || 0,
           n = +t.Id.$().data('zoom-to-x-max') || 0,
-          a = +t.Id.$().data('zoom-to-y-min') || 0,
+          r = +t.Id.$().data('zoom-to-y-min') || 0,
           l = +t.Id.$().data('zoom-to-y-max') || 0,
           c = f.randomInt2(i, n),
-          u = f.randomInt2(a, l),
+          u = f.randomInt2(r, l),
           d = +t.Id.$().data('zoom-to-scale') || 1;
         e
           .delay(1)
-          .to(t.transformable.$(), o, { svgOrigin: c + ' ' + u, scale: d })
-          .to(t.Outlines.$(), o, { attr: { x: '0%' } })
-          .to(t.Shapes.$(), o, { attr: { x: '0%' } }, '+=0.25')
-          .to(t.Outlines.$(), 0, { attr: { x: '-100%' } })
-          .to(t.Shapes.$(), 0.75, { attr: { x: '50%' } }, '+=0.25')
+          .to(t.transformable.$(), s, {
+            svgOrigin: c + ' ' + u,
+            scale: d
+          })
+          .to(t.Outlines.$(), s, {
+            attr: {
+              x: '0%'
+            }
+          })
+          .to(
+            t.Shapes.$(),
+            s,
+            {
+              attr: {
+                x: '0%'
+              }
+            },
+            '+=0.25'
+          )
+          .to(t.Outlines.$(), 0, {
+            attr: {
+              x: '-100%'
+            }
+          })
+          .to(
+            t.Shapes.$(),
+            0.5 * s,
+            {
+              attr: {
+                x: '50%'
+              }
+            },
+            '+=0.25'
+          )
           .to(t.Line.$(), 0, {
             display: 'inline',
-            attr: { x1: '50%', x2: '50%' }
+            attr: {
+              x1: '50%',
+              x2: '50%'
+            }
           })
-          .to(t.Labels.$(), 0, { display: 'block' })
+          .to(t.Labels.$(), 0, {
+            display: 'block'
+          })
           .eventCallback('onComplete', h, [t, !0]),
           (function (t, e) {
             t.Id.$()
               .off('click')
               .click(function () {
                 h(t, !1),
-                  r(t, 0.5),
-                  TweenLite.to(t.Shapes.$(), 0, { attr: { x: '100%' } }),
+                  a(t, 0.5),
+                  TweenLite.to(t.Shapes.$(), 0, {
+                    attr: {
+                      x: '100%'
+                    }
+                  }),
                   e.seek(0),
                   e.kill(),
-                  s(t);
+                  o(t);
               });
           })(t, e);
       }
-      function r(t, e) {
+      function a(t, e) {
         let i = (100 * e).toFixed(2) + '%';
-        TweenLite.to(t.Shapes.$(), 0, { attr: { x: i } }),
-          TweenLite.to(t.Line.$(), 0, { attr: { x1: i, x2: i } });
+        TweenLite.to(t.Shapes.$(), 0, {
+          attr: {
+            x: i
+          }
+        }),
+          TweenLite.to(t.Line.$(), 0, {
+            attr: {
+              x1: i,
+              x2: i
+            }
+          });
       }
       function h(t, e) {
         e
@@ -9703,20 +10419,20 @@
               .off('mousemove mouseleave')
               .mousemove(function (e) {
                 let i = (e.pageX - t.Id.$().offset().left) / t.Id.$().width();
-                r(t, i);
+                a(t, i);
               })
               .mouseleave(function () {
-                r(t, 0.5);
+                a(t, 0.5);
               })
           : t.Id.$().off('mousemove mouseleave');
       }
     })(X || (X = {})),
     (function (t) {
-      const e = a.Signon.Dialog.anscestorOf(new Z('modal-header')),
+      const e = r.Signon.Dialog.anscestorOf(new Q('modal-header')),
         i = 'message.signup',
         n = [];
-      let o = null;
-      function s(t) {
+      let s = null;
+      function o(t) {
         const e = t.originalEvent,
           i = (function (t) {
             for (let e of n) if (e.contentWindow == t) return e;
@@ -9728,13 +10444,13 @@
             i.hasLoaded || ((i.hasLoaded = !0), l());
         }
       }
-      function r() {
+      function a() {
         h($(this));
       }
       function h(t) {
         const e = t.data('url');
-        if (null == o || o.src != e) {
-          (o =
+        if (null == s || s.src != e) {
+          (s =
             (function (t) {
               for (let e of n) if (e.src == t) return e;
               return null;
@@ -9753,57 +10469,178 @@
                 }),
                 (e.src = t),
                 n.push(e),
-                a.Signon.IframeContainer.$().prepend(e),
+                r.Signon.IframeContainer.$().prepend(e),
                 e
               );
             })(e)),
-            (o.style.display = 'block');
-          for (let t of n) t != o && (t.style.display = 'none');
+            (s.style.display = 'block');
+          for (let t of n) t != s && (t.style.display = 'none');
         }
         l();
       }
       function l() {
-        a.Signon.LoadingIndicator.$().toggle(!(o && o.hasLoaded));
+        r.Signon.LoadingIndicator.$().toggle(!(s && s.hasLoaded));
       }
       function c() {
         const t = $(this);
-        h(t), a.$window.on(i, s);
+        h(t), r.$window.on(i, o);
         const n = t.data('header');
         return (
           n
-            ? (a.Signon.Header.$().text(n).show(),
+            ? (r.Signon.Header.$().text(n).show(),
               e.$().css('border-bottom', ''))
-            : (a.Signon.Header.$().hide(), e.$().css('border-bottom', 'none')),
-          a.Signon.Dialog.$().modal(),
+            : (r.Signon.Header.$().hide(), e.$().css('border-bottom', 'none')),
+          r.Signon.Dialog.$().modal(),
           !1
         );
       }
       t.checkInit = function () {
-        a.Signon.Dialog.$().length > 0 &&
-          a.Signon.trigger.$().length > 0 &&
-          (a.Signon.Dialog.$().on('hide.bs.modal', function () {
-            a.$window.off(i);
+        r.Signon.Dialog.$().length > 0 &&
+          r.Signon.trigger.$().length > 0 &&
+          (r.Signon.Dialog.$().on('hide.bs.modal', function () {
+            r.$window.off(i);
           }),
-          a.Signon.trigger.elements().forEach(t => {
-            t.addEventListener('touchstart', r, { passive: !0 }),
-              t.addEventListener('mouseover', r, { passive: !0 });
+          r.Signon.trigger.elements().forEach(t => {
+            t.addEventListener('touchstart', a, {
+              passive: !0
+            }),
+              t.addEventListener('mouseover', a, {
+                passive: !0
+              });
           }),
-          a.Signon.trigger.$().click(c),
-          a.Signon.preload.$().each(r));
+          r.Signon.trigger.$().click(c),
+          r.Signon.preload.$().each(a));
       };
     })(Y || (Y = {}));
   for (let t of __jqdeferred) $(t);
   (__jqdeferred.length = 0),
     (function (t) {
+      var e;
+      (e = () => {
+        window.addEventListener(
+          'message',
+          t => {
+            if (t.data)
+              if ('ping' == t.data) t.source.postMessage('pong', '*');
+              else if ('pong' == t.data)
+                for (let e = 0; e < r.length; e++)
+                  r[e].checkPong(t) && (r.splice(e, 1), e--);
+              else if (t.data.file || t.data.blob) {
+                let e = t.data.file || t.data.blob;
+                i ? o(e) : n.push(e);
+              }
+          },
+          !1
+        );
+      }),
+        'loading' !== document.readyState
+          ? e()
+          : document.addEventListener('DOMContentLoaded', e);
+      let i,
+        n = [],
+        s = !1;
+      function o(t) {
+        s && window.hasOwnProperty('chrome')
+          ? t
+              .arrayBuffer()
+              .then(e => {
+                i(
+                  new File([e], t.name, {
+                    type: t.type,
+                    lastModified: t.lastModified
+                  })
+                );
+              })
+              .catch(t => {})
+          : i(t);
+      }
+      t.setFileReceiver = function (t, e = !1) {
+        (s = e),
+          (i = t),
+          setTimeout(() => {
+            for (let t of n) o(t);
+            n = [];
+          }, 1);
+      };
+      class a {
+        constructor(t, e) {
+          (this.connected = !1),
+            (this.onOpens = []),
+            (this.targetWindow = window.open(t, e)),
+            this.targetWindow.postMessage('ping', '*'),
+            (this.pingIntervalId = setInterval(() => {
+              this.targetWindow.postMessage('ping', '*');
+            }, 30));
+        }
+        onOpen(t) {
+          return this.connected ? t() : this.onOpens.push(t), this;
+        }
+        checkPong(t) {
+          if (t.source == this.targetWindow) {
+            clearInterval(this.pingIntervalId), (this.connected = !0);
+            for (let t of this.onOpens) t();
+            return (this.onOpens = []), !0;
+          }
+          return !1;
+        }
+      }
+      let r = [],
+        h = {};
+      function l(t, e, i, n) {
+        let s = e ? h[e] : null;
+        (s && !s.targetWindow.closed) ||
+          (s = (function (t, e) {
+            let i = new a(t, e);
+            return r.push(i), e && (h[e] = i), i;
+          })(t, e)),
+          s.onOpen(function () {
+            setTimeout(() => {
+              (n ? s.targetWindow : window).focus(),
+                s.targetWindow.postMessage(
+                  {
+                    file: i
+                  },
+                  '*'
+                );
+            }, 1);
+          });
+      }
+      (t.sendFile = l),
+        (t.sendFileToRecompressor = function (t, e) {
+          l('https://recompressor.com', 'recompressor', t, e);
+        }),
+        (t.sendFileToVectorMagic = function (t, e) {
+          l('https://vectormagic.com', null, t, e);
+        }),
+        (t.sendFileToVectorizer = function (t, e) {
+          l('https://vectorizer.ai', null, t, e);
+        }),
+        (t.sendFileToPixianFaceSticker = function (t, e) {
+          l('https://pixian.ai/face-stickers', 'pixian-face-stickers', t, e);
+        }),
+        (t.sendFileToPixianBg = function (t, e) {
+          l('https://pixian.ai', 'pixian', t, e);
+        }),
+        (t.sendFileToClippingMagic = function (t, e) {
+          l('https://clippingmagic.com', null, t, e);
+        }),
+        (t.sendFileToPixspy = function (t, e) {
+          l('https://pixspy.com', 'pixspy', t, e);
+        });
+    })(j || (j = {})),
+    (function (t) {
       let e = null,
         i = !1;
-      function s() {
-        return $(window).off('beforeunload'), location.reload(), !1;
+      t.hasRun = !1;
+      let o = !1;
+      function a() {
+        return (o = !0), $(window).off('beforeunload'), location.reload(), !1;
       }
-      function r(e, o) {
+      function h(e, s) {
         if (!i || t.hasRun) return;
-        let s = e.type.toLowerCase().split(';')[0];
-        f.spinner(!0),
+        let a = e.type.toLowerCase().split(';')[0];
+        (o = !1),
+          f.spinner(!0),
           F.loadImageShrinkAndThumbnail(
             e,
             t => {
@@ -9811,7 +10648,7 @@
                 'image',
                 'loadFailed',
                 'Type: ' +
-                  s +
+                  a +
                   ', Ext: ' +
                   f.getExtensionWithDot(e.name).toLowerCase()
               ),
@@ -9824,41 +10661,42 @@
                 );
             },
             (e, i, n) => {
-              f.gaTrack('image', 'uploaded', s),
-                M.createUserImageSpec(
+              o ||
+                (f.gaTrack('image', 'uploaded', a),
+                R.createUserImageSpec(
                   e,
-                  'image/gif' == s,
+                  'image/gif' == a,
                   i,
                   n,
                   f.fatalError,
                   e => {
-                    f.spinner(!1), (t.hasRun = !0), U.create(i, n, e, o);
+                    o || (f.spinner(!1), (t.hasRun = !0), U.create(i, n, e, s));
                   }
-                );
+                ));
             },
             !0
           );
       }
-      function h(e, n, s) {
+      function l(e, n, o) {
         if (!i || t.hasRun) return;
         f.gaTrack('image', 'fromUrl', e), f.progress(!0);
         let a = null;
         T.download({
           url: e,
-          displayUrl: s,
+          displayUrl: o,
           progress: f.progressUpdate,
           error: f.fatalErrorStr,
           success: t => {
-            n && o.set(t, 'name', n), (a = t), f.progress(!1), r(a, true);
+            n && s.set(t, 'name', n), (a = t), f.progress(!1), h(a, true);
           }
         });
       }
-      function l(e, n) {
+      function c(e, n) {
         i &&
           !t.hasRun &&
           (f.gaTrack('image', 'resumed'),
           f.progress(!0),
-          M.readUserImageSpec(e, n, f.fatalError, e => {
+          R.readUserImageSpec(e, n, f.fatalError, e => {
             T.download({
               url: e.image.url,
               progress: f.progressUpdate,
@@ -9872,98 +10710,111 @@
             });
           }));
       }
-      (t.hasRun = !1),
-        (t.resumeUserImage = l),
+      (t.resumeUserImage = c),
         $(document).ready(function () {
-          a.jsNotInitializedYet.removeClass(a.jsNotInitializedYet),
+          r.jsNotInitializedYet.removeClass(r.jsNotInitializedYet),
             (i = (function () {
               if (null == e) {
-                if (((e = x.list()), e.length > 0)) {
+                if (((e = C.list()), e.length > 0)) {
                   let t =
-                    '<h1>' +
+                    '<h4>' +
                     n.s('Unsupported Browser') +
-                    '</h1><p>' +
+                    '</h4><p>' +
                     n.s(
                       'Terribly sorry, but your browser appears to be missing key feature(s) required to use this website:'
                     ) +
                     '</p><ul>';
                   for (let i = 0; i < e.length; i++)
                     t += '<li>' + e[i] + '</li>';
-                  (t += '</ul>'),
-                    (t +=
-                      '<div>' +
-                      n.s(
-                        'Please try the latest version of one of these browsers instead: <b>{0}, {1}, {2}</b>.',
-                        '<a href="' + z.BrowserChromeUrl + '">Chrome</a>',
-                        '<a href="' + z.BrowserFirefoxUrl + '">Firefox</a>',
-                        '<a href="' +
-                          z.BrowserMicrosoftEdgeUrl +
-                          '">Microsoft Edge</a>'
-                      ) +
-                      '</div>'),
-                    a.App.ModernizrAlert.$().html(t).slideDown(500);
+                  t += '</ul>';
+                  let i = window.GlobalsEx.LocaleParameter.split('=')[1];
+                  (t +=
+                    '<div>' +
+                    n.s(
+                      'Please try the latest version of one of these browsers instead: <b>{0}, {1}, {2}, {3}</b>.',
+                      '<a class="alert-link" href="' +
+                        z.BrowserChromeUrl +
+                        '">Chrome</a>',
+                      '<a class="alert-link" href="' +
+                        z.BrowserFirefoxUrl.replace('en-US', i) +
+                        '">Firefox</a>',
+                      '<a class="alert-link" href="' +
+                        z.BrowserSafariUrl +
+                        '">Safari</a>',
+                      '<a class="alert-link" href="' +
+                        z.BrowserMicrosoftEdgeUrl.replace(
+                          'en-us',
+                          i.toLowerCase()
+                        ) +
+                        '">Microsoft Edge</a>'
+                    ) +
+                    '</div>'),
+                    r.App.ModernizrAlert.$().html(t).slideDown(500);
                 }
                 e.length > 0 &&
-                  (a.body.$().addClass(a.cannot_run_app.name()),
-                  a.App.starter
+                  (r.body.$().addClass(r.cannot_run_app.name()),
+                  r.App.starter
                     .$()
                     .attr('disabled', 'disabled')
                     .addClass('disabled'),
-                  a.App.starter
-                    .anscestorOf(new j('button'))
+                  r.App.starter
+                    .anscestorOf(new Z('button'))
                     .$()
                     .attr('disabled', 'disabled')
                     .addClass('disabled'));
               } else
                 e.length > 0 &&
-                  (a.htmlBody.$().scrollTop(0), f.blink(a.App.ModernizrAlert));
-              return 0 == e.length && a.App.App.$().length > 0;
+                  (r.htmlBody.$().scrollTop(0), f.blink(r.App.ModernizrAlert));
+              return 0 == e.length && r.App.App.$().length > 0;
             })()),
             i &&
-              (R.initialize(),
-              a.App.cancel_upload.$().click(s),
+              (M.initialize(),
+              r.App.cancel_upload.$().click(a),
               b.initialize({
-                monitor_file_input: a.FileInput.Field,
-                monitor_paste: a.FileInput.PasteTarget,
-                monitor_drag: a.body,
-                hover_class: a.drop_ready,
+                monitor_file_input: r.FileInput.Field,
+                monitor_paste: r.FileInput.PasteTarget,
+                monitor_drag: r.body,
+                hover_class: r.drop_ready,
                 error: t => {
                   alert(t);
                 },
                 drop: t => {
-                  r(t[0], !0);
+                  h(t[0], !0);
                 },
                 pastedUrl: function (t) {
-                  h(P.fetchUrl(t), void 0, t);
+                  l(P.fetchUrl(t), void 0, t);
                 },
                 dropOnce: !0
               }),
               B.initialize(),
               void 0 !== window.ResumeImage &&
-                l(window.ResumeImage.id, window.ResumeImage.secret),
-              C.initialize(a.FileInput.UploadFromWeb.show_dialog, function (t) {
-                h(P.fetchUrl(t), void 0, t);
+                c(window.ResumeImage.id, window.ResumeImage.secret),
+              x.initialize(r.FileInput.UploadFromWeb.show_dialog, function (t) {
+                l(P.fetchUrl(t), void 0, t);
               }),
-              a.App.resume_link.$().click(function (t) {
+              r.App.resume_link.$().click(function (t) {
                 if (0 == t.button) {
                   let t = $(this);
-                  return l(t.data('id'), t.data('secret')), !1;
+                  return c(t.data('id'), t.data('secret')), !1;
                 }
                 return !0;
               }),
-              a.App.new_from_url_link.$().click(function (t) {
+              r.App.new_from_url_link.$().click(function (t) {
                 if (0 == t.button) {
                   let t = $(this);
-                  return h(t.data('url'), t.data('filename')), !1;
+                  return l(t.data('url'), t.data('filename')), !1;
                 }
                 return !0;
               }),
-              a.FileInput.click_to_upload.$().click(function () {
-                let t = a.FileInput.Field.el();
+              r.FileInput.click_to_upload.$().click(function () {
+                let t = r.FileInput.Field.el();
                 (t.value = null), t.click();
-              })),
+              }),
+              j.setFileReceiver(t => {
+                h(t, !0);
+              }, !0)),
             w.attachDecorated(),
-            X.register(a.Hurricane),
+            X.register(r.Hurricane),
             Y.checkInit();
         });
     })(G || (G = {}));
