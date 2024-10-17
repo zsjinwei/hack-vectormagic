@@ -38,12 +38,12 @@ function blockScript() {
   let canvas2svgScript = document.createElement('script');
   canvas2svgScript.type = 'text/javascript';
   canvas2svgScript.src =
-    'https://cdn.jsdelivr.net/gh/zsjinwei/hack-vectormagic@1.0.0/canvas2svg.js';
+    'https://cdn.jsdelivr.net/gh/zsjinwei/hack-vectormagic@1.0.1/canvas2svg.js';
 
   let hackScript = document.createElement('script');
   hackScript.type = 'text/javascript';
   hackScript.src =
-    'https://cdn.jsdelivr.net/gh/zsjinwei/hack-vectormagic@1.0.0/hack-vectormagic.js';
+    'https://cdn.jsdelivr.net/gh/zsjinwei/hack-vectormagic@1.0.1/hack-vectormagic.js';
 
   let heads = document.getElementsByTagName('head');
   heads[0].appendChild(canvas2svgScript);

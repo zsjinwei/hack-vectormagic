@@ -9294,7 +9294,7 @@
           i = t;
           originImageWidth = i.width();
           originImageHeight = i.height();
-          originImageName = o;
+          originImageName = s;
           ctx.clearRect(0, 0, originImageWidth, originImageHeight);
           ctx = new C2S(originImageWidth, originImageHeight);
           const o = new at(1, 1),
