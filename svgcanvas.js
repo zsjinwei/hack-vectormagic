@@ -1,7 +1,3 @@
-'use strict';
-
-Object.defineProperty(exports, '__esModule', { value: true });
-
 function toString(obj) {
     if (!obj) {
         return obj
@@ -1262,7 +1258,6 @@ var Context = (function () {
         }
 
         parent = this.__closestGroupOrSvg();
-        this.__currentElement;
         const matrix = this.getTransform().translate(dx, dy);
         if (image instanceof Context) {
             //canvas2svg mock canvas context. In the future we may want to clone nodes instead.
@@ -1592,5 +1587,4 @@ SVGCanvasElement.prototype.setAttribute = function(prop, val) {
     this.wrapper.setAttribute(prop, val);
 };
 
-exports.Context = Context;
-exports.Element = SVGCanvasElement;
+export { Context, SVGCanvasElement as Element };
