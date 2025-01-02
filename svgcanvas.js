@@ -1593,6 +1593,32 @@
         this.wrapper.setAttribute(prop, val);
     };
 
+    const save = Context.prototype.save;
+    Context.prototype.save = function () {
+      /**
+       * @PATCH Keep the path as `__currentElement` so that `ctx.fill()` triggering `__applyCurrentDefaultPath`
+       * won't error
+       */
+      if (this.__currentElement.nodeName === 'path') {
+        !this.prevented && (this.prevented = 0);
+        this.prevented += 1;
+        return;
+      }
+
+      save.call(this);
+    };
+
+    const restore = Context.prototype.restore;
+    Context.prototype.restore = function () {
+      /** @PATCH Check if this `ctx.restore()` was prevented */
+      if (this.__currentElement.nodeName === 'path' && this.prevented) {
+        this.prevented -= 1;
+        return;
+      }
+
+      restore.call(this);
+    };
+
     exports.Context = Context;
     exports.Element = SVGCanvasElement;
 
