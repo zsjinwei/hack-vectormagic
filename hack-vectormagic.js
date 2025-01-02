@@ -3319,7 +3319,7 @@
       this.clearRect(0, 0, this.logicalWidth(), this.logicalHeight());
       if (this.context.canvas.id === 'App-ImageView-RightCanvas') {
         ctx.clearRect(0, 0, originImageWidth, originImageHeight);
-        ctx = new C2S(originImageWidth, originImageHeight);
+        ctx = new C2S.Context(originImageWidth, originImageHeight);
       }
     }
     createImageData(t, e) {
@@ -9354,7 +9354,7 @@
           originImageHeight = i.height();
           originImageName = s;
           ctx.clearRect(0, 0, originImageWidth, originImageHeight);
-          ctx = new C2S(originImageWidth, originImageHeight);
+          ctx = new C2S.Context(originImageWidth, originImageHeight);
           const o = new at(1, 1),
             a = new at(1, 1);
           (o.element.id = r.App.ImageView.LeftCanvas.name()),
