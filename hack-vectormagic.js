@@ -2,7 +2,7 @@
   var originImageWidth = 1000;
   var originImageHeight = 1000;
   var originImageName = 'sample.png';
-  var ctx = new C2S(originImageWidth, originImageHeight);
+  var ctx = new C2S.Context(originImageWidth, originImageHeight);
   var e,
     i,
     n,
